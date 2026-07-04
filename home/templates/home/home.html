@@ -1,0 +1,977 @@
+{% extends "base.html" %}
+
+{% block title %}فروشگاه فرحان{% endblock title %}
+
+{% block content %}
+    <section x-data="creativeHero()" @mousemove="handleMouseMove" @mouseleave="resetMouse"
+        class="relative w-full min-h-screen bg-[#fdfdfd] overflow-hidden font-sans text-right flex items-center"
+        dir="rtl">
+        <!-- پس‌زمینه بسیار مینیمال -->
+        <div class="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <div class="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] bg-slate-50 rounded-full blur-3xl"></div>
+        </div>
+
+        <div
+            class="relative z-10 w-full max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+
+            <!-- بخش متن (مینیمال‌تر، فونت کوچکتر، فضای بیشتر) -->
+            <div class="lg:col-span-5 flex flex-col justify-center space-y-8 z-20">
+                <span class="text-xs font-bold tracking-widest text-slate-400 uppercase letter-spacing-2">نسل جدید
+                    محصولات</span>
+
+                <h1 class="text-4xl lg:text-[3rem] font-extrabold text-slate-800 leading-[1.2] tracking-tight">
+                    طراحی بی‌نقص،<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-l from-slate-400 to-slate-800">برای زندگی
+                        هوشمند.</span>
+                </h1>
+
+                <p class="text-lg text-slate-500 leading-relaxed font-light max-w-sm">
+                    جزئیات کوچک تفاوت‌های بزرگ می‌سازند. ما محصولاتی طراحی می‌کنیم که در سکوت، کارایی شما را به بالاترین
+                    سطح می‌رسانند.
+                </p>
+
+                <div class="pt-4">
+                    <button
+                        class="px-8 py-3.5 bg-slate-800 text-white text-sm font-semibold rounded-full hover:bg-slate-900 transition-all hover:shadow-[0_10px_20px_-10px_rgba(0,0,0,0.3)] hover:-translate-y-0.5">
+                        کشف جزئیات
+                    </button>
+                </div>
+            </div>
+
+            <!-- بخش نمایش محصول (خلاقانه، چند تکه، شناور) -->
+            <div class="lg:col-span-7 relative h-[600px] flex items-center justify-center w-full z-10">
+
+                <!-- دایره پس زمینه دکوراتیو -->
+                <div class="absolute w-[400px] h-[400px] rounded-full border border-slate-100 transition-transform duration-[1.5s] ease-out"
+                    :style="`transform: translate(${mouseX * -10}px, ${mouseY * -10}px)`"></div>
+
+                <!-- محفظه اصلی (کپسول بزرگ) -->
+                <div class="absolute w-[280px] h-[450px] rounded-[100px] overflow-hidden shadow-2xl transition-transform duration-700 ease-out z-20"
+                    :style="`transform: translate(${mouseX * 15}px, ${mouseY * 15}px)`">
+                    <img src="./assets/images/mouse tesco.webp" alt="هدفون" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-black/5 hover:bg-transparent transition-colors"></div>
+                </div>
+
+                <!-- محفظه فرعی (تصویر جزئیات - برش دایره‌ای) -->
+                <div class="absolute top-[15%] left-[5%] w-[160px] h-[160px] rounded-full overflow-hidden shadow-lg border-4 border-white transition-transform duration-1000 ease-out z-30 hidden md:block"
+                    :style="`transform: translate(${mouseX * 30}px, ${mouseY * 30}px)`">
+                    <img src="./assets/images/asus laptop.webp" alt="جزئیات"
+                        class="w-full h-full object-cover scale-110 p-[20px]" />
+                </div>
+
+                <!-- کارت اطلاعات شناور (مینیمال) -->
+                <div class="absolute bottom-[20%] right-[5%] p-5 rounded-2xl bg-white/80 backdrop-blur-md shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-transform duration-500 z-40"
+                    :style="`transform: translate(${mouseX * -25}px, ${mouseY * -25}px)`">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">وضوح صدا</p>
+                    <p class="text-xl font-black text-slate-800">Hi-Res</p>
+                    <div class="mt-2 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="w-3/4 h-full bg-slate-800"></div>
+                    </div>
+                </div>
+
+                <!-- المان ریاضی برای فرمول‌های صوتی (نمایشی) -->
+                <div class="absolute top-[30%] right-[10%] text-xs text-slate-300 font-mono rotate-90 z-10">
+                    $$ f(x) = A \sin(\omega x + \phi) $$
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('creativeHero', () => ({
+                mouseX: 0,
+                mouseY: 0,
+
+                handleMouseMove(e) {
+                    // محاسبه حرکت نرم برای افکت‌های شناور
+                    this.mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                    this.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+                },
+
+                resetMouse() {
+                    this.mouseX = 0;
+                    this.mouseY = 0;
+                }
+            }))
+        });
+    </script>
+
+
+
+    <!-- ═══════════════════════════════════
+     TICKER
+═══════════════════════════════════ -->
+    <div class="bg-gradient-to-l from-indigo-700 via-purple-700 to-indigo-800 py-3.5 overflow-hidden">
+        <div class="ticker-wrap">
+            <div class="ticker-track">
+                <template x-for="n in 2" :key="n">
+                    <div class="flex items-center gap-14 flex-shrink-0 pr-14">
+                        <template x-for="tick in tickers" :key="tick+n">
+                            <span class="flex items-center gap-2.5 text-white text-sm font-semibold whitespace-nowrap">
+                                <span class="text-indigo-300 text-xs">✦</span>
+                                <span x-text="tick"></span>
+                            </span>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+     FEATURES STRIP
+═══════════════════════════════════ -->
+    <section class="py-14 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <template x-for="f in features" :key="f.title">
+                    <div
+                        class="group flex flex-col items-center text-center p-6 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/80 transition-all cursor-default">
+                        <div :class="f.bg"
+                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform duration-300"
+                            x-text="f.icon"></div>
+                        <p class="font-black text-slate-800 text-sm" x-text="f.title"></p>
+                        <p class="text-slate-400 text-xs mt-1 leading-relaxed" x-text="f.desc"></p>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════
+     CATEGORIES (Glassmorphism & Micro-interactions)
+═══════════════════════════════════ -->
+    <section class="relative py-20 overflow-hidden font-sans text-right z-10" id="cats" dir="rtl">
+
+        <!-- گوی‌های نوری پس‌زمینه (Glass Effect Base) -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            <div
+                class="absolute top-10 right-10 w-72 h-72 bg-gradient-to-br from-indigo-300/30 to-purple-300/30 rounded-full blur-[80px]">
+            </div>
+            <div
+                class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-tr from-sky-200/40 to-blue-300/30 rounded-full blur-[100px]">
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+
+            <!-- هدر سکشن -->
+            <div class="flex items-end justify-between mb-12">
+                <div class="relative">
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-3 shadow-sm">
+                        دسته‌بندی‌ها
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">
+                        دنبال <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">چی
+                            هستید؟</span>
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-2 font-medium">از میان دسته‌بندی‌های متنوع ما انتخاب کنید</p>
+                </div>
+
+                <!-- دکمه مشاهده همه (Glassy) -->
+                <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+                    class="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-indigo-600 bg-white/40 backdrop-blur-md border border-white/80 shadow-sm hover:bg-white/80 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+                    <span>مشاهده همه</span>
+                    <svg class="w-4 h-4 transform transition-transform group-hover:-translate-x-1" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- گرید کارت‌های دسته‌بندی -->
+            <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-4 sm:gap-5">
+
+                <!-- کارت "همه" -->
+                <button @click="activeCat='همه'"
+                    :class="activeCat==='همه' ? 'ring-2 ring-indigo-400 bg-white/80 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.3)] translate-y-[-4px]' : 'bg-white/40 border-white/60 hover:bg-white/60 hover:-translate-y-1 hover:shadow-[0_8px_15px_-5px_rgba(0,0,0,0.05)]'"
+                    class="relative flex flex-col items-center justify-center gap-3 p-5 rounded-[1.25rem] backdrop-blur-xl border shadow-sm transition-all duration-400 group overflow-hidden">
+
+                    <!-- گرادیانت هاور داخلی -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    </div>
+
+                    <div
+                        class="relative w-14 h-14 bg-gradient-to-br from-indigo-100/80 to-purple-100/80 border border-white rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        🛍️
+                    </div>
+                    <div class="text-center">
+                        <p
+                            class="text-xs sm:text-sm font-black text-slate-700 transition-colors group-hover:text-indigo-600">
+                            همه</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 font-medium" x-text="products.length+' کالا'"></p>
+                    </div>
+                </button>
+
+                <!-- کارت‌های داینامیک Alpine -->
+                <template x-for="cat in cats" :key="cat.name">
+                    <button
+                        @click="activeCat=cat.name; document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+                        :class="activeCat===cat.name ? 'ring-2 ring-indigo-400 bg-white/80 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.3)] translate-y-[-4px]' : 'bg-white/40 border-white/60 hover:bg-white/60 hover:-translate-y-1 hover:shadow-[0_8px_15px_-5px_rgba(0,0,0,0.05)]'"
+                        class="relative flex flex-col items-center justify-center gap-3 p-5 rounded-[1.25rem] backdrop-blur-xl border shadow-sm transition-all duration-400 group overflow-hidden cursor-pointer">
+
+                        <!-- گرادیانت هاور داخلی -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        </div>
+
+                        <div :class="cat.bg"
+                            class="relative w-14 h-14 border border-white/80 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                            <span x-text="cat.icon"
+                                class="transform transition-transform duration-300 group-hover:scale-110"></span>
+                        </div>
+                        <div class="text-center relative z-10">
+                            <p class="text-xs sm:text-sm font-black text-slate-700 transition-colors group-hover:text-indigo-600"
+                                x-text="cat.name"></p>
+                            <p class="text-[10px] text-slate-400 mt-0.5 font-medium" x-text="cat.count+' کالا'"></p>
+                        </div>
+                    </button>
+                </template>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════
+     FLASH SALE
+═══════════════════════════════════ -->
+    <section class="relative py-14 overflow-hidden font-sans text-right z-10" id="flash" dir="rtl">
+
+        <!-- گوی‌های نوری پس‌زمینه برای افکت شیشه -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div
+                class="absolute top-0 right-[10%] w-[400px] h-[400px] bg-gradient-to-br from-rose-300 to-orange-200 rounded-full blur-[120px] opacity-40">
+            </div>
+            <div
+                class="absolute bottom-[-10%] left-[10%] w-[350px] h-[350px] bg-gradient-to-tr from-purple-300 to-indigo-300 rounded-full blur-[100px] opacity-30">
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <!-- کارت اصلی شیشه‌ای -->
+            <div
+                class="relative overflow-hidden rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/80 shadow-[0_20px_50px_-20px_rgba(225,29,72,0.15)] p-8 sm:p-12 transition-transform hover:-translate-y-1 duration-500 group">
+
+                <!-- گرادیانت داخلی و متن پس‌زمینه (واترمارک) -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-l from-rose-500/5 via-purple-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                </div>
+                <div
+                    class="absolute inset-0 pointer-events-none overflow-hidden select-none flex items-center justify-center">
+                    <span
+                        class="absolute -top-10 right-4 text-[180px] font-black text-slate-900/[0.03] leading-none transform -rotate-3">SALE</span>
+                    <span
+                        class="absolute -bottom-10 left-4 text-[150px] font-black text-slate-900/[0.02] leading-none transform rotate-3">%65</span>
+                </div>
+
+                <!-- پترن نقطه‌ای ظریف -->
+                <div class="absolute inset-0 pointer-events-none opacity-50"
+                    style="background-image:radial-gradient(circle,rgba(0,0,0,.03) 1px,transparent 1px);background-size:24px 24px">
+                </div>
+
+                <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+
+                    <!-- بخش متن و دکمه -->
+                    <div class="text-center lg:text-right w-full lg:w-1/2">
+                        <!-- بج (Badge) شیشه‌ای -->
+                        <span
+                            class="inline-flex items-center gap-2 bg-white/70 backdrop-blur-md border border-white shadow-sm text-rose-600 font-black text-xs px-4 py-2 rounded-full mb-6">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                            </span>
+                            حراج لحظه‌ای — موجودی محدود!
+                        </span>
+
+                        <h3 class="text-3xl sm:text-5xl font-black text-slate-800 leading-tight mb-4 tracking-tight">
+                            تا ۶۵٪ تخفیف ویژه<br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-l from-rose-500 to-orange-500">فقط
+                                امروز!</span>
+                        </h3>
+
+                        <p
+                            class="text-slate-500 text-sm md:text-base mt-2 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed font-light">
+                            این فرصت تکرارنشدنی فقط تا اتمام زمان یا موجودی انبار اعتبار دارد. همین الان اقدام کنید!
+                        </p>
+
+                        <!-- دکمه CTA با افکت Shimmer و Micro-interaction -->
+                        <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+                            class="group/btn relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-rose-500 to-orange-500 shadow-[0_10px_25px_-10px_rgba(225,29,72,0.5)] hover:shadow-[0_20px_35px_-10px_rgba(225,29,72,0.6)] transition-all active:scale-95 overflow-hidden">
+                            <span
+                                class="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></span>
+                            <span class="relative z-10">مشاهده محصولات تخفیف‌دار</span>
+                            <svg class="relative z-10 w-5 h-5 transform transition-transform duration-300 group-hover/btn:-translate-x-1"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- بخش تایمر (Glass Effect & Hover Scale) -->
+                    <div class="flex items-center justify-center gap-3 sm:gap-5 w-full lg:w-1/2" dir="ltr">
+                        <template x-for="(unit, idx) in timer" :key="unit.label">
+                            <div class="flex items-center gap-3 sm:gap-5">
+                                <!-- بلوک‌های زمان -->
+                                <div class="group/time flex flex-col items-center">
+                                    <div
+                                        class="w-16 h-16 sm:w-24 sm:h-24 bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_-15px_rgba(0,0,0,0.08)] rounded-2xl sm:rounded-3xl flex items-center justify-center transition-all duration-500 group-hover/time:bg-white/80 group-hover/time:-translate-y-1.5 group-hover/time:shadow-[0_15px_40px_-15px_rgba(225,29,72,0.2)] group-hover/time:border-rose-100">
+                                        <span
+                                            class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-800 to-slate-500 tabular-nums transition-all duration-300 group-hover/time:from-rose-500 group-hover/time:to-orange-500"
+                                            x-text="String(unit.val).padStart(2,'0')"></span>
+                                    </div>
+                                    <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mt-3 transition-colors duration-300 group-hover/time:text-rose-400"
+                                        x-text="unit.label"></p>
+                                </div>
+
+                                <!-- جداکننده (:) -->
+                                <span x-show="idx < 3"
+                                    class="text-slate-300 text-2xl sm:text-4xl font-black pb-6 animate-pulse">
+                                    :
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════
+     PRODUCTS SECTION
+═══════════════════════════════════ -->
+    <section class="py-20 bg-slate-50" id="products">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
+                <div>
+                    <p class="text-indigo-600 text-xs font-black uppercase tracking-widest mb-1">محصولات</p>
+                    <h2 class="text-3xl font-black text-slate-800">پرفروش‌ترین‌ها</h2>
+                    <p class="text-slate-400 text-sm mt-1" x-text="filteredProds.length+' محصول موجود'"></p>
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex flex-wrap gap-2 mb-5">
+                <button @click="activeCat='همه'"
+                    :class="activeCat==='همه'?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
+                    class="px-4 py-2 rounded-xl text-sm font-bold transition-all">همه</button>
+                <template x-for="cat in cats" :key="cat.name">
+                    <button @click="activeCat=cat.name"
+                        :class="activeCat===cat.name?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
+                        class="px-4 py-2 rounded-xl text-sm font-bold transition-all" x-text="cat.name"></button>
+                </template>
+            </div>
+
+            <!-- Toolbar -->
+            <div
+                class="flex items-center justify-between bg-white rounded-2xl p-3 border border-slate-100 shadow-sm mb-6">
+                <div class="relative flex items-center gap-2" x-data="{ 
+        sortOpen: false, 
+        sortLabels: {
+            'def': 'پیش‌فرض',
+            'cheap': 'ارزان‌ترین',
+            'exp': 'گران‌ترین',
+            'rate': 'بهترین امتیاز',
+            'disc': 'بیشترین تخفیف'
+        }
+     }">
+
+                    <!-- آیکون فیلتر -->
+                    <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+
+                    <!-- دکمه انتخاب (جایگزین select) -->
+                    <button @click="sortOpen = !sortOpen"
+                        class="flex items-center gap-1 text-sm font-bold text-slate-700 hover:text-violet-600 focus:outline-none transition-colors">
+                        <span x-text="sortLabels[sortBy]">پیش‌فرض</span>
+                        <!-- آیکون فلش که موقع باز شدن میچرخه -->
+                        <svg class="w-4 h-4 transition-transform duration-300" :class="sortOpen ? 'rotate-180' : ''"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- منوی کشویی انیمیشن‌دار -->
+                    <div x-show="sortOpen" @click.away="sortOpen = false"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 translate-y-2" style="display: none;"
+                        class="absolute top-full mt-2 right-0 w-40 bg-white rounded-xl shadow-xl border border-slate-100 z-50 py-1 overflow-hidden">
+
+                        <template x-for="(label, value) in sortLabels" :key="value">
+                            <button @click="sortBy = value; sortOpen = false"
+                                class="w-full cursor-pointer text-right px-4 py-2.5 text-sm transition-colors flex items-center justify-between"
+                                :class="sortBy === value ? 'text-violet-600 bg-violet-50/50 font-bold' : 'text-slate-600 font-medium hover:bg-slate-50'">
+                                <span x-text="label"></span>
+                                <!-- نمایش تیک برای گزینه فعال -->
+                                <svg x-show="sortBy === value" class="w-4 h-4 text-violet-600" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 hidden sm:inline"
+                        x-text="'نمایش '+Math.min(prodLimit,filteredProds.length)+' از '+filteredProds.length"></span>
+                    <div class="flex gap-1 bg-slate-100 rounded-xl p-1 ">
+                        <button @click="viewMode='grid'"
+                            :class="viewMode==='grid'?'bg-white shadow text-indigo-600':'text-slate-400 hover:text-slate-600'"
+                            class="w-8 h-8 cursor-pointer rounded-lg flex items-center justify-center transition-all">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 16 16">
+                                <rect x="0" y="0" width="6.5" height="6.5" rx="1.5" />
+                                <rect x="9.5" y="0" width="6.5" height="6.5" rx="1.5" />
+                                <rect x="0" y="9.5" width="6.5" height="6.5" rx="1.5" />
+                                <rect x="9.5" y="9.5" width="6.5" height="6.5" rx="1.5" />
+                            </svg>
+                        </button>
+                        <button @click="viewMode='list'"
+                            :class="viewMode==='list'?'bg-white shadow text-indigo-600':'text-slate-400 hover:text-slate-600'"
+                            class="w-8 h-8 cursor-pointer rounded-lg flex items-center justify-center transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRID VIEW -->
+            <div x-show="viewMode==='grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <template x-for="p in pagedProds" :key="p.id">
+                    <div
+                        class="bg-white rounded-2xl overflow-hidden p-card border border-slate-100 hover:border-indigo-200 hover:shadow-2xl hover:shadow-indigo-100/50 flex flex-col group">
+                        <div class="relative overflow-hidden">
+                            <img :src="p.img" :alt="p.name"
+                                class="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500">
+                            <!-- Badges -->
+                            <div class="absolute top-3 right-3 flex flex-col gap-1.5">
+                                <span x-show="p.isNew"
+                                    class="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-xl">جدید</span>
+                                <span x-show="p.isBest"
+                                    class="bg-amber-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-xl">پرفروش</span>
+                                <span x-show="p.discount>0"
+                                    class="bg-red-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-xl"
+                                    x-text="'−'+p.discount+'%'"></span>
+                            </div>
+                            <!-- Wish btn -->
+                            <button @click.stop="toggleWish(p.id)"
+                                :class="wishes.has(p.id)?'bg-red-500 text-white scale-110':'bg-white/85 text-slate-400 hover:text-red-500 hover:scale-105'"
+                                class="absolute top-3 left-3 w-8 h-8 rounded-xl flex items-center justify-center transition-all shadow-sm backdrop-blur-sm">
+                                <svg class="w-4 h-4" :fill="wishes.has(p.id)?'currentColor':'none'"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <p class="text-[10px] text-indigo-500 font-black uppercase tracking-wider"
+                                x-text="p.cat+' — '+p.brand"></p>
+                            <h3 class="font-bold text-slate-800 text-sm mt-1 flex-1 line-clamp-2 leading-snug"
+                                x-text="p.name"></h3>
+                            <div class="flex items-center gap-1.5 mt-2">
+                                <div class="flex gap-0.5">
+                                    <template x-for="i in 5" :key="i"><svg
+                                            :class="i<=Math.round(p.rating)?'text-amber-400':'text-slate-200'"
+                                            class="w-3 h-3 fill-current" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg></template>
+                                </div>
+                                <span class="text-[10px] text-slate-400" x-text="'('+p.rCount+')'"></span>
+                                <span x-show="p.stock<15"
+                                    class="mr-auto text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-lg"
+                                    x-text="p.stock+' مانده'"></span>
+                            </div>
+                            <div class="flex items-end justify-between mt-3 pt-3 border-t border-slate-50">
+                                <div>
+                                    <p x-show="p.discount>0" class="text-[11px] text-slate-400 line-through"
+                                        x-text="p.oldPrice.toLocaleString('fa-IR')+'T'"></p>
+                                    <p class="font-black text-slate-800 text-base"
+                                        x-text="p.price.toLocaleString('fa-IR')+'T'"></p>
+                                </div>
+                                <button @click="addToCart(p)"
+                                    :class="inCart(p.id)?'bg-emerald-500 hover:bg-emerald-600':'bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200'"
+                                    class="flex items-center cursor-pointer gap-1 text-white px-3.5 py-2 rounded-xl text-xs font-black transition-all active:scale-90 shine">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            :d="inCart(p.id)?'M5 13l4 4L19 7':'M12 4v16m8-8H4'" />
+                                    </svg>
+                                    <span x-text="inCart(p.id)?'در سبد':'افزودن'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- LIST VIEW -->
+            <div x-show="viewMode==='list'" class="space-y-3">
+                <template x-for="p in pagedProds" :key="p.id">
+                    <div
+                        class="bg-white rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all flex gap-4 p-4 group">
+                        <div class="relative flex-shrink-0 overflow-hidden rounded-2xl">
+                            <img :src="p.img" :alt="p.name"
+                                class="w-32 h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span x-show="p.discount>0"
+                                class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg"
+                                x-text="'−'+p.discount+'%'"></span>
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col justify-between">
+                            <div>
+                                <p class="text-[10px] text-indigo-500 font-black uppercase"
+                                    x-text="p.cat+' | '+p.brand"></p>
+                                <h3 class="font-black text-slate-800 mt-0.5 text-sm sm:text-base" x-text="p.name"></h3>
+                                <p class="text-slate-400 text-xs mt-1 line-clamp-2 leading-relaxed" x-text="p.desc"></p>
+                            </div>
+                            <div class="flex items-center justify-between flex-wrap gap-3 mt-2">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex gap-0.5">
+                                        <template x-for="i in 5" :key="i"><svg
+                                                :class="i<=Math.round(p.rating)?'text-amber-400':'text-slate-200'"
+                                                class="w-3 h-3 fill-current" viewBox="0 0 20 20">
+                                                <path
+                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg></template>
+                                    </div>
+                                    <span class="text-xs text-slate-400" x-text="p.rating+' ('+p.rCount+')'"></span>
+                                    <span x-show="p.stock<15"
+                                        class="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-lg"
+                                        x-text="'فقط '+p.stock+' عدد'"></span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="text-right">
+                                        <p x-show="p.discount>0" class="text-xs text-slate-400 line-through"
+                                            x-text="p.oldPrice.toLocaleString('fa-IR')+'T'"></p>
+                                        <p class="font-black text-xl text-slate-800"
+                                            x-text="p.price.toLocaleString('fa-IR')+'T'"></p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button @click="toggleWish(p.id)"
+                                            :class="wishes.has(p.id)?'bg-red-50 text-red-500 border-red-200':'border-slate-200 text-slate-400 hover:text-red-400'"
+                                            class="w-9 h-9 rounded-xl flex items-center justify-center border transition-all">
+                                            <svg class="w-4 h-4" :fill="wishes.has(p.id)?'currentColor':'none'"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="addToCart(p)"
+                                            :class="inCart(p.id)?'bg-emerald-500':'bg-indigo-600 hover:bg-indigo-700'"
+                                            class="flex items-center gap-1.5 text-white px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-90">
+                                            <span x-text="inCart(p.id)?'✓ در سبد':'+ افزودن'"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Load More -->
+            <div class="text-center mt-10" x-show="pagedProds.length < filteredProds.length">
+                <button @click="prodLimit+=8"
+                    class="bg-white border-2 border-slate-200 text-slate-600 px-12 py-3.5 rounded-2xl font-bold hover:border-indigo-400 hover:text-indigo-600 hover:shadow-xl transition-all active:scale-95 text-sm shine">
+                    نمایش بیشتر ↓
+                </button>
+            </div>
+        </div>
+    </section>
+    <section class="py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <!-- Header (Optional - برای زیبایی بیشتر) -->
+            <div class="mb-10 text-center sm:text-right flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800">پیشنهادهای ویژه</h2>
+                    <p class="text-slate-500 mt-2 text-sm">جدیدترین محصولات ما را کشف کنید</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Big Card -->
+                <div class="lg:col-span-2 relative rounded-[2rem] overflow-hidden h-80 sm:h-[400px] group cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-pink-500/20 transition-all duration-500 border border-black/5"
+                    @click="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+
+                    <img src="./assets/images/bn1.jpg" alt="کالکشن جدید"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        loading="lazy">
+
+                    <!-- Gradient Overlay -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent transition-opacity duration-500">
+                    </div>
+
+                    <div class="absolute inset-0 flex flex-col justify-end p-8 sm:p-10">
+                        <div
+                            class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                            <span
+                                class="inline-block px-3 py-1 bg-pink-500/20 backdrop-blur-md text-pink-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4 border border-pink-500/30">
+                                New Collection
+                            </span>
+                            <h3 class="text-white font-black text-3xl sm:text-4xl mb-4 drop-shadow-md">کالکشن بهار ۱۴۰۵
+                            </h3>
+                            <button
+                                class="bg-white/95 backdrop-blur-sm text-slate-900 px-7 py-3 rounded-2xl font-bold text-sm hover:bg-pink-50 hover:text-pink-600 transition-colors duration-300 flex items-center gap-2 shadow-lg">
+                                مشاهده محصولات
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Small Cards Container -->
+                <div class="flex flex-col gap-6 lg:h-[400px]">
+
+                    <!-- Small Card 1 -->
+                    <div class="flex-1 relative rounded-[2rem] overflow-hidden min-h-[180px] group cursor-pointer shadow-md hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-500 border border-black/5"
+                        @click="activeCat='اکسسوری'; document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+
+                        <img src="./assets/images/bn2.jpg" alt="اکسسوری"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                            loading="lazy">
+
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+
+                        <div class="absolute inset-0 flex flex-col justify-end p-6">
+                            <div
+                                class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                                <h3 class="text-white font-black text-xl mb-1">اکسسوری لاکچری</h3>
+                                <p class="text-pink-300 font-medium text-sm">+۵۰ مدل جدید</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Small Card 2 -->
+                    <div class="flex-1 relative rounded-[2rem] overflow-hidden min-h-[180px] group cursor-pointer shadow-md hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-500 border border-black/5"
+                        @click="activeCat='کیف و کفش'; document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+
+                        <img src="./assets/images/bn3.jpg" alt="کیف و کفش"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                            loading="lazy">
+
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+
+                        <div class="absolute inset-0 flex flex-col justify-end p-6">
+                            <div
+                                class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                                <h3 class="text-white font-black text-xl mb-1">کیف و کفش</h3>
+                                <p class="text-blue-300 font-medium text-sm">برندهای اورجینال</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════
+     BRANDS
+═══════════════════════════════════ -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <p class="text-center text-slate-400 text-xs font-black uppercase tracking-widest mb-10">برندهای رسمی همکار
+                ما</p>
+            <div class="flex flex-wrap items-center justify-center gap-10 sm:gap-16">
+                <template x-for="b in brands" :key="b">
+                    <span
+                        class="text-2xl cursor-pointer sm:text-3xl font-black text-slate-200 hover:text-slate-600 transition-colors duration-300 cursor-default select-none"
+                        x-text="b"></span>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════ -->
+    <section class="py-20 bg-slate-50" id="reviews">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12">
+                <p class="text-indigo-600 text-xs font-black uppercase tracking-widest mb-2">نظرات مشتریان</p>
+                <h2 class="text-3xl font-black text-slate-800">مشتریان ما چه می‌گویند؟</h2>
+                <p class="text-slate-400 text-sm mt-2">بیش از ۲۰,۰۰۰ نظر تأیید‌شده از خریداران واقعی</p>
+            </div>
+
+            <!-- Rating Summary -->
+            <div
+                class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 sm:p-10 mb-8 flex flex-col sm:flex-row gap-8 items-center">
+                <div class="text-center flex-shrink-0">
+                    <div class="text-6xl sm:text-7xl font-black text-slate-800">۴.۹</div>
+                    <div class="flex justify-center gap-1 mt-2.5">
+                        <template x-for="i in 5" :key="i"><svg class="w-5 h-5 text-amber-400 fill-current"
+                                viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg></template>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-1.5">از ۲۰,۸۴۱ نظر</p>
+                </div>
+                <div class="flex-1 w-full space-y-3">
+                    <template x-for="rb in ratingBars" :key="rb.star">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-black text-slate-600 w-4 text-left flex-shrink-0"
+                                x-text="rb.star"></span>
+                            <svg class="w-3.5 h-3.5 text-amber-400 fill-current flex-shrink-0" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-amber-400 rounded-full transition-all duration-1000"
+                                    :style="'width:'+rb.pct+'%'"></div>
+                            </div>
+                            <span class="text-sm text-slate-400 font-bold w-9 text-left flex-shrink-0"
+                                x-text="rb.pct+'%'"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Review Cards -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <template x-for="r in reviews" :key="r.id">
+                    <div
+                        class="bg-white rounded-2xl p-5 border border-slate-100 hover:shadow-xl hover:border-indigo-100 transition-all flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-sm flex-shrink-0"
+                                    :style="'background:'+r.color" x-text="r.avatar"></div>
+                                <div>
+                                    <p class="font-black text-slate-800 text-sm" x-text="r.name"></p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5" x-text="r.date"></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-0.5 flex-shrink-0">
+                                <template x-for="i in r.rating" :key="i"><svg
+                                        class="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg></template>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-loose flex-1" x-text="r.text"></p>
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                            <span class="text-xs bg-indigo-50 text-indigo-600 font-bold px-2.5 py-1 rounded-xl"
+                                x-text="r.product"></span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-slate-400">✓ خرید تأیید‌شده</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════
+     NEWSLETTER
+═══════════════════════════════════ -->
+    <section class="py-24 bg-gradient-to-b from-white via-indigo-50/40 to-white relative overflow-hidden"
+        id="newsletter">
+
+        <!-- glow background -->
+        <div
+            class="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-200/30 blur-3xl rounded-full">
+        </div>
+
+        <div class="max-w-2xl mx-auto px-6 relative">
+
+            <div
+                class="backdrop-blur-xl bg-white/70 border border-white/60 shadow-2xl shadow-indigo-100 rounded-[32px] p-10 sm:p-14 text-center transition hover:shadow-indigo-200">
+
+                <!-- icon -->
+                <div
+                    class="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-indigo-200 animate-bounce">
+                    📬
+                </div>
+
+                <!-- title -->
+                <h2 class="text-3xl sm:text-4xl font-black text-slate-800 leading-tight">
+                    از تخفیف‌ها عقب نمانید
+                </h2>
+
+                <p class="text-slate-500 text-sm mt-4 leading-loose max-w-md mx-auto">
+                    عضو خبرنامه شوید و اولین نفری باشید که از تخفیف‌ها، آفرهای ویژه
+                    و محصولات جدید باخبر می‌شود.
+                </p>
+
+                <!-- form -->
+                <div
+                    class="mt-8 flex flex-col sm:flex-row gap-3 bg-white border border-slate-200 rounded-2xl p-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-200 transition">
+
+                    <input x-model="email" type="email" placeholder="ایمیل شما..."
+                        class="flex-1 px-4 py-3 text-sm outline-none bg-transparent font-semibold"
+                        @keyup.enter="subscribeEmail()">
+
+                    <button @click="subscribeEmail()"
+                        class="bg-gradient-to-l from-indigo-600 to-purple-600 text-white px-7 py-3 rounded-xl font-black text-sm hover:shadow-xl hover:shadow-indigo-200 active:scale-95 transition whitespace-nowrap">
+                        عضویت رایگان 🎁
+                    </button>
+
+                </div>
+
+                <p class="text-xs text-slate-400 mt-4">
+                    🔒 ایمیل شما محفوظ می‌ماند — هر زمان می‌توانید لغو عضویت کنید
+                </p>
+
+                <!-- perks -->
+                <div class="grid grid-cols-3 gap-4 mt-8">
+
+                    <template x-for="perk in newsPerks" :key="perk.text">
+                        <div
+                            class="group bg-white/80 hover:bg-white rounded-2xl p-4 border border-slate-100 hover:shadow-md transition cursor-default">
+
+                            <p class="text-2xl mb-1 group-hover:scale-110 transition" x-text="perk.icon"></p>
+
+                            <p class="text-[11px] font-bold text-slate-600" x-text="perk.text"></p>
+
+                        </div>
+                    </template>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════
+     FAQ
+═══════════════════════════════════ -->
+    <section class="relative py-24 bg-slate-50 overflow-hidden font-sans text-right z-10" id="faq" dir="rtl">
+
+        <!-- گوی‌های نوری پس‌زمینه برای افکت شیشه‌ای -->
+        <div class="absolute top-0 right-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div
+                class="absolute top-[10%] right-[20%] w-[300px] h-[300px] bg-gradient-to-br from-indigo-300 to-purple-300 rounded-full blur-[100px] opacity-40">
+            </div>
+            <div
+                class="absolute bottom-[10%] left-[20%] w-[400px] h-[400px] bg-gradient-to-tr from-pink-300 to-indigo-300 rounded-full blur-[120px] opacity-30">
+            </div>
+        </div>
+
+        <div class="relative z-10 max-w-3xl mx-auto px-6">
+            <!-- هدر سکشن -->
+            <div class="text-center mb-14">
+                <p
+                    class="inline-block px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm text-indigo-600 text-xs font-black uppercase tracking-widest mb-4">
+                    سوالات متداول</p>
+                <h2
+                    class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-l from-slate-800 to-slate-500 mb-3">
+                    چیزی می‌خواید بدونید؟</h2>
+                <p class="text-slate-500 text-sm font-light">پاسخ رایج‌ترین سوالات مشتریان ما</p>
+            </div>
+
+            <!-- لیست آکاردئونی (Glass Effect) -->
+            <div class="space-y-4">
+                <template x-for="(faq, idx) in faqs" :key="idx">
+                    <div class="rounded-[2rem] border backdrop-blur-xl transition-all duration-300"
+                        :class="openFaq === idx ? 'bg-white/80 border-indigo-200/50 shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] scale-[1.02]' : 'bg-white/40 border-white/60 shadow-[0_8px_30px_-15px_rgba(0,0,0,0.05)] hover:bg-white/60 hover:shadow-lg hover:-translate-y-0.5'">
+
+                        <button @click="openFaq = openFaq === idx ? null : idx"
+                            class="w-full flex items-center justify-between p-6 text-right gap-4 cursor-pointer group">
+
+                            <div class="flex items-center gap-4">
+                                <!-- آیکون سمت راست -->
+                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-inner transition-all duration-300 group-hover:scale-110"
+                                    :class="openFaq === idx ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-indigo-200' : 'bg-white text-slate-600 border border-slate-100'">
+                                    <span x-text="faq.icon"></span>
+                                </div>
+                                <span
+                                    class="font-bold text-slate-800 text-sm md:text-base group-hover:text-indigo-600 transition-colors"
+                                    x-text="faq.q"></span>
+                            </div>
+
+                            <!-- آیکون فلش (Micro-interaction) -->
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 shadow-sm"
+                                :class="openFaq === idx ? 'bg-indigo-100 text-indigo-600 rotate-180' : 'bg-white text-slate-400 group-hover:bg-slate-50'">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </button>
+
+                        <!-- متن پاسخ -->
+                        <div x-show="openFaq === idx" x-collapse class="px-6 pb-6 pt-0">
+                            <div
+                                class="h-px w-full bg-gradient-to-l from-transparent via-slate-200 to-transparent mb-5 opacity-50">
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed pr-14" x-text="faq.a"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- کارت پشتیبانی پایینی (Complex Glassmorphism & Gradient) -->
+            <div
+                class="mt-14 relative overflow-hidden rounded-[2.5rem] p-10 text-center shadow-[0_20px_50px_-20px_rgba(79,70,229,0.2)] border border-white/80 bg-white/30 backdrop-blur-2xl transition-transform hover:-translate-y-1 duration-500 group">
+
+                <!-- گرادیانت داخلی کارت -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-pink-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-700">
+                </div>
+
+                <div class="relative z-10">
+                    <div
+                        class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500">
+                        🤔
+                    </div>
+                    <h3 class="font-black text-slate-800 text-xl tracking-tight mb-2">سوال دیگه‌ای دارید؟</h3>
+                    <p class="text-slate-500 text-sm mb-8 font-light">تیم پشتیبانی ما ۲۴/۷ در خدمت شماست</p>
+
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <!-- دکمه چت (Gradient) -->
+                        <button @click="showToast('info','پشتیبانی','در حال اتصال به چت آنلاین...')"
+                            class="relative flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-[0_10px_20px_-10px_rgba(79,70,229,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(79,70,229,0.6)] transition-all active:scale-95 overflow-hidden">
+                            <span
+                                class="absolute inset-0 w-full h-full bg-white/20 -translate-x-full hover:animate-[shimmer_1.5s_infinite]"></span>
+                            <span class="relative z-10">💬 چت آنلاین</span>
+                        </button>
+
+                        <!-- دکمه تماس (Glassy) -->
+                        <button @click="showToast('info','تماس','شماره پشتیبانی: ۰۲۱-۱۲۳۴-۵۶۷۸')"
+                            class="flex items-center gap-2 bg-white/50 backdrop-blur-md text-slate-700 border border-white shadow-sm px-8 py-3.5 rounded-full font-bold text-sm hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all active:scale-95">
+                            📞 تماس تلفنی
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+{% endblock content %}
+

@@ -22,4 +22,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # packages
     path('captcha/', include('captcha.urls')),
+    # apps
+    path('', include('home.urls')),
 ]
