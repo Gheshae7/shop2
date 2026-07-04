@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     # packages
     "captcha",
     "django_jalali",
+	# apps
+	"home",
 ]
 
 MIDDLEWARE = [
