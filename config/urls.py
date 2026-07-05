@@ -24,4 +24,5 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     # apps
     path('', include('home.urls')),
+    path('account/', include('account.urls')),
 ]
