@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django_jalali",
 	# apps
 	"home",
+    "account",
 ]
 
 MIDDLEWARE = [
@@ -104,6 +105,8 @@ DATABASES = {
         "PORT": env("PORT"),
     }
 }
+
+AUTH_USER_MODEL = 'account.User'
 
 
 # Password validation
