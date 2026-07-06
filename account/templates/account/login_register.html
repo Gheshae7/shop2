@@ -78,6 +78,23 @@
       }" @mousemove.window="updateMouse"
     class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-slate-800">
 
+    <!-- برای پیام های پاپ آپ -->
+    {% if messages %}
+    <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
+      <script>
+        {% for message in messages %}
+            Swal.fire({
+            position: "top-start",
+            icon: "{{ message.tags }}",
+            title: "{{ message }}",
+            showConfirmButton: false,
+            timer: 3500
+            });
+        {% endfor %}
+      </script>
+    {% endif %}
+
+
     <!-- پس‌زمینه اصلی -->
     <div class="absolute inset-0 bg-[#f8fafc] -z-30"></div>
 
@@ -87,6 +104,7 @@
         :style="`transform: translate(calc(${mouseX}px - 300px), calc(${mouseY}px - 300px))`"></div>
 
     <!-- دکمه بازگشت با استایل نرم -->
+
 <a href="{% url "home:home_page" %}"
         class="absolute top-6 right-6 flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors duration-500 font-medium bg-white/50 px-5 py-2.5 rounded-2xl backdrop-blur-xl border border-white/60 hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] z-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -115,7 +133,7 @@
                     <p class="text-slate-500 text-sm">برای ورود به حساب کاربری اطلاعات خود را وارد کنید</p>
                 </div>
 
-                <form class="space-y-5" name='login' method='POST' action='#'>
+                <form class="space-y-5" name='login' method='POST' action='{% url "account:login_account" %}'>
                     {% csrf_token %}
                     <div class="stagger-item delay-2">
                         <label class="block text-sm font-medium text-slate-600 mb-2 ml-1">ایمیل</label>
@@ -161,7 +179,7 @@
                         <p class="text-slate-500 text-sm">تجربه خریدی لذت‌بخش و راحت</p>
                     </div>
 
-                    <form class="space-y-4" name='register' method='POST' action='#'>
+                    <form class="space-y-4" name='register' method='POST' action='{% url "account:register_account" %}'>
                         {% csrf_token %}
                         <div class="stagger-item delay-2">
                             {{ register_form.email }}

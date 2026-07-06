@@ -1,8 +1,27 @@
 {% extends "base.html" %}
+{% load static %}
+
 
 {% block title %}فروشگاه فرحان{% endblock title %}
 
 {% block content %}
+
+    <!-- برای پیام های پاپ آپ -->
+    {% if messages %}
+    <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
+      <script>
+        {% for message in messages %}
+            Swal.fire({
+            position: "top-start",
+            icon: "{{ message.tags }}",
+            title: "{{ message }}",
+            showConfirmButton: false,
+            timer: 3500
+            });
+        {% endfor %}
+      </script>
+    {% endif %}
+
     <section x-data="creativeHero()" @mousemove="handleMouseMove" @mouseleave="resetMouse"
         class="relative w-full min-h-screen bg-[#fdfdfd] overflow-hidden font-sans text-right flex items-center"
         dir="rtl">
