@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.views import View
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, ForgetForm, ResetForm
 from django.contrib import messages
 from account.models import User
 from django.contrib.auth import login, logout
@@ -113,3 +113,69 @@ def logout_account(request: HttpRequest) -> HttpResponseRedirect:
     else:
         messages.error(request, 'شما اصلا در حساب کاربری خود نیستید که بخواهید از حساب خود خارج شوید')
         return redirect(reverse('account:login_register_page')) 
+
+
+
+class ForgetPassword(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        forget_form = ForgetForm
+        context = {
+            'forget_form': forget_form
+        }
+        return render(request, 'account/forget_password.html', context)
+    
+    
+    def post(self, request: HttpRequest) -> HttpResponseRedirect:
+        forget_form = ForgetForm(request.POST)
+        if forget_form.is_valid():
+            try:
+                current_user = get_user(email=forget_form.cleaned_data.get('email'))
+                # TODO: send email to user
+                messages.success(request, 'ایمیلی جهت بازیابی کلمه عبور به شما ارسال شد')
+                return redirect(reverse('account:login_register_page'))
+            except User.DoesNotExist:
+                messages.error(request, 'کاربری با این مشخصات وجود ندارد')
+                return redirect(reverse('account:forget_password_page'))
+        else:
+            messages.error(request, 'مشکلی پیش آمد مجدد تست فرمایید')
+            return redirect(reverse('account:forget_password_page'))
+
+
+
+class ResetPassword(View):
+    def get(self, request: HttpRequest, email_active_code: str) -> HttpResponse | HttpResponseRedirect:
+        try:
+            current_user = User.objects.get(email_active_code__exact=email_active_code, is_active=True)
+            reset_form = ResetForm
+            context = {
+                'reset_form': reset_form,
+                'user_email_active_code': email_active_code
+            }
+            return render(request, 'account/reset_password.html', context)
+        except User.DoesNotExist:
+            messages.error(request, 'کاربر مورد نظر پیدا نشد لطفا مجدد امتحان کنید')
+            return redirect(reverse('account:forget_password_page'))        
+        
+    def post(self ,request: HttpRequest, email_active_code: str) -> HttpResponseRedirect:
+        try: 
+            current_user: User = User.objects.get(email_active_code__exact=email_active_code)
+            reset_form = ResetForm(request.POST)
+            if reset_form.is_valid():
+                password = reset_form.cleaned_data.get('password')
+                confirm_password = reset_form.cleaned_data.get('confirm_password')
+                if password == confirm_password:
+                    current_user.set_password(password)
+                    current_user.email_active_code = get_random_string(128)
+                    current_user.save()
+                    messages.success(request, 'رمز عبور شما با موفقیت بازیابی شد')
+                    return redirect(reverse('home:home_page'))
+                else:
+                    messages.error(request, 'رمز عبور و تکرار رمز عبور یکی نیستند لطفا دقت فرمایید')
+                    return redirect(reverse('account:reset_password_page', kwargs={'email_active_code': email_active_code}))
+            else:
+                messages.error(request, 'رمز عبور باید شامل حروف انگلیسی بزرگ و کوچک و عدد باشد')
+                return redirect(reverse('account:reset_password_page', kwargs={'email_active_code': email_active_code}))
+
+        except User.DoesNotExist:
+            messages.error(request, 'کاربر مورد نظر پیدا نشد لطفا مجدد امتحان کنید')
+            return redirect(reverse('account:forget_password_page'))        
