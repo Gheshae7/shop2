@@ -76,7 +76,7 @@ def register_account(request: HttpRequest) -> HttpResponseRedirect:
                     new_user: User = User.objects.create(email=register_form.cleaned_data.get('email'), is_active=False)
                     new_user.set_password(password)
                     new_user.save(update_fields=['password'])
-                    send_email('فعالسازی حساب کاربری' ,new_user.email, {'email_active_code': new_user.email_active_code}, 'account/emails/activate_account.html')
+                    send_email.apply_async(args=['فعالسازی حساب کاربری', new_user.email, {'email_active_code': new_user.email_active_code}, 'account/emails/activate_account.html'])
                     messages.success(request, 'حساب کاربری با موفقیت ساخته شد. جهت فعالسازی حساب کاربری خود به بخش صندوق دریافت ایمیل خود مراجعه کنید')
                     return redirect(reverse('account:login_register_page'))
                 else:
@@ -131,7 +131,7 @@ class ForgetPassword(View):
         if forget_form.is_valid():
             try:
                 current_user = get_user(email=forget_form.cleaned_data.get('email'))
-                send_email('بازیابی کلمه عبور', current_user.email, {'email_active_code': current_user.email_active_code}, 'account/emails/reset_password.html')
+                send_email.apply_async(args=['بازیابی کلمه عبور', current_user.email, {'email_active_code': current_user.email_active_code}, 'account/emails/reset_password.html'])
                 messages.success(request, 'ایمیلی جهت بازیابی کلمه عبور به شما ارسال شد')
                 return redirect(reverse('account:login_register_page'))
             except User.DoesNotExist:
@@ -179,4 +179,5 @@ class ResetPassword(View):
 
         except User.DoesNotExist:
             messages.error(request, 'کاربر مورد نظر پیدا نشد لطفا مجدد امتحان کنید')
-            return redirect(reverse('account:forget_password_page'))        
+            return redirect(reverse('account:forget_password_page'))     
+   
