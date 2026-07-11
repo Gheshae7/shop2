@@ -4,8 +4,10 @@ register = template.Library()
 
 
 @register.inclusion_tag('header_base.html')
-def header_base():
-    pass 
+def header_base(request):
+    return {
+        'request': request,
+    } 
 
 
 

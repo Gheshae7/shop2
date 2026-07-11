@@ -1,3 +1,4 @@
+{% load static %}
 
     <!-- Top Announcement Bar -->
     <div class="bg-gradient-to-l from-[#6294ff] to-[#a662ff79] py-2 px-4" x-data="{ showBanner: true }"
@@ -39,7 +40,7 @@
                 <div class="flex-shrink-0 group">
                     <a href="index.html" class="block">
                         <img class="w-[80px] sm:w-[80px] md:w-[100px] transition-transform duration-300 group-hover:scale-105"
-                            src="./assets/images/logo.png" alt="سیلکی">
+                            src="{% static "assets/images/logo.png" %}" alt="سیلکی">
                     </a>
                 </div>
 
@@ -436,12 +437,12 @@
                     </div>
 
                     <!-- Login Button - Desktop -->
-                    <div class="hidden md:flex items-center gap-2">
+                    <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} md:flex items-center gap-2">
                         <!-- User Profile Dropdown (When Logged In - Hidden by default) -->
-                        <div class="hidden relative" x-data="{ userOpen: false }">
+                        <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} relative" x-data="{ userOpen: false }">
                             <button @click="userOpen = !userOpen"
                                 class="flex items-center gap-2 bg-[#F9FAFB] hover:bg-[#F3F4F6] px-3 py-2 rounded-[12px] transition-colors">
-                                <img src="./assets/images/blog/Frame 130.png" alt="پروفایل"
+                                <img src="{% static "assets/images/blog/Frame_130.png" %}" alt="پروفایل"
                                     class="w-9 h-9 rounded-full border-2 border-[#6294ff]">
                                 <div class="text-right">
                                     <p class="text-[12px] text-[#181E25] font-medium">علی احمدی</p>
@@ -457,7 +458,7 @@
                         </div>
 
                         <!-- Login Button -->
-                        <a class="bg-gradient-to-l from-[#6294ff] to-[#4681ff] hover:from-[#6294ff] hover:to-[#4681ff] duration-400 px-[20px] lg:px-[30px] py-[12px] lg:py-[15px] rounded-[12px] lg:rounded-[16px] flex justify-center items-center w-fit gap-3 lg:gap-4 transition-all duration-300 hover:shadow-lg hover:shadow-[#6294ff]/30 group"
+                        <a class="{% if request.user.is_authenticated %}hidden{% else %} {% endif %} bg-gradient-to-l from-[#6294ff] to-[#4681ff] hover:from-[#6294ff] hover:to-[#4681ff] duration-400 px-[20px] lg:px-[30px] py-[12px] lg:py-[15px] rounded-[12px] lg:rounded-[16px] flex justify-center items-center w-fit gap-3 lg:gap-4 transition-all duration-300 hover:shadow-lg hover:shadow-[#6294ff]/30 group"
                             href="#">
                             <svg class="w-[20px] h-[20px] lg:w-[24px] lg:h-[24px] group-hover:scale-110 transition-transform"
                                 viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -473,6 +474,23 @@
                                 ثبت نام</span>
                         </a>
                     </div>
+
+
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
+                    
 
                     <!-- Hamburger Menu Button - Mobile -->
                     <button @click="mobileMenuOpen = !mobileMenuOpen"
@@ -1115,7 +1133,7 @@
                     <div class="absolute inset-0 opacity-10 flex items-center justify-center">
 
 
-                        <img class="relative top-[10px] !w-[100px] " src="./assets/images/logo.png">
+                        <img class="relative top-[10px] !w-[100px] " src="{% static "assets/images/logo.png" %}">
                     </div>
 
 

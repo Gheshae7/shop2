@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}پروفایل من{% endblock title %}
+
+{% block content %}
+
+    <!-- برای پیام های پاپ آپ -->
+    {% if messages %}
+    <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
+      <script>
+        {% for message in messages %}
+            Swal.fire({
+            position: "top-start",
+            icon: "{{ message.tags }}",
+            title: "{{ message }}",
+            showConfirmButton: false,
+            timer: 3500
+            });
+        {% endfor %}
+      </script>
+    {% endif %}
+
+<!-- Settings Page -->
+<div class="p-6 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 text-center">
+                <div class="relative inline-block">
+                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static "assets/images/default_avatar2.png" %}{% endif %}"
+                     class="w-20 h-20 rounded-2xl object-cover mx-auto"
+                        alt="user avatar">
+                    <button
+                        class="absolute -bottom-2 -left-2 w-7 h-7 cursor-pointer bg-violet-600 text-white rounded-lg flex items-center justify-center shadow-lg">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+                <h3 class="font-bold text-slate-800 mt-4">
+                    {% if user.get_full_name %}{{ user.get_full_name }}{% endif %}
+                </h3>
+                <p class="text-sm text-slate-400">{{ user.email }}</p>
+                <span
+                    class="inline-block mt-2 bg-violet-100 text-violet-600 text-xs px-3 py-1 rounded-full font-medium">کاربر عادی</span>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-5">اطلاعات پروفایل</h3>
+                <form class="space-y-5" name='login' method='POST' action='{% url "account:profile_page" %}' enctype="multipart/form-data">
+                    {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for field in profile_form %}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type='submit'
+                    class="mt-5 cursor-pointer bg-violet-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-violet-700 transition-colors">
+                    ذخیره تغییرات
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

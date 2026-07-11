@@ -1056,7 +1056,7 @@
         </div>
         <div class="absolute top-[30%] left-[10%] w-[200px] h-[200px] bg-cyan-100/40 rounded-full blur-2xl"></div>
     </div>
-    {% header_base %}
+    {% header_base request=request %}
     {% block content %}{% endblock %}
     {% footer_base %}
     {% partial scripts %}

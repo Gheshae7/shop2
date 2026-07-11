@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.views import View
-from .forms import LoginForm, RegisterForm, ForgetForm, ResetForm
+from .forms import LoginForm, RegisterForm, ForgetForm, ResetForm, ProfileUserForm
 from django.contrib import messages
 from account.models import User
 from django.contrib.auth import login, logout
@@ -204,3 +204,45 @@ class ResetPassword(View):
             messages.error(request, 'کاربر مورد نظر پیدا نشد لطفا مجدد امتحان کنید')
             return redirect(reverse('account:forget_password_page'))     
    
+   
+   
+class ProfileView(View):
+    """This function for show user profile"""
+    
+    def get(self, request: HttpResponse) -> HttpResponse | HttpResponseRedirect:
+        if request.user.is_authenticated:
+            # show user profile
+            current_user = request.user
+            profile_form = ProfileUserForm(instance=current_user)
+            context = {
+                'profile_form': profile_form,
+                'user': current_user,
+            }
+            return render(request, 'account/profile.html', context)
+        else:
+            # user not login
+            messages.error(request, 'برای دیدن پروفایل خود در سایت ابتدا وارد حساب کاربری خود شوید')
+            return redirect(reverse('account:login_register_page'))
+    
+    
+    def post(self, request: HttpRequest) -> HttpResponseRedirect:
+        if request.user.is_authenticated:
+            # get user
+            current_user = request.user
+            profile_form = ProfileUserForm( request.POST, request.FILES, instance=current_user)
+            if profile_form.is_valid():
+                email = profile_form.cleaned_data.get('email')
+                if current_user.email == email:
+                    profile_form.save()
+                    messages.success(request, 'پروفایل شما آپدیت شد')
+                    return redirect(reverse('account:profile_page'))
+                else:
+                    messages.info(request, 'نمیتوانید ایمیل را تغییر دهید')
+                    return redirect(reverse('account:profile_page'))
+            else:
+                messages.error(request, 'مشکلی پیش آمد مجدد امتحان فرمایید')
+        else:
+            # user not login
+            messages.error(request, 'برای تغییر پروفایل خود ابتدا باید وارد حساب کاربری خود شوید')
+            return redirect(reverse('account:login_register_page'))
+            
