@@ -71,7 +71,7 @@ class ProfileUserForm(forms.ModelForm):
         fields = ['username', 'email', 'first_name', 'last_name', 'address', 'phone', 'avatar']
         
         lable = {
-            'username': 'نام کاربری',
+            'username': 'نام مستعار',
             'email': 'ایمیل',
             'first_name': 'نام',
             'last_name': 'نام خانوادگی',
@@ -87,7 +87,7 @@ class ProfileUserForm(forms.ModelForm):
             }),
             'email': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-400 transition-colors',
-                'type': 'text'
+                'type': 'text',
             }), 
             'first_name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-400 transition-colors',
@@ -105,6 +105,9 @@ class ProfileUserForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-400 transition-colors',
                 'type': 'text'
             }), 
+            'avatar': forms.FileInput(attrs={
+                'accept': 'image/*'
+            })
                                                                                   
         }
         

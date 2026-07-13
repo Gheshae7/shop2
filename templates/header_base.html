@@ -436,30 +436,31 @@
                         </div>
                     </div>
 
-                    <!-- Login Button - Desktop -->
-                    <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} md:flex items-center gap-2">
-                        <!-- User Profile Dropdown (When Logged In - Hidden by default) -->
-                        <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} relative" x-data="{ userOpen: false }">
-                            <button @click="userOpen = !userOpen"
-                                class="flex items-center gap-2 bg-[#F9FAFB] hover:bg-[#F3F4F6] px-3 py-2 rounded-[12px] transition-colors">
-                                <img src="{% static "assets/images/blog/Frame_130.png" %}" alt="پروفایل"
-                                    class="w-9 h-9 rounded-full border-2 border-[#6294ff]">
-                                <div class="text-right">
-                                    <p class="text-[12px] text-[#181E25] font-medium">علی احمدی</p>
-                                    <p class="text-[10px] text-[#67788E]">کیف پول: ۵۰,۰۰۰ ت</p>
+                        <a href={% url "account:profile_page" %}>
+                            <!-- Login Button - Desktop -->
+                            <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} md:flex items-center gap-2">
+                                <!-- User Profile Dropdown (When Logged In - Hidden by default) -->
+                                <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} relative" x-data="{ userOpen: false }">
+                                    <button @click="userOpen = !userOpen"
+                                        class="flex items-center gap-2 bg-[#F9FAFB] hover:bg-[#F3F4F6] px-3 py-2 rounded-[12px] transition-colors">
+                                        <img src="{% if request.user.avatar %}{{ request.user.avatar.email }}{% else %}{% static "assets/images/default_avatar2.png" %}{% endif %}" alt="{{ request.user.email }}"
+                                            class="w-9 h-9 rounded-full border-2 border-[#6294ff]">
+                                        <div class="text-right">
+                                            <p class="text-[12px] text-[#181E25] font-medium">
+                                                {% if request.user.get_full_name %}
+                                                    {{ request.user.get_full_name }}
+                                                {% else %}
+                                                    {{ request.user.email }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </button>
                                 </div>
-                                <svg class="w-4 h-4 text-[#67788E] transition-transform"
-                                    :class="userOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </div>
+                            </a>
 
                         <!-- Login Button -->
                         <a class="{% if request.user.is_authenticated %}hidden{% else %} {% endif %} bg-gradient-to-l from-[#6294ff] to-[#4681ff] hover:from-[#6294ff] hover:to-[#4681ff] duration-400 px-[20px] lg:px-[30px] py-[12px] lg:py-[15px] rounded-[12px] lg:rounded-[16px] flex justify-center items-center w-fit gap-3 lg:gap-4 transition-all duration-300 hover:shadow-lg hover:shadow-[#6294ff]/30 group"
-                            href="#">
+                            href="{% url "account:login_register_page" %}">
                             <svg class="w-[20px] h-[20px] lg:w-[24px] lg:h-[24px] group-hover:scale-110 transition-transform"
                                 viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -1054,30 +1055,35 @@
 
                     <!-- Nav Links with Hover Effects -->
                     <nav class="flex items-center">
-                        <a href="#"
-                            class="relative text-[14px] text-[#67788E] mx-[20px] mr-[30px] hover:text-[#6294ff] transition-colors group py-2">
+                        <a href="{% url "home:home_page" %}"
+                            class="relative text-[14px] mx-[20px] mr-[30px] transition-colors group py-2
+                            {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>صفحه اصلی</span>
                             <span
-                                class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
+                                class="absolute bottom-0 right-0 {% if request.resolver_match.view_name == "home:home_page" %}w-full{% else %}w-0{% endif %} h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
                         <a href="./shop.html"
-                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2">
+                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
+                            {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>فروشگاه</span>
                             <span
                                 class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
-                        <a href="./weblog.html" class="relative text-[14px] text-[#6294ff] mx-[20px] font-medium py-2">
+                        <a href="./weblog.html" class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-22
+                            {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>وبلاگ</span>
-                            <span class="absolute bottom-0 right-0 w-full h-[2px] bg-[#6294ff]"></span>
+                            <span class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff]"></span>
                         </a>
                         <a href="./about.html"
-                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2">
+                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
+                            {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>درباره ما</span>
                             <span
                                 class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
                         <a href="./contact.html"
-                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2">
+                            class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
+                            {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>تماس با ما</span>
                             <span
                                 class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>

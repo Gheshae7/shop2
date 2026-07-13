@@ -240,7 +240,9 @@ class ProfileView(View):
                     messages.info(request, 'نمیتوانید ایمیل را تغییر دهید')
                     return redirect(reverse('account:profile_page'))
             else:
-                messages.error(request, 'مشکلی پیش آمد مجدد امتحان فرمایید')
+                messages.error(request, 'نام کاربری باید متفاوت باشد')
+                return redirect(reverse('account:profile_page'))
+
         else:
             # user not login
             messages.error(request, 'برای تغییر پروفایل خود ابتدا باید وارد حساب کاربری خود شوید')
