@@ -443,7 +443,7 @@
                                 <div class="{% if request.user.is_authenticated %}{% else %}hidden{% endif %} relative" x-data="{ userOpen: false }">
                                     <button @click="userOpen = !userOpen"
                                         class="flex items-center gap-2 bg-[#F9FAFB] hover:bg-[#F3F4F6] px-3 py-2 rounded-[12px] transition-colors">
-                                        <img src="{% if request.user.avatar %}{{ request.user.avatar.email }}{% else %}{% static "assets/images/default_avatar2.png" %}{% endif %}" alt="{{ request.user.email }}"
+                                        <img src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static "assets/images/default_avatar2.png" %}{% endif %}" alt="{{ request.user.email }}"
                                             class="w-9 h-9 rounded-full border-2 border-[#6294ff]">
                                         <div class="text-right">
                                             <p class="text-[12px] text-[#181E25] font-medium">
