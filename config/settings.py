@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # packages
     "captcha",
     "django_jalali",
+    "debug_toolbar",
 	# apps
 	"home",
     "account",
@@ -64,6 +65,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # packages
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -183,3 +186,11 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 # celery
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+
+# debug toolbar
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
