@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages
+from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductQuestionAnswer, ProductDeliveryInfo, Comment
 
 
 
@@ -8,6 +8,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "url_name",
+        "emoji",
         "is_active",
         "updated_at",
         "created_at",
@@ -55,6 +56,108 @@ class BrandAdmin(admin.ModelAdmin):
     )
    
    
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    list_editable = ("is_active",)
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "name",
+    )
+    
+    
+@admin.register(SpecificationCategory)
+class SpecificationCategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "order",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    list_editable = ("is_active", "order",)
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "name",
+        "order",
+    )
+    
+    
+@admin.register(ProductQuestionAnswer)
+class ProductQuestionAnswerAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "question",
+        "answer",
+    )
+    
+
+@admin.register(ProductDeliveryInfo)
+class ProductDeliveryInfoAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "emoji",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+        "emoji",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    list_editable = ("emoji",)
+    search_fields = (
+        "title",
+        "description",
+        "emojy",
+    )
+   
+   
 class AttributeValueStackedInline(admin.StackedInline):
     model = AttributeValue
     extra = 1
@@ -85,7 +188,6 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name", "is_active", "category", "brand", "slug")
     inlines = (ProductSpecificationStackedInline ,ProductVariantStackedInline ,ProductsImagesStackedInline,)
     
-
 
 @admin.register(ProductSpecification)
 class ProductSpecificationAdmin(admin.ModelAdmin):
@@ -136,3 +238,13 @@ class ProductsImagesAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at", "created_at",)
     date_hierarchy = "created_at"
     search_fields = ("is_active", "product__name", "is_main")
+    
+    
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("pk", "product__name", "is_active", "name", "like", "dislike", "author", "updated_at", "created_at",)
+    list_filter = ("created_at", "updated_at", "is_active", "like")
+    list_editable = ("is_active",)
+    readonly_fields = ("updated_at", "created_at", "like", "dislike")
+    date_hierarchy = "created_at"
+    search_fields = ("name", "product__name", "title",)

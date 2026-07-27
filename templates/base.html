@@ -4,7 +4,7 @@
 {% partialdef styles %}
     <link rel="stylesheet" href="{% static "assets/css/output.css" %}">
     <link rel="stylesheet" href="{% static "assets/css/swiper-bundle.min.css" %}">
-    <style>
+    {% comment %} <style>
 
 
         html {
@@ -276,7 +276,7 @@
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px)
         }
-    </style>
+    </style> {% endcomment %}
 {% endpartialdef styles %}
 
 
@@ -1046,7 +1046,7 @@
     {% block header_custom_references %}{% endblock header_custom_references %}
 </head>
 
-<body class="bg-white overflow-x-hidden" x-data="shop()" x-init="init()" x-cloak>
+<body {% block body_attrs %}{% endblock body_attrs %}>
     <!-- ===== DECORATIVE BG BLOBS ===== -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-indigo-100/60 rounded-full blur-3xl"></div>

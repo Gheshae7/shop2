@@ -1,3 +1,62 @@
 from django.shortcuts import render
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductQuestionAnswer, ProductDeliveryInfo, Comment
+from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef
+from django.utils.timezone import now, timedelta
 
-# Create your views here.
+
+class ProductListView(ListView):
+    template_name = 'product/products.html'
+    model = Product
+    context_object_name = 'products'
+    
+    def get_queryset(self):
+        query = super().get_queryset()
+        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'))
+
+        # filter by params
+        category_parmas = self.request.GET.get('category')
+        if category_parmas:
+            query = query.filter(category__url_name__exact=category_parmas)
+
+        return query
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['seven_days_ago'] = now() - timedelta(days=7)
+        context['categories'] = Category.objects.filter(is_active=True).order_by('?')[:9]
+        context['max_price'] = ProductVariant.objects.aggregate(Max('price'))['price__max']
+        context['min_price'] = ProductVariant.objects.aggregate(Min('price'))['price__min']
+        return context
+    
+    
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'product/product_detail.html'
+    context_object_name = 'product'
+    
+    def get_queryset(self, *args, **kwargs):
+        query = super().get_queryset(*args, **kwargs)
+        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock'), sales_count=Sum('variants__sales_count'), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'))
+        return query
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['seven_days_ago'] = now() - timedelta(days=7)
+        context['attributes'] = AttributeValue.objects.filter(variants__product=self.object, is_active=True).select_related('attribute').distinct()
+        context['images_json'] = [
+            {'url': img.image.url, 'is_main': img.is_main}
+            for img in self.object.images.all()
+        ] or [{'url': '/static/images/no-image.png', 'is_main': True}]
+        context['tags'] = Tag.objects.filter(is_active=True, product=self.object)
+        context['specifications_categories'] = SpecificationCategory.objects.filter(is_active=True, product_specification__product=self.object).prefetch_related(Prefetch('product_specification', queryset=ProductSpecification.objects.filter(is_active=True))).distinct()
+        context['question_answer'] = ProductQuestionAnswer.objects.filter(is_active=True).annotate(count_question=Count('id'))
+        context['deliveries_info'] = ProductDeliveryInfo.objects.filter(is_active=True, product=self.object)
+        context['comments_count'] = self.object.comments.aggregate(Count('id'))['id__count']
+        first_image = ProductsImages.objects.filter(product=OuterRef('pk'), is_main=True, is_active=True).values_list('image',)[:1]
+        context['popular_poducts'] = Product.objects.filter(is_active=True).select_related('category', 'brand').annotate(discount=Max('variants__discount'), sales_count=Sum('variants__sales_count', distinct=True), price=Min('variants__price')).order_by('-count_view', '-sales_count').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:10]
+
+        return context
