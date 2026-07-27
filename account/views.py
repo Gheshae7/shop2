@@ -81,7 +81,7 @@ def register_account(request: HttpRequest) -> HttpResponseRedirect:
                 # Checking password and confirm password 
                 if password == confirm_password:
                     # Create and svae new user
-                    new_user: User = User.objects.create(email=register_form.cleaned_data.get('email'), is_active=False)
+                    new_user: User = User.objects.create(email=register_form.cleaned_data.get('email'), is_active=False, email_active_code=get_random_string(128))
                     new_user.set_password(password)
                     new_user.save(update_fields=['password'])
                     # Send an email to the user to activate their account.
@@ -185,6 +185,7 @@ class ResetPassword(View):
                 confirm_password = reset_form.cleaned_data.get('confirm_password')
                 # Checking password and confirm password
                 if password == confirm_password:
+                    # reset password
                     current_user.set_password(password)
                     current_user.email_active_code = get_random_string(128)
                     current_user.save()

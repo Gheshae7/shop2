@@ -8,7 +8,7 @@ class User(AbstractUser):
     address = models.TextField(null=True, blank=True, verbose_name='آدرس')
     avatar = models.ImageField(upload_to='users/avatar', null=True, blank=True, verbose_name='آواتار')
     phone = models.CharField(max_length=11, null=True, blank=True, verbose_name='شماره تلفن')
-    email_active_code = models.CharField(max_length=128, null=False, blank=False, default=get_random_string(128), verbose_name='کد فعالسازی حساب کاربری')
+    email_active_code = models.CharField(max_length=128, null=False, blank=False, verbose_name='کد فعالسازی حساب کاربری')
     
     
     def __str__(self):
