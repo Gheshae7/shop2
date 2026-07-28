@@ -706,17 +706,17 @@
                             <span
                                 class="absolute bottom-0 right-0 {% if request.resolver_match.view_name == "home:home_page" %}w-full{% else %}w-0{% endif %} h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
-                        <a href="./shop.html"
+                        <a href="{% url "product:products_page" %}"
                             class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
                             {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>فروشگاه</span>
                             <span
                                 class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
-                        <a href="./weblog.html" class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-22
+                        <a href="./weblog.html" class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
                             {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>وبلاگ</span>
-                            <span class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff]"></span>
+                            <span class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
                         <a href="./about.html"
                             class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
