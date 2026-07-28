@@ -631,7 +631,7 @@
                                             </div>
                                             <ul class="space-y-2">
                                                 {% for sub_category in category.children_categories.all %}
-                                                    <li><a href="#"
+                                                    <li><a href="{% url "product:products_page" %}?category={{ sub_category.url_name }}"
                                                     class="text-[13px] text-[#67788E] hover:text-[#6294ff] transition-colors flex items-center gap-2">
                                                     <span class="w-1.5 h-1.5 bg-[#E7EAF0] rounded-full"></span>
                                                     {{ sub_category.name }}</a>

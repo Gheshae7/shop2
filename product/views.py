@@ -16,9 +16,10 @@ class ProductListView(ListView):
         query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'))
 
         # filter by params
-        category_parmas = self.request.GET.get('category')
-        if category_parmas:
-            query = query.filter(category__url_name__exact=category_parmas)
+        category_params = self.request.GET.get('category')
+        print(category_params)
+        if category_params:
+            query = query.filter(category__url_name__exact=category_params)
 
         return query
     
