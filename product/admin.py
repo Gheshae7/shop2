@@ -248,3 +248,4 @@ class CommentAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at", "created_at", "like", "dislike")
     date_hierarchy = "created_at"
     search_fields = ("name", "product__name", "title",)
+    

@@ -1,23 +1,28 @@
 from django import template
 from product.models import Category
 from django.db.models import Prefetch
+from site_settings.models import FooterBox, SiteSettings
 
 register = template.Library()
 
 
 @register.inclusion_tag('header_base.html')
 def header_base(request):
-    categories = Category.objects.filter(is_active=True, parent__isnull=True, children_categories__is_active=True,).prefetch_related(Prefetch('children_categories', queryset=Category.objects.filter(is_active=True))).distinct()
     return {
         'request': request,
-        'categories': categories,
+        'categories': Category.objects.filter(is_active=True, parent__isnull=True, children_categories__is_active=True,).prefetch_related(Prefetch('children_categories', queryset=Category.objects.filter(is_active=True))).distinct(),
+        # 'logo': SiteSettings.objects.filter(is_active=True).values_list('logo', flat=True).first(),
     } 
 
 
 
 @register.inclusion_tag('footer_base.html')
 def footer_base():
-    pass 
+    return {
+        'categories': Category.objects.filter(is_active=True, parent__isnull=False,)[:5],
+        'footer_boxes': FooterBox.objects.filter(is_active=True,).prefetch_related('footer_links'),
+        'site_setting': SiteSettings.objects.filter(is_active=True).first(),
+    } 
 
 
 

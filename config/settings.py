@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 	"home",
     "account",
     "product",
+    "site_settings",
 ]
 
 MIDDLEWARE = [
