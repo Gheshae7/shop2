@@ -3,6 +3,7 @@ from basic.base_model import BaseModel
 
 
 class FooterBox(BaseModel):
+    """This class is for categorizing the site's footer links"""
     name = models.CharField(max_length=155, null=False, blank=False, verbose_name='نام دسته')
     
     def __str__(self):
@@ -11,10 +12,12 @@ class FooterBox(BaseModel):
     class Meta:
         ordering = ['name']
         db_table = 'footer_boxes'
-        db_table_comment = 'f'
+        db_table_comment = "This table is for categorizing the site's footer links"
 
         
 class FooterLink(BaseModel):
+    """This class is for the site's footer links and is related to the class mentioned above."""
+    
     name = models.CharField(max_length=155, null=False, blank=False, verbose_name='نام لینک')
     url = models.CharField(max_length=512, null=True, blank=True, verbose_name='آدرس url')
     footer_box = models.ForeignKey(FooterBox, on_delete=models.SET_NULL, null=True, blank=True, related_name='footer_links')
@@ -27,10 +30,12 @@ class FooterLink(BaseModel):
     class Meta:
         ordering = ['name']
         db_table = 'footer_links'
-        db_table_comment = 'd'
+        db_table_comment = "This table is for the site's footer links."
 
 
 class SiteSettings(BaseModel):
+    """This class displays site settings, such as the site logo, copyright text, etc."""
+    
     name = models.CharField(max_length=200, null=False, blank=False, verbose_name='نام سایت')
     logo = models.ImageField(null=True, blank=True, verbose_name='لوگو سایت', upload_to='site_setting/logo')
     support_email = models.CharField(max_length=100, null=True, blank=True, verbose_name='ایمیل پشتیبانی')
@@ -54,4 +59,4 @@ class SiteSettings(BaseModel):
     class Meta:
         ordering = ['is_active' ,'name']
         db_table = 'site_settings'
-        db_table_comment = 'e'
+        db_table_comment = 'This table displays site settings, such as the site logo, copyright text, etc.'

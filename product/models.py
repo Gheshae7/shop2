@@ -22,7 +22,7 @@ class Category(BaseModel):
     
     class Meta: 
         db_table = 'categories'
-        db_table_comment = 'This table for products` categories'
+        db_table_comment = 'The product categories are listed in this table.'
         ordering = ['is_active', 'name', 'url_name',]
         
 
@@ -37,11 +37,13 @@ class Brand(BaseModel):
     
     class Meta:
         db_table = 'brands'
-        db_table_comment = 'This table for products` brands'
+        db_table_comment = 'The brand of the products is listed in this table.'
         ordering = ['is_active', 'name', 'url_name',]
 
 
 class Tag(BaseModel):
+    """This class is for product tags."""
+    
     name = models.CharField(max_length=100, unique=True, blank=False, name=False, verbose_name='نام تگ')
     
     
@@ -51,7 +53,7 @@ class Tag(BaseModel):
     
     class Meta:
         db_table = 'tags'
-        db_table_comment = 'This is for tag`s products'
+        db_table_comment = 'The tags for the products are listed in this table.'
         ordering = ['name']
 
 
@@ -72,6 +74,8 @@ class ProductDeliveryInfo(BaseModel):
     
 
 class Product(BaseModel):
+    """This class represents our products—or rather, it shows an overview of our product."""
+    
     name = models.CharField(max_length=255, null=False, blank=False, verbose_name='نام محصول')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='دسته بندی محصول', related_name='products')
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='برند محصول', related_name='products')
@@ -89,11 +93,13 @@ class Product(BaseModel):
     
     class Meta:
         db_table = 'products'
-        db_table_comment = 'This table is for defining products.'
+        db_table_comment = 'An overview of our products is provided in this table.'
         ordering = ['is_active', 'name', 'category',]
         
         
 class SpecificationCategory(BaseModel):
+    """This class is for product feature categories, such as the display category."""
+    
     name = models.CharField(max_length=155, null=False, blank=False, verbose_name='نام دسته بندی ویژگی')
     order = models.PositiveIntegerField(default=0, blank=False, verbose_name='ترتیب نمایش')
 
@@ -102,12 +108,14 @@ class SpecificationCategory(BaseModel):
         return self.name
     
     class Meta:
-        db_table = 'specificationcategory'
-        db_table_comment = 'd'
-        ordering = ['order']
+        db_table = 'specification_categories'
+        db_table_comment = 'This table is for attribute categories.'
+        ordering = ['-order']
         
             
 class ProductSpecification(BaseModel):
+    """This class stores various specifications of a product and has a foreign key relationship with the Product model."""
+    
     product = models.ForeignKey(Product, related_name='specifications', on_delete=models.CASCADE)
     category = models.ForeignKey(SpecificationCategory ,on_delete=models.SET_NULL, null=True, blank=True, verbose_name='دسته بندی ویژگی', related_name='product_specification')
     name = models.CharField(max_length=120, null=False, blank=False, verbose_name='نام ویژگی')
@@ -124,11 +132,15 @@ class ProductSpecification(BaseModel):
 
     class Meta:
         db_table = 'product_specifications'
-        db_table_comment = 'This table is for product technical specifications and is related to the products table.'
-        ordering = ['is_active', 'order']
+        db_table_comment = 'This table contains the product specifications.'
+        ordering = ['is_active', '-order']
            
 
 class Attribute(BaseModel):
+    """In this class, only the attribute name is specified—indicating the colors available for the product—thereby defining
+the product attributes that determine whether or not a user can add the item to their shopping cart.
+"""
+
     name = models.CharField(max_length=100, null=False, blank=False, unique=True, verbose_name='رنگ / حافطه داخلی و ...')
 
 
@@ -138,11 +150,15 @@ class Attribute(BaseModel):
     
     class Meta:
         db_table = 'attribute'
-        db_table_comment = ''
+        db_table_comment = 'This table lists the product attributes based on which the user selects the specific product—with its particular specifications—to add to the shopping cart.'
         ordering = ['is_active', 'name']
 
 
 class AttributeValue(BaseModel):
+    """This class has a foreign key relationship with the parent class, which populates its value; the goal was to avoid defining
+redundant attributes and to reduce the database size by utilizing this relationship.
+
+"""
     attribute = models.ForeignKey(Attribute, related_name='values_attr', on_delete=models.CASCADE, verbose_name='ویژگی')
     value = models.CharField(max_length=155, null=True, blank=True, verbose_name='مقدار ویژگی')
     color_code = models.CharField(max_length=7, blank=True, null=True, verbose_name='کد رنگ', help_text='اگر از ویژگی رنگ استفاده کردی کد رنگ رو اینجا بزار')
@@ -153,12 +169,14 @@ class AttributeValue(BaseModel):
     
     class Meta:
         db_table = 'attribute_values'
-        db_table_comment = ''
+        db_table_comment = 'This table holds the value for that product attribute; for example, if the attribute is color, both the color code and the color name are included.'
         unique_together = ('attribute', 'value')
         ordering = ['is_active', 'value']
         
     
 class ProductVariant(BaseModel):
+    """This class indicates the variations of a product—such as color (e.g., red), size, and so on."""
+    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=False, blank=False, related_name='variants', verbose_name='محصول والد')
     attributes = models.ManyToManyField(AttributeValue, related_name='variants')
     price = models.PositiveIntegerField(null=False, blank=False, verbose_name='قیمت محصول')
@@ -172,20 +190,22 @@ class ProductVariant(BaseModel):
     
     
     class Meta:
-        db_table = 'product_variant'
-        db_table_comment = ''
+        db_table = 'product_variants'
+        db_table_comment = 'This table shows the variations of a product that are maintained within that product.'
         ordering = ['is_active', 'stock',]
     
      
 class ProductsImages(BaseModel):
+    """This class stores product photos—that's all."""
+    
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     variant = models.ForeignKey(ProductVariant, related_name='images', on_delete=models.CASCADE, null=True, blank=True, help_text='اگر این عکس مخصوص محصول خاصی است مثل رنگ قرمز')
     image = models.ImageField(upload_to='product/image', verbose_name='عکس محصول', null=False, blank=False)
     is_main = models.BooleanField(default=False, verbose_name='عکس اصلی / غیر اصلی')
 
     class Meta:
-        db_table = 'products_images'
-        db_table_comment = ''
+        db_table = 'product_images'
+        db_table_comment = 'This table is for product photos.'
         ordering = ['is_active']
         
 
@@ -194,6 +214,7 @@ class ProductsImages(BaseModel):
 
 
 class ProductQuestionAnswer(BaseModel):
+    """This class is for handling frequently asked questions about the products."""
     question = models.TextField(verbose_name='پرسش')
     answer = models.TextField(verbose_name='پاسخ')
     
@@ -203,11 +224,13 @@ class ProductQuestionAnswer(BaseModel):
     
     class Meta:
         db_table = 'product_question_answers'
-        db_table_comment = 'd'
+        db_table_comment = 'This table is for product-related questions and answers.'
         ordering = ['is_active']
         
         
 class Comment(BaseModel):
+    """This class is for a product's comments."""
+    
     product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE, verbose_name='محصول', related_name='comments')
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name='عنوان کامنت')
     text = models.TextField(max_length=255, null=False, blank=False, verbose_name='متن کامنت')
@@ -224,6 +247,5 @@ class Comment(BaseModel):
     
     class Meta:
         db_table = 'comments_products'
-        db_table_comment = 'c'
+        db_table_comment = 'This table is for product comments.'
         ordering = ['is_active', '-created_at']
-    

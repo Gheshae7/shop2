@@ -7,6 +7,10 @@ from django.utils.timezone import now, timedelta
 
 
 class ProductListView(ListView):
+    """This class is designed to display products to the user and includes filtering capabilities based
+on category and other criteria.
+"""
+    
     template_name = 'product/products.html'
     model = Product
     context_object_name = 'products'
@@ -15,9 +19,10 @@ class ProductListView(ListView):
         query = super().get_queryset()
         query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'))
 
-        # filter by params
+        # get category_params
         category_params = self.request.GET.get('category')
         print(category_params)
+        # fiter by category_params
         if category_params:
             query = query.filter(category__url_name__exact=category_params)
 
@@ -35,6 +40,7 @@ class ProductListView(ListView):
     
 
 class ProductDetailView(DetailView):
+    """This class is intended to display the details of a product."""
     model = Product
     template_name = 'product/product_detail.html'
     context_object_name = 'product'

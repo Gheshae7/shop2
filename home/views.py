@@ -5,4 +5,5 @@ from django.views.generic import TemplateView
 
 
 class HomePageView(TemplateView):
+    """This class displays the main page."""
     template_name = 'home/home.html'

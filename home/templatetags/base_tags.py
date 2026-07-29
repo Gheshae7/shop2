@@ -5,8 +5,7 @@ from site_settings.models import FooterBox, SiteSettings
 
 register = template.Library()
 
-
-@register.inclusion_tag('header_base.html')
+# This inclusion_tag is for the site header
 def header_base(request):
     return {
         'request': request,
@@ -15,7 +14,7 @@ def header_base(request):
     } 
 
 
-
+# This inclusion_tag is for the site footer
 @register.inclusion_tag('footer_base.html')
 def footer_base():
     return {
@@ -25,7 +24,6 @@ def footer_base():
     } 
 
 
-
 @register.simple_tag
 def calculating_discount(price, discount):
     result = int(price - ((price / 100) * discount))
@@ -33,12 +31,10 @@ def calculating_discount(price, discount):
     return (result, saving)
 
 
-
 @register.filter
 def times(number):
     number = int(number)
     return range(1, number + 1)
-
 
 
 @register.simple_tag

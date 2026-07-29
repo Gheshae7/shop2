@@ -29,6 +29,7 @@ def get_user(email: str,) -> User:
     
     try:
         user: User = User.objects.get(email__exact=email, is_active=True)
+        # returned user
         return user
     except User.DoesNotExist:
         raise User.DoesNotExist('کاربری پیدا نشد')
@@ -39,7 +40,7 @@ def login_account(request: HttpRequest) -> HttpResponseRedirect:
     """This function for logining users"""
 
     if request.method == 'POST':
-        # ]f the user is logged in
+        # if the user is logged in
         if request.user.is_authenticated:
             messages.error(request, 'لطفا از اکانت خود خارج شوید و مجدد تست کنید')
             return redirect(reverse('account:login_register_page'))
@@ -49,6 +50,7 @@ def login_account(request: HttpRequest) -> HttpResponseRedirect:
                 # User login
                 current_user: User = get_user(email=login_form.cleaned_data['email'])
                 if current_user.check_password(login_form.cleaned_data['password']):
+                    # login
                     login(request, current_user)
                     messages.success(request, 'با موفقیت وارد حساب کاربری خود شده اید')
                     return redirect(reverse('home:home_page'))
@@ -108,6 +110,7 @@ def activate_account(request: HttpRequest, email_active_code: str) -> HttpRespon
         current_user.is_active = True
         current_user.email_active_code = get_random_string(128)
         current_user.save()
+        # User account successfully activated
         messages.success(request, 'حساب کاربری شما با موفقیت فعال شد')
         return redirect(reverse('account:login_register_page'))
     # User not found so cannot be activated account
@@ -122,6 +125,7 @@ def logout_account(request: HttpRequest) -> HttpResponseRedirect:
     
     # If the user is logged in, then log them out.
     if request.user.is_authenticated:
+        # logout
         logout(request)
         messages.success(request, 'با موفقیت از حساب کاربری خود خارج شدید')
         return redirect(reverse('home:home_page')) 
@@ -147,6 +151,7 @@ class ForgetPassword(View):
             try:
                 # User found so send email to user for reset password
                 current_user = get_user(email=forget_form.cleaned_data.get('email'))
+                # Send email to recover account password
                 send_email.apply_async(args=['بازیابی کلمه عبور', current_user.email, {'email_active_code': current_user.email_active_code}, 'account/emails/reset_password.html'])
                 messages.success(request, 'ایمیلی جهت بازیابی کلمه عبور به شما ارسال شد')
                 return redirect(reverse('account:login_register_page'))
@@ -234,13 +239,16 @@ class ProfileView(View):
             if profile_form.is_valid():
                 email = profile_form.cleaned_data.get('email')
                 if current_user.email == email:
+                    # update profile
                     profile_form.save()
                     messages.success(request, 'پروفایل شما آپدیت شد')
                     return redirect(reverse('account:profile_page'))
                 else:
+                    # cannot be change email
                     messages.info(request, 'نمیتوانید ایمیل را تغییر دهید')
                     return redirect(reverse('account:profile_page'))
             else:
+                # The username must be different
                 messages.error(request, 'نام کاربری باید متفاوت باشد')
                 return redirect(reverse('account:profile_page'))
 
