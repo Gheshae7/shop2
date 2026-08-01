@@ -80,7 +80,7 @@ class Product(BaseModel):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='دسته بندی محصول', related_name='products')
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='برند محصول', related_name='products')
     tag = models.ManyToManyField(Tag, null=True, blank=True, verbose_name='تگ های محصول')
-    delivery_info = models.ManyToManyField(ProductDeliveryInfo, verbose_name='اطلاعاتی مانند نوع بسته بندی و این حرفا',)
+    delivery_info = models.ManyToManyField(ProductDeliveryInfo, verbose_name='اطلاعاتی مانند نوع بسته بندی و این حرفا', null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True, verbose_name='توضیحات کوتاه محصول')
     description = models.TextField(null=True, blank=True, verbose_name='توضیحات اصلی محصول')
     slug = models.SlugField(null=False, blank=False, unique=True, verbose_name='آدرس محصول در url')

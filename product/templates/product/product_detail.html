@@ -431,14 +431,18 @@
                 <div class="flex items-center gap-4 flex-wrap">
                     <div class="flex items-center gap-2">
                         <div class="flex">
-                            {% for star in product.comments_avg|times %}
-                                <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                            {% endfor %}
+                            {% if product.comments_avg %}
+                                {% for star in product.comments_avg|times %}
+                                    <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        <span class="text-sm font-700 text-gray-800">{{ product.comments_avg }}</span>
+                        {% if product.comments_avg %}
+                            <span class="text-sm font-700 text-gray-800">{{ product.comments_avg }}</span>
+                        {% endif %}
                         <span class="text-sm text-gray-400">{{ comments_count }} نظر</span>
                     </div>
                     <div class="h-4 w-px bg-gray-200"></div>
@@ -485,7 +489,7 @@
                             {% if attr.attribute.name == 'رنگ' %}
                             <button @click="selectedColor = '{{ attr.value }}'"
                                 class="color-ring cursor-pointer relative w-10 h-10 rounded-full shadow-md border-2 flex items-center justify-center transition-all"
-                                style="background: #{{ attr.color_code }};"
+                                style="background: {{ attr.color_code }};"
                                 :class="selectedColor === '{{ attr.value }}' ? 'border-indigo-500 ring-2 ring-indigo-300 ring-offset-1 scale-110' : 'border-white hover:scale-110'"
                                 title="{{ attr.value }}">
                                 <span x-show="selectedColor === '{{ attr.value }}'" class="text-white text-xs font-700">✓</span>
@@ -711,27 +715,6 @@
                     </div>
                 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 <!-- Reviews Tab -->
                 <div x-show="activeTab === 'reviews'" class="slide-in space-y-6">
                     <!-- Rating Summary -->
@@ -740,26 +723,27 @@
                             <div class="text-center flex-shrink-0">
                                 <div class="text-6xl font-900 text-gray-800">{{ product.comments_avg|floatformat:2 }}</div>
                                 <div class="flex justify-center mt-2 gap-1">
-                                    {% for star in product.comments_avg|times %}
-                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                    {% endfor %}
+                                    {% if product.comments_avg %}
+                                        {% for star in product.comments_avg|times %}
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path
+                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <p class="text-sm text-gray-400 mt-1">{{ comments_count }} نظر</p>
                             </div>
                             <div class="flex-1 space-y-2">
                                 {% for number in 5|times %}
-                                
                                         <div class="flex items-center gap-3">
                                         <span class="text-xs text-gray-500 w-8 text-left">{{ number }}★</span>
                                         <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                                             {% calculateing_darsad_rating comments_count product.comments.all number as Percentage %}
                                             <div class="h-full bg-yellow-400 rounded-full transition-all duration-700"
-                                                :style="`width: {{ Percentage }}%`"></div>
+                                                :style="`width: {% if Percentage %}{{ Percentage }}%{% else %}0%{% endif %}`"></div>
                                         </div>
-                                        <span class="text-xs text-gray-400 w-8">{{ Percentage }}%</span>
+                                        <span class="text-xs text-gray-400 w-8">{% if Percentage %}{{ Percentage }} %{% else %}0%{% endif %}</span>
                                     </div>
                                 {% endfor %}
                             </div>

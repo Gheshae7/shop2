@@ -6,6 +6,7 @@ from site_settings.models import FooterBox, SiteSettings
 register = template.Library()
 
 # This inclusion_tag is for the site header
+@register.inclusion_tag('header_base.html')
 def header_base(request):
     return {
         'request': request,
@@ -44,5 +45,5 @@ def calculateing_darsad_rating(comment_count, comments, number):
         if comment.rating == number:
             count += 1
             
-    res = (100 / comment_count) * count
-    return round(res)
+    res = (100 / comment_count) * count if comment_count != 0 else None
+    return round(res) if res else None
