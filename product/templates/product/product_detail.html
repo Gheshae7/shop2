@@ -743,7 +743,7 @@
                                             <div class="h-full bg-yellow-400 rounded-full transition-all duration-700"
                                                 :style="`width: {% if Percentage %}{{ Percentage }}%{% else %}0%{% endif %}`"></div>
                                         </div>
-                                        <span class="text-xs text-gray-400 w-8">{% if Percentage %}{{ Percentage }} %{% else %}0%{% endif %}</span>
+                                        <span class="text-xs text-gray-400 w-8">{% if Percentage %}{{ Percentage }}%{% else %}0%{% endif %}</span>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -924,7 +924,7 @@
                             class="text-[16px] font-light"> محصولات</span></h2>
                 </div>
                 <div class="flex items-center justify-center gap-2">
-                    <a class="text-[#0C2D5B] text-[12px] font-bold" href="#">همه محصولات</a>
+                    <a class="text-[#0C2D5B] text-[12px] font-bold" href="{% url "product:products_page" %}?popular=true">همه محصولات</a>
                     <svg class="w-[15px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.16 90.38">
                         <path style="fill: #08d581;stroke: #000;stroke-miterlimit: 10;stroke-width: 3px;" class="cls-1"
                             d="M61.92,85.68V4.69c0-2.84-4.44-4.26-7.03-2.25L2.27,43.17c-1.01.78-1.02,2.08-.02,2.88l52.6,41.86c2.58,2.05,7.07.64,7.07-2.22Z" />

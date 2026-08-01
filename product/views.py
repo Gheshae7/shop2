@@ -17,14 +17,69 @@ on category and other criteria.
     
     def get_queryset(self):
         query = super().get_queryset()
-        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'))
+        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'))
 
         # get category_params
         category_params = self.request.GET.get('category')
-        print(category_params)
+        popular_params = self.request.GET.get('popular')
+        price_asc_params = self.request.GET.get('price-asc')
+        price_desc_params = self.request.GET.get('price-desc')
+        rating_params = self.request.GET.get('rating')
+        newest_params = self.request.GET.get('newest')
+        min_price = self.request.GET.get('min-price')
+        max_price = self.request.GET.get('max-price')
+        discount_params = self.request.GET.get('discount')
+        stock_params = self.request.GET.get('stock')
+        
         # fiter by category_params
         if category_params:
             query = query.filter(category__url_name__exact=category_params)
+            
+        
+        # filter by popular_params
+        if popular_params == 'true':
+            query = query.order_by('-count_view', '-sales_count')
+            
+        
+        # filter by price_asc_params
+        if price_asc_params == 'true':
+            query = query.order_by('price')
+            
+        
+        # filter by price_desc_params
+        if price_desc_params == 'true':
+            query = query.order_by('-price')
+            
+        
+        # filter by rating_params
+        if rating_params == 'true':
+            query = query.order_by('-rating')
+        
+        
+        # filter by newest_params
+        if newest_params == 'true':
+            query = query.order_by('-created_at')
+            
+        
+        # filter by min_price
+        if min_price:
+            query = query.filter(price__gte=min_price)
+            
+            
+        # filter by max_price
+        if max_price:
+            query = query.filter(price__lte=max_price)
+
+
+        # filter by discount_params
+        if discount_params == 'true':
+            query = query.filter(discount__isnull=False)
+            
+            
+         # filter by stock_params
+        if stock_params == 'true':
+            query = query.filter(stock__gte=1)
+            
 
         return query
     
