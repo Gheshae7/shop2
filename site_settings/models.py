@@ -60,3 +60,53 @@ class SiteSettings(BaseModel):
         ordering = ['is_active' ,'name']
         db_table = 'site_settings'
         db_table_comment = 'This table displays site settings, such as the site logo, copyright text, etc.'
+
+
+class QuestionAnswer(BaseModel):
+    """This class is for frequently asked questions from across the entire site."""
+    question = models.TextField(verbose_name='پرسش')
+    answer = models.TextField(verbose_name='پاسخ')
+    emoji = models.CharField(max_length=10, null=False, blank=False, verbose_name='ایموجی این سوال', help_text='حتما پر شود و گرنه ظاهر سایت خراب می شود')
+    
+    def __str__(self):
+        return self.question
+    
+    
+    class Meta:
+        db_table = 'question_answers'
+        db_table_comment = 'This table is for project-wide questions and answers.'
+        ordering = ['is_active']
+        
+        
+class Feature(BaseModel):
+    """This class is used for the feature bar."""
+    
+    title = models.CharField(max_length=55, null=False, blank=False, verbose_name='عنوان')
+    description = models.CharField(max_length=255, null=False, blank=False, verbose_name='توضیحات')
+    emoji = models.CharField(max_length=10, null=False, blank=True, verbose_name='اموجی', help_text='این رو اصن بزار نزاری باختی قافله رو')
+    
+    
+    def __str__(self):
+        return self.title
+    
+    
+    class Meta:
+        db_table = 'features'
+        db_table_comment = 'This class is used for the feature bar.'
+        ordering = ['is_active',]
+        
+
+class Ticker(BaseModel):
+    """This model is used for that purple bar on the main screen."""
+    
+    title = models.CharField(max_length=200, null=False, blank=False, verbose_name='متن نمایش')
+    
+    
+    def __str__(self):
+        return self.title
+    
+    
+    class Meta:
+        db_table = 'tickers'
+        db_table_comment = 'This table is used for that purple bar on the main screen.'
+        ordering = ['is_active']

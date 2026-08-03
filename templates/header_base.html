@@ -38,9 +38,9 @@
             <div class="flex justify-between items-center gap-3">
                 <!-- Logo -->
                 <div class="flex-shrink-0 group">
-                    <a href="index.html" class="block">
+                    <a href="{% url "home:home_page" %}" class="block">
                         <img class="w-[80px] sm:w-[80px] md:w-[100px] transition-transform duration-300 group-hover:scale-105"
-                            src="{% static "assets/images/logo.png" %}" alt="سیلکی">
+                            src="{{ MEDIA_URL }}{{ site_setting.logo }}" alt="سیلکی">
                     </a>
                 </div>
 
@@ -732,7 +732,7 @@
                         </div>
                         <div class="hidden lg:block">
                             <p class="text-[11px] text-[#ACB8C4]">پشتیبانی</p>
-                            <p class="text-[13px] font-medium" dir="ltr">021-12345678</p>
+                            <p class="text-[13px] font-medium" dir="ltr">{{ site_setting.phone }}</p>
                         </div>
                     </a>
                 </div>

@@ -285,7 +285,7 @@
 {% block content %}
 
     <!-- برای پیام های پاپ آپ -->
-    {% if messages %}
+{% if messages %}
     <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
       <script>
         {% for message in messages %}
@@ -298,7 +298,7 @@
             });
         {% endfor %}
       </script>
-    {% endif %}
+{% endif %}
 
     <section x-data="creativeHero()" @mousemove="handleMouseMove" @mouseleave="resetMouse"
         class="relative w-full min-h-screen bg-[#fdfdfd] overflow-hidden font-sans text-right flex items-center"
@@ -403,16 +403,14 @@
     <div class="bg-gradient-to-l from-indigo-700 via-purple-700 to-indigo-800 py-3.5 overflow-hidden">
         <div class="ticker-wrap">
             <div class="ticker-track">
-                <template x-for="n in 2" :key="n">
+                {% for ticker in tickers %}
                     <div class="flex items-center gap-14 flex-shrink-0 pr-14">
-                        <template x-for="tick in tickers" :key="tick+n">
-                            <span class="flex items-center gap-2.5 text-white text-sm font-semibold whitespace-nowrap">
-                                <span class="text-indigo-300 text-xs">✦</span>
-                                <span x-text="tick"></span>
-                            </span>
-                        </template>
+                        <span class="flex items-center gap-2.5 text-white text-sm font-semibold whitespace-nowrap">
+                            <span class="text-indigo-300 text-xs">✦</span>
+                            <span>{{ ticker.title }}</span>
+                        </span>
                     </div>
-                </template>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -423,16 +421,14 @@
     <section class="py-14 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <template x-for="f in features" :key="f.title">
+                {% for feature in features %}
                     <div
                         class="group flex flex-col items-center text-center p-6 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/80 transition-all cursor-default">
-                        <div :class="f.bg"
-                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform duration-300"
-                            x-text="f.icon"></div>
-                        <p class="font-black text-slate-800 text-sm" x-text="f.title"></p>
-                        <p class="text-slate-400 text-xs mt-1 leading-relaxed" x-text="f.desc"></p>
+                        <div :class="'{% cycle 'bg-indigo-100' 'bg-emerald-100' 'bg-purple-100' 'bg-amber-100' %}'" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform duration-300">{{ feature.emoji }}</div>
+                        <p class="font-black text-slate-800 text-sm">{{ feature.title }}</p>
+                        <p class="text-slate-400 text-xs mt-1 leading-relaxed">{{ feature.title }}</p>
                     </div>
-                </template>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -502,15 +498,15 @@
                         <p
                             class="text-xs sm:text-sm font-black text-slate-700 transition-colors group-hover:text-indigo-600">
                             همه</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5 font-medium" x-text="products.length+' کالا'"></p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 font-medium">{{ products_count }} کالا</p>
                     </div>
                 </button>
 
-                <!-- کارت‌های داینامیک Alpine -->
-                <template x-for="cat in cats" :key="cat.name">
+            <!-- کارت‌های داینامیک Alpine -->
+                {% for category in categories %}
                     <button
-                        @click="activeCat=cat.name; document.getElementById('products').scrollIntoView({behavior:'smooth'})"
-                        :class="activeCat===cat.name ? 'ring-2 ring-indigo-400 bg-white/80 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.3)] translate-y-[-4px]' : 'bg-white/40 border-white/60 hover:bg-white/60 hover:-translate-y-1 hover:shadow-[0_8px_15px_-5px_rgba(0,0,0,0.05)]'"
+                        @click="activeCat='{{ category.name }}'; document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+                        :class="activeCat==='{{ category.name }}' ? 'ring-2 ring-indigo-400 bg-white/80 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.3)] translate-y-[-4px]' : 'bg-white/40 border-white/60 hover:bg-white/60 hover:-translate-y-1 hover:shadow-[0_8px_15px_-5px_rgba(0,0,0,0.05)]'"
                         class="relative flex flex-col items-center justify-center gap-3 p-5 rounded-[1.25rem] backdrop-blur-xl border shadow-sm transition-all duration-400 group overflow-hidden cursor-pointer">
 
                         <!-- گرادیانت هاور داخلی -->
@@ -518,19 +514,16 @@
                             class="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                         </div>
 
-                        <div :class="cat.bg"
+                        <div :class="'{% cycle 'bg-indigo-100' 'bg-emerald-100' 'bg-purple-100' 'bg-amber-100' 'bg-cyan-100' 'bg-rose-100' 'bg-orange-100' %}'"
                             class="relative w-14 h-14 border border-white/80 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                            <span x-text="cat.icon"
-                                class="transform transition-transform duration-300 group-hover:scale-110"></span>
+                            <span class="transform transition-transform duration-300 group-hover:scale-110">{{ category.emoji }}</span>
                         </div>
                         <div class="text-center relative z-10">
-                            <p class="text-xs sm:text-sm font-black text-slate-700 transition-colors group-hover:text-indigo-600"
-                                x-text="cat.name"></p>
-                            <p class="text-[10px] text-slate-400 mt-0.5 font-medium" x-text="cat.count+' کالا'"></p>
+                            <p class="text-xs sm:text-sm font-black text-slate-700 transition-colors group-hover:text-indigo-600">{{ category.name }}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5 font-medium">{{ category.stock }} کالا</p>
                         </div>
                     </button>
-                </template>
-
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -663,11 +656,11 @@
                 <button @click="activeCat='همه'"
                     :class="activeCat==='همه'?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
                     class="px-4 py-2 rounded-xl text-sm font-bold transition-all">همه</button>
-                <template x-for="cat in cats" :key="cat.name">
-                    <button @click="activeCat=cat.name"
-                        :class="activeCat===cat.name?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
-                        class="px-4 py-2 rounded-xl text-sm font-bold transition-all" x-text="cat.name"></button>
-                </template>
+                    {% for category in categories %}
+                    <button @click="activeCat='{{ category.name }}'"
+                        :class="activeCat==='{{ category.name }}'?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
+                        class="px-4 py-2 rounded-xl text-sm font-bold transition-all">{{ category.name }}</button>
+                    {% endfor %}    
             </div>
 
             <!-- Toolbar -->
@@ -1000,14 +993,11 @@
 ═══════════════════════════════════ -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <p class="text-center text-slate-400 text-xs font-black uppercase tracking-widest mb-10">برندهای رسمی همکار
-                ما</p>
+            <p class="text-center text-slate-400 text-xs font-black uppercase tracking-widest mb-10">برند های رسمی</p>
             <div class="flex flex-wrap items-center justify-center gap-10 sm:gap-16">
-                <template x-for="b in brands" :key="b">
-                    <span
-                        class="text-2xl cursor-pointer sm:text-3xl font-black text-slate-200 hover:text-slate-600 transition-colors duration-300 cursor-default select-none"
-                        x-text="b"></span>
-                </template>
+                {% for brand in brands %}
+                    <span class="text-2xl cursor-pointer sm:text-3xl font-black text-slate-200 hover:text-slate-600 transition-colors duration-300 cursor-default select-none">{{ brand.name }}</span>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -1193,27 +1183,26 @@
 
             <!-- لیست آکاردئونی (Glass Effect) -->
             <div class="space-y-4">
-                <template x-for="(faq, idx) in faqs" :key="idx">
+                {% for question in questions %}
                     <div class="rounded-[2rem] border backdrop-blur-xl transition-all duration-300"
                         :class="openFaq === idx ? 'bg-white/80 border-indigo-200/50 shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] scale-[1.02]' : 'bg-white/40 border-white/60 shadow-[0_8px_30px_-15px_rgba(0,0,0,0.05)] hover:bg-white/60 hover:shadow-lg hover:-translate-y-0.5'">
 
-                        <button @click="openFaq = openFaq === idx ? null : idx"
+                        <button @click="openFaq = openFaq === '{{ question.id }}' ? null : '{{ question.id }}'"
                             class="w-full flex items-center justify-between p-6 text-right gap-4 cursor-pointer group">
 
                             <div class="flex items-center gap-4">
                                 <!-- آیکون سمت راست -->
                                 <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-inner transition-all duration-300 group-hover:scale-110"
-                                    :class="openFaq === idx ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-indigo-200' : 'bg-white text-slate-600 border border-slate-100'">
-                                    <span x-text="faq.icon"></span>
+                                    :class="openFaq === '{{ question.id }}' ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-indigo-200' : 'bg-white text-slate-600 border border-slate-100'">
+                                    <span>{{ question.emoji }}</span>
                                 </div>
                                 <span
-                                    class="font-bold text-slate-800 text-sm md:text-base group-hover:text-indigo-600 transition-colors"
-                                    x-text="faq.q"></span>
+                                    class="font-bold text-slate-800 text-sm md:text-base group-hover:text-indigo-600 transition-colors">{{ question.question }}</span>
                             </div>
 
                             <!-- آیکون فلش (Micro-interaction) -->
                             <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 shadow-sm"
-                                :class="openFaq === idx ? 'bg-indigo-100 text-indigo-600 rotate-180' : 'bg-white text-slate-400 group-hover:bg-slate-50'">
+                                :class="openFaq === '{{ question.id }}' ? 'bg-indigo-100 text-indigo-600 rotate-180' : 'bg-white text-slate-400 group-hover:bg-slate-50'">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M19 9l-7 7-7-7" />
@@ -1222,14 +1211,14 @@
                         </button>
 
                         <!-- متن پاسخ -->
-                        <div x-show="openFaq === idx" x-collapse class="px-6 pb-6 pt-0">
+                        <div x-show="openFaq === '{{ question.id }}'" x-collapse class="px-6 pb-6 pt-0">
                             <div
                                 class="h-px w-full bg-gradient-to-l from-transparent via-slate-200 to-transparent mb-5 opacity-50">
                             </div>
-                            <p class="text-slate-600 text-sm leading-relaxed pr-14" x-text="faq.a"></p>
+                            <p class="text-slate-600 text-sm leading-relaxed pr-14">{{ question.answer }}</p>
                         </div>
                     </div>
-                </template>
+                {% endfor %}
             </div>
 
             <!-- کارت پشتیبانی پایینی (Complex Glassmorphism & Gradient) -->
@@ -1259,7 +1248,7 @@
                         </button>
 
                         <!-- دکمه تماس (Glassy) -->
-                        <button @click="showToast('info','تماس','شماره پشتیبانی: ۰۲۱-۱۲۳۴-۵۶۷۸')"
+                        <button @click="showToast('info','تماس','شماره پشتیبانی: {{ site_setting.phone }}')"
                             class="flex items-center gap-2 bg-white/50 backdrop-blur-md text-slate-700 border border-white shadow-sm px-8 py-3.5 rounded-full font-bold text-sm hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all active:scale-95">
                             📞 تماس تلفنی
                         </button>
@@ -1301,14 +1290,6 @@
                     { label: 'میلی‌ثانیه', val: 0 }
                 ],
 
-                /* ─── NAV LINKS ─── */
-                navLinks: [
-                    { label: 'خانه', href: '#home' },
-                    { label: 'محصولات', href: '#products' },
-                    { label: 'پیشنهادات', href: '#flash' },
-                    { label: 'نظرات', href: '#reviews' },
-                    { label: 'پرسش‌ها', href: '#faq' }
-                ],
 
                 /* ─── HERO STATS ─── */
                 heroStats: [
@@ -1336,34 +1317,6 @@
                     '📦 بسته‌بندی ضد ضربه و ایمن',
                     '🔄 ۷ روز ضمانت بازگشت وجه بدون سوال',
                     '📞 پشتیبانی ۲۴/۷ آنلاین و تلفنی'
-                ],
-
-                /* ─── FEATURES ─── */
-                features: [
-                    {
-                        icon: '🚀',
-                        bg: 'bg-indigo-100',
-                        title: 'ارسال فوری',
-                        desc: 'تحویل در کمتر از ۲۴ ساعت به سراسر کشور'
-                    },
-                    {
-                        icon: '🛡️',
-                        bg: 'bg-emerald-100',
-                        title: 'گارانتی اصل‌بودن',
-                        desc: 'تمام کالاها دارای گارانتی رسمی ۲ ساله'
-                    },
-                    {
-                        icon: '💳',
-                        bg: 'bg-purple-100',
-                        title: 'اقساط بدون بهره',
-                        desc: 'خرید اقساطی تا ۱۲ ماه بدون سود'
-                    },
-                    {
-                        icon: '🔄',
-                        bg: 'bg-amber-100',
-                        title: 'مرجوعی آسان',
-                        desc: '۷ روز ضمانت تعویض یا بازگشت وجه'
-                    }
                 ],
 
                 /* ─── CATEGORIES ─── */
@@ -2012,3 +1965,8 @@
         }
     </script>
 {% endblock content %}
+
+{% block footer_custom_references %}
+<script src="https://soufianodev.github.io/Toast-JS/libs/js/v2.1.0-beta/Toast.js"></script>
+{% endblock footer_custom_references %}
+    

@@ -2,16 +2,20 @@ from django import template
 from product.models import Category
 from django.db.models import Prefetch
 from site_settings.models import FooterBox, SiteSettings
+from django.conf import settings
 
 register = template.Library()
 
 # This inclusion_tag is for the site header
 @register.inclusion_tag('header_base.html')
 def header_base(request):
+    p = SiteSettings.objects.filter(is_active=True).values('logo', 'phone').first(),
+    print(p)
     return {
         'request': request,
         'categories': Category.objects.filter(is_active=True, parent__isnull=True, children_categories__is_active=True,).prefetch_related(Prefetch('children_categories', queryset=Category.objects.filter(is_active=True))).distinct(),
-        # 'logo': SiteSettings.objects.filter(is_active=True).values_list('logo', flat=True).first(),
+        'site_setting': SiteSettings.objects.filter(is_active=True).values('logo', 'phone').first(),
+        'MEDIA_URL': settings.MEDIA_URL,
     } 
 
 
