@@ -1,5 +1,7 @@
 from django.db import models
 from basic.base_model import BaseModel
+from django.utils.translation import gettext_lazy as _
+from product.models import Product
 
 
 class FooterBox(BaseModel):
@@ -64,9 +66,18 @@ class SiteSettings(BaseModel):
 
 class QuestionAnswer(BaseModel):
     """This class is for frequently asked questions from across the entire site."""
+    
+    class Positions(models.TextChoices):
+        product_detail = "product_detail", _("صفحه جزییات محصول")
+        home = "home", _("صفحه اصلی")
+        
+    
     question = models.TextField(verbose_name='پرسش')
     answer = models.TextField(verbose_name='پاسخ')
-    emoji = models.CharField(max_length=10, null=False, blank=False, verbose_name='ایموجی این سوال', help_text='حتما پر شود و گرنه ظاهر سایت خراب می شود')
+    emoji = models.CharField(max_length=10, null=True, blank=True, verbose_name='ایموجی این سوال', help_text='حتما پر شود و گرنه ظاهر سایت خراب می شود اگر پوزیشن محصول برای جزییات محصول هست نیازی نیست این قسمت پر شود')
+    product = models.ManyToManyField(Product, verbose_name='این پرسش و پاسخ برای کدام محصول', help_text='اگر یک محصول یا محصولی نیاز به پرسش و پاسخ خاصی دارد حتما اینجا وارد کن اون محصول رو', related_name='quesions', blank=True)
+    position = models.CharField(choices=Positions, null=False, blank=False, verbose_name='کجای صفحه قرار بگیرد', help_text='حتما این رو انتخاب کن که داحل کدوم صفحه نمایش داده بشه خیلی ممنون.')
+    
     
     def __str__(self):
         return self.question

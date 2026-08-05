@@ -16,7 +16,7 @@ class HomePageView(TemplateView):
         context['categories'] = Category.objects.filter(is_active=True, parent__isnull=False).annotate(stock=Count('products'))
         context['brands'] = Brand.objects.filter(is_active=True,).order_by('?')[:8]
         context['products_count'] = Product.objects.filter(is_active=True).aggregate(Count('id'))['id__count']
-        context['questions'] = QuestionAnswer.objects.filter(is_active=True).order_by('?')[:6]
+        context['questions'] = QuestionAnswer.objects.filter(is_active=True, position__exact='home').order_by('?')[:6]
         context['features'] = Feature.objects.filter(is_active=True).order_by('?')[:4]
         context['tickers'] = Ticker.objects.filter(is_active=True).order_by('?')[:6]
         return context

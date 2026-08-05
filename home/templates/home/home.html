@@ -426,7 +426,7 @@
                         class="group flex flex-col items-center text-center p-6 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/80 transition-all cursor-default">
                         <div :class="'{% cycle 'bg-indigo-100' 'bg-emerald-100' 'bg-purple-100' 'bg-amber-100' %}'" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform duration-300">{{ feature.emoji }}</div>
                         <p class="font-black text-slate-800 text-sm">{{ feature.title }}</p>
-                        <p class="text-slate-400 text-xs mt-1 leading-relaxed">{{ feature.title }}</p>
+                        <p class="text-slate-400 text-xs mt-1 leading-relaxed">{{ feature.description }}</p>
                     </div>
                 {% endfor %}
             </div>

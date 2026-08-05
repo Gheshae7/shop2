@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductQuestionAnswer, ProductDeliveryInfo, Comment
+from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment
 
 
 
@@ -103,30 +103,6 @@ class SpecificationCategoryAdmin(admin.ModelAdmin):
     search_fields = (
         "name",
         "order",
-    )
-    
-    
-@admin.register(ProductQuestionAnswer)
-class ProductQuestionAnswerAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "is_active",
-        "updated_at",
-        "created_at",
-    )
-    list_filter = (
-        "created_at",
-        "updated_at",
-        "is_active",
-    )
-    readonly_fields = (
-        "updated_at",
-        "created_at",
-    )
-    date_hierarchy = "created_at"
-    search_fields = (
-        "question",
-        "answer",
     )
     
 

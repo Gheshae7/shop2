@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductQuestionAnswer, ProductDeliveryInfo, Comment
-from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef
+from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment
+from site_settings.models import QuestionAnswer
+from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef, Q
 from django.utils.timezone import now, timedelta
 
 
@@ -115,7 +116,7 @@ class ProductDetailView(DetailView):
         ] or [{'url': '/static/images/no-image.png', 'is_main': True}]
         context['tags'] = Tag.objects.filter(is_active=True, product=self.object)
         context['specifications_categories'] = SpecificationCategory.objects.filter(is_active=True, product_specification__product=self.object).prefetch_related(Prefetch('product_specification', queryset=ProductSpecification.objects.filter(is_active=True))).distinct()
-        context['question_answer'] = ProductQuestionAnswer.objects.filter(is_active=True).annotate(count_question=Count('id'))
+        context['question_answer'] = QuestionAnswer.objects.filter(Q(position__exact='product_detail')|Q(product=self.object), is_active=True,)
         context['deliveries_info'] = ProductDeliveryInfo.objects.filter(is_active=True, product=self.object)
         context['comments_count'] = self.object.comments.aggregate(Count('id'))['id__count']
         first_image = ProductsImages.objects.filter(product=OuterRef('pk'), is_main=True, is_active=True).values_list('image',)[:1]

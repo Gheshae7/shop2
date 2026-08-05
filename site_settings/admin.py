@@ -43,6 +43,9 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 class QuestionAnswerAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "question",
+        "product__name",
+        "position",
         "is_active",
         "emoji",
         "updated_at",
@@ -52,6 +55,7 @@ class QuestionAnswerAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
         "is_active",
+        "position",
     )
     readonly_fields = (
         "updated_at",
@@ -62,6 +66,11 @@ class QuestionAnswerAdmin(admin.ModelAdmin):
         "question",
         "answer",
         "emoji",
+        "position",
+        "product__name"
+    )
+    list_editable = (
+        "position",
     )
 
 

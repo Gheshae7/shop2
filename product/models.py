@@ -79,8 +79,8 @@ class Product(BaseModel):
     name = models.CharField(max_length=255, null=False, blank=False, verbose_name='نام محصول')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='دسته بندی محصول', related_name='products')
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='برند محصول', related_name='products')
-    tag = models.ManyToManyField(Tag, null=True, blank=True, verbose_name='تگ های محصول')
-    delivery_info = models.ManyToManyField(ProductDeliveryInfo, verbose_name='اطلاعاتی مانند نوع بسته بندی و این حرفا', null=True, blank=True)
+    tag = models.ManyToManyField(Tag, verbose_name='تگ های محصول')
+    delivery_info = models.ManyToManyField(ProductDeliveryInfo, verbose_name='اطلاعاتی مانند نوع بسته بندی و این حرفا',)
     short_description = models.CharField(max_length=255, null=True, blank=True, verbose_name='توضیحات کوتاه محصول')
     description = models.TextField(null=True, blank=True, verbose_name='توضیحات اصلی محصول')
     slug = models.SlugField(null=False, blank=False, unique=True, verbose_name='آدرس محصول در url')
@@ -212,21 +212,6 @@ class ProductsImages(BaseModel):
     def __str__(self):
         return f"Image for {self.product.name}"
 
-
-class ProductQuestionAnswer(BaseModel):
-    """This class is for handling frequently asked questions about the products."""
-    question = models.TextField(verbose_name='پرسش')
-    answer = models.TextField(verbose_name='پاسخ')
-    
-    def __str__(self):
-        return self.question
-    
-    
-    class Meta:
-        db_table = 'product_question_answers'
-        db_table_comment = 'This table is for product-related questions and answers.'
-        ordering = ['is_active']
-        
         
 class Comment(BaseModel):
     """This class is for a product's comments."""
