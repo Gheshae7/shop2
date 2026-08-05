@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment
+from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment, Banner
+from site_settings.models import Feature
 from site_settings.models import QuestionAnswer
 from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef, Q
 from django.utils.timezone import now, timedelta
@@ -91,6 +92,8 @@ on category and other criteria.
         context['categories'] = Category.objects.filter(is_active=True).order_by('?')[:9]
         context['max_price'] = ProductVariant.objects.aggregate(Max('price'))['price__max']
         context['min_price'] = ProductVariant.objects.aggregate(Min('price'))['price__min']
+        context['banner'] = Banner.objects.filter(is_active=True,).first()
+        context['features'] = Feature.objects.filter(is_active=True, position__exact='products').order_by('?')[:4]
         return context
     
     

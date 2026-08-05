@@ -92,9 +92,14 @@ class QuestionAnswer(BaseModel):
 class Feature(BaseModel):
     """This class is used for the feature bar."""
     
+    class Positions(models.TextChoices):
+        products = "products", _("صفحه محصولات")
+        home = "home", _("صفحه اصلی")
+    
     title = models.CharField(max_length=55, null=False, blank=False, verbose_name='عنوان')
     description = models.CharField(max_length=255, null=False, blank=False, verbose_name='توضیحات')
     emoji = models.CharField(max_length=10, null=False, blank=True, verbose_name='اموجی', help_text='این رو اصن بزار نزاری باختی قافله رو')
+    position = models.CharField(choices=Positions, null=False, blank=False, verbose_name='کجای صفحه قرار بگیرد', help_text='حتما این رو انتخاب کن که داحل کدوم صفحه نمایش داده بشه خیلی ممنون.')
     
     
     def __str__(self):
@@ -121,3 +126,25 @@ class Ticker(BaseModel):
         db_table = 'tickers'
         db_table_comment = 'This table is used for that purple bar on the main screen.'
         ordering = ['is_active']
+        
+
+class HeroSection(BaseModel):
+    """This class is for the upper section of the site, below the header."""
+    
+    short_title = models.CharField(max_length=35, null=False, blank=False, verbose_name='عنوان کوتاه')
+    main_title = models.CharField(max_length=120, null=False, blank=False, verbose_name='عنوان اصلی')
+    description = models.CharField(max_length=350, null=False, blank=False, verbose_name='توضیحات')
+    btn_text = models.CharField(max_length=55, null=False, blank=False, verbose_name='متن درون دکمه')
+    btn_url = models.CharField(max_length=512, null=False, blank=False, verbose_name='url دکمه')
+    small_image = models.ImageField(upload_to='site_setting/hero_section', null=False, blank=False, verbose_name='عکس کوچک')
+    big_image = models.ImageField(upload_to='site_setting/hero_section', null=False, blank=False, verbose_name='عکس بزرگ')
+    
+    
+    def __str__(self):
+        return self.short_title
+    
+    
+    class Meta:
+        ordering = ['is_active', 'updated_at']
+        db_table = 'hero_section'
+        db_table_comment = 'This table is for the upper section of the site, below the header.'

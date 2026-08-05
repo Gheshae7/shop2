@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FooterBox, FooterLink, SiteSettings, QuestionAnswer, Feature, Ticker
+from .models import FooterBox, FooterLink, SiteSettings, QuestionAnswer, Feature, Ticker, HeroSection
 # Register your models here.
 
 
@@ -79,6 +79,7 @@ class FeatureAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "emoji",
+        "position",
         "is_active",
         "updated_at",
         "created_at",
@@ -94,7 +95,7 @@ class FeatureAdmin(admin.ModelAdmin):
         "created_at",
     )
     date_hierarchy = "created_at"
-    list_editable = ("emoji",)
+    list_editable = ("emoji", "position")
     search_fields = (
         "title",
         "description",
@@ -124,3 +125,33 @@ class TickerAdmin(admin.ModelAdmin):
         "title",
     )
      
+     
+@admin.register(HeroSection)
+class HeroSectionAdmin(admin.ModelAdmin):
+    list_display = (
+        "short_title",
+        "id",
+        "is_active",
+        "btn_text",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "btn_text",
+        "short_title",
+        "main_title",
+    )
+    list_editable = (
+        "is_active",
+    )

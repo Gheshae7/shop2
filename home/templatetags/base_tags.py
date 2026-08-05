@@ -9,8 +9,6 @@ register = template.Library()
 # This inclusion_tag is for the site header
 @register.inclusion_tag('header_base.html')
 def header_base(request):
-    p = SiteSettings.objects.filter(is_active=True).values('logo', 'phone').first(),
-    print(p)
     return {
         'request': request,
         'categories': Category.objects.filter(is_active=True, parent__isnull=True, children_categories__is_active=True,).prefetch_related(Prefetch('children_categories', queryset=Category.objects.filter(is_active=True))).distinct(),

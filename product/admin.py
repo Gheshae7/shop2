@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment
+from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner
 
 
 
@@ -224,4 +224,37 @@ class CommentAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at", "created_at", "like", "dislike")
     date_hierarchy = "created_at"
     search_fields = ("name", "product__name", "title",)
+    
+    
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = (
+        "short_title",
+        "emoji",
+        "id",
+        "is_active",
+        "btn_text",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "btn_text",
+        "short_title",
+        "main_title",
+    )
+    list_editable = (
+        "is_active",
+        "emoji",
+    )
     

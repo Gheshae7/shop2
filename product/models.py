@@ -234,3 +234,25 @@ class Comment(BaseModel):
         db_table = 'comments_products'
         db_table_comment = 'This table is for product comments.'
         ordering = ['is_active', '-created_at']
+
+
+class Banner(BaseModel):
+    """This class is for banners products page."""
+    
+    short_title = models.CharField(max_length=35, null=False, blank=False, verbose_name='عنوان کوتاه')
+    main_title = models.CharField(max_length=120, null=False, blank=False, verbose_name='عنوان اصلی')
+    description = models.CharField(max_length=350, null=False, blank=False, verbose_name='توضیحات')
+    btn_text = models.CharField(max_length=55, null=False, blank=False, verbose_name='متن درون دکمه')
+    btn_url = models.CharField(max_length=512, null=False, blank=False, verbose_name='url دکمه')
+    emoji = models.CharField(max_length=10, null=False, blank=False, verbose_name='بهتره که بزاری هاااا')
+    
+    
+    def __str__(self):
+        return self.short_title
+    
+    
+    class Meta:
+        ordering = ['is_active', 'updated_at']
+        db_table = 'banners'
+        db_table_comment = 'This table is for banners products page.'
+        

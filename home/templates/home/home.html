@@ -313,25 +313,19 @@
 
             <!-- بخش متن (مینیمال‌تر، فونت کوچکتر، فضای بیشتر) -->
             <div class="lg:col-span-5 flex flex-col justify-center space-y-8 z-20">
-                <span class="text-xs font-bold tracking-widest text-slate-400 uppercase letter-spacing-2">نسل جدید
-                    محصولات</span>
+                <span class="text-xs font-bold tracking-widest text-slate-400 uppercase letter-spacing-2">{{ hero_section.short_title }}</span>
 
                 <h1 class="text-4xl lg:text-[3rem] font-extrabold text-slate-800 leading-[1.2] tracking-tight">
-                    طراحی بی‌نقص،<br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-l from-slate-400 to-slate-800">برای زندگی
-                        هوشمند.</span>
+                    {% comment %} طراحی بی‌نقص،<br> {% endcomment %}
+                    <span class="text-transparent bg-clip-text bg-gradient-to-l from-slate-400 to-slate-800">{{ hero_section.main_title }}</span>
                 </h1>
 
-                <p class="text-lg text-slate-500 leading-relaxed font-light max-w-sm">
-                    جزئیات کوچک تفاوت‌های بزرگ می‌سازند. ما محصولاتی طراحی می‌کنیم که در سکوت، کارایی شما را به بالاترین
-                    سطح می‌رسانند.
-                </p>
+                <p class="text-lg text-slate-500 leading-relaxed font-light max-w-sm">{{ hero_section.description }}</p>
 
                 <div class="pt-4">
-                    <button
-                        class="px-8 py-3.5 bg-slate-800 text-white text-sm font-semibold rounded-full hover:bg-slate-900 transition-all hover:shadow-[0_10px_20px_-10px_rgba(0,0,0,0.3)] hover:-translate-y-0.5">
-                        کشف جزئیات
-                    </button>
+                    <a href='{{ hero_section.btn_url }}'>
+                        <button class="px-8 py-3.5 bg-slate-800 text-white text-sm font-semibold rounded-full hover:bg-slate-900 transition-all hover:shadow-[0_10px_20px_-10px_rgba(0,0,0,0.3)] hover:-translate-y-0.5">{{ hero_section.btn_text }}</button>
+                    </a>
                 </div>
             </div>
 
@@ -345,18 +339,18 @@
                 <!-- محفظه اصلی (کپسول بزرگ) -->
                 <div class="absolute w-[280px] h-[450px] rounded-[100px] overflow-hidden shadow-2xl transition-transform duration-700 ease-out z-20"
                     :style="`transform: translate(${mouseX * 15}px, ${mouseY * 15}px)`">
-                    <img src="./assets/images/mouse tesco.webp" alt="هدفون" class="w-full h-full object-cover" />
+                    <img src="{{ hero_section.big_image.url }}" alt="{{ hero_section.short_title }}" class="w-full h-full object-cover" />
                     <div class="absolute inset-0 bg-black/5 hover:bg-transparent transition-colors"></div>
                 </div>
 
                 <!-- محفظه فرعی (تصویر جزئیات - برش دایره‌ای) -->
                 <div class="absolute top-[15%] left-[5%] w-[160px] h-[160px] rounded-full overflow-hidden shadow-lg border-4 border-white transition-transform duration-1000 ease-out z-30 hidden md:block"
                     :style="`transform: translate(${mouseX * 30}px, ${mouseY * 30}px)`">
-                    <img src="./assets/images/asus laptop.webp" alt="جزئیات"
+                    <img src="{{ hero_section.small_image.url }}" alt="{{ hero_section.short_title }}"
                         class="w-full h-full object-cover scale-110 p-[20px]" />
                 </div>
 
-                <!-- کارت اطلاعات شناور (مینیمال) -->
+                {% comment %} <!-- کارت اطلاعات شناور (مینیمال) -->
                 <div class="absolute bottom-[20%] right-[5%] p-5 rounded-2xl bg-white/80 backdrop-blur-md shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-transform duration-500 z-40"
                     :style="`transform: translate(${mouseX * -25}px, ${mouseY * -25}px)`">
                     <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">وضوح صدا</p>
@@ -364,12 +358,12 @@
                     <div class="mt-2 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                         <div class="w-3/4 h-full bg-slate-800"></div>
                     </div>
-                </div>
+                </div> {% endcomment %}
 
-                <!-- المان ریاضی برای فرمول‌های صوتی (نمایشی) -->
+                {% comment %} <!-- المان ریاضی برای فرمول‌های صوتی (نمایشی) -->
                 <div class="absolute top-[30%] right-[10%] text-xs text-slate-300 font-mono rotate-90 z-10">
                     $$ f(x) = A \sin(\omega x + \phi) $$
-                </div>
+                </div> {% endcomment %}
 
             </div>
         </div>
@@ -1964,9 +1958,4 @@
             };
         }
     </script>
-{% endblock content %}
-
-{% block footer_custom_references %}
-<script src="https://soufianodev.github.io/Toast-JS/libs/js/v2.1.0-beta/Toast.js"></script>
-{% endblock footer_custom_references %}
-    
+{% endblock content %} 
