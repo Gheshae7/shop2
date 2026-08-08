@@ -20,49 +20,31 @@ on category and other criteria.
     def get_queryset(self):
         query = super().get_queryset()
         query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'))
-
-        # get category_params
-        category_params = self.request.GET.get('category')
+        
+        # order
         popular_params = self.request.GET.get('popular')
         price_asc_params = self.request.GET.get('price-asc')
         price_desc_params = self.request.GET.get('price-desc')
         rating_params = self.request.GET.get('rating')
         newest_params = self.request.GET.get('newest')
+        order_by_params = self.request.GET.get('order_by')
+        
+        # filter
+        category_params = self.request.GET.get('category')
         min_price = self.request.GET.get('min-price')
         max_price = self.request.GET.get('max-price')
         discount_params = self.request.GET.get('discount')
+        is_new_params = self.request.GET.get('is_new')
         stock_params = self.request.GET.get('stock')
+        
+        
+    # region filter by
         
         # fiter by category_params
         if category_params and category_params != 'همه':
-            query = query.filter(category__name__exact=category_params)
+            query = query.filter(category__name__exact=category_params) 
             
-        
-        # filter by popular_params
-        if popular_params == 'true':
-            query = query.order_by('-count_view', '-sales_count')
             
-        
-        # filter by price_asc_params
-        if price_asc_params == 'true':
-            query = query.order_by('price')
-            
-        
-        # filter by price_desc_params
-        if price_desc_params == 'true':
-            query = query.order_by('-price')
-            
-        
-        # filter by rating_params
-        if rating_params == 'true':
-            query = query.order_by('-rating')
-        
-        
-        # filter by newest_params
-        if newest_params == 'true':
-            query = query.order_by('-created_at')
-            
-        
         # filter by min_price
         if min_price:
             query = query.filter(price__gte=min_price)
@@ -81,8 +63,44 @@ on category and other criteria.
          # filter by stock_params
         if stock_params == 'true':
             query = query.filter(stock__gte=1)
+                
+        
+        # filter by is_new_params
+        if is_new_params == 'true':
+            query = query.filter(created_at__gte=(now() - timedelta(days=7)))
             
+    # endregion filter by
+        
+        
+    # region order by
+        
+        # sort by popular_params
+        if order_by_params == 'popular':
+            query = query.order_by('-count_view', '-sales_count')
+            
+        
+        # sort by price_asc_params
+        if order_by_params == 'price-asc':
+            query = query.order_by('price')
+            
+        
+        # sort by price_desc_params
+        if order_by_params == 'price_desc':
+            query = query.order_by('-price')
 
+        
+        # sort by rating_params
+        if order_by_params == 'rating':
+            query = query.order_by('-rating')
+            
+            
+        # sort by newest
+        if order_by_params == 'newest':
+            query = query.order_by('-created_at')
+            
+    # endregion sort by
+        
+        
         return query
     
     
@@ -95,13 +113,13 @@ on category and other criteria.
         context['banner'] = Banner.objects.filter(is_active=True,).first()
         context['features'] = Feature.objects.filter(is_active=True, position__exact='products').order_by('?')[:4]
         context['count_product'] = self.get_queryset().count()
+        context['show_sort_by'] = self.request.GET.get('order_by')
         return context
     
     
     def get_template_names(self):
 
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # print('OKOKOKOKOKOKOKOKOKOKo')
             return ['product/includes/product_list.html']
 
         return [self.template_name]
@@ -109,6 +127,7 @@ on category and other criteria.
 
 class ProductDetailView(DetailView):
     """This class is intended to display the details of a product."""
+    
     model = Product
     template_name = 'product/product_detail.html'
     context_object_name = 'product'

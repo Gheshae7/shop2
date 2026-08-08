@@ -365,20 +365,20 @@
                         <h4 class="text-sm font-semibold text-slate-700 mb-3">وضعیت محصول</h4>
                         <div class="space-y-3">
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" x-model="filterOnSale" @change="applyFilters()"
+                                <input type="checkbox" x-model="filterOnSale" @change="filter_by_input('discount')"
                                     class="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500">
                                 <span class="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">فقط
                                     تخفیف‌دار</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" x-model="filterNew" @change="applyFilters()"
+                                <input type="checkbox" x-model="filterNew" @change="filter_by_input('is_new')"
                                     class="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500">
                                 <span
                                     class="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">محصولات
                                     جدید</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" x-model="filterInStock" @change="applyFilters()"
+                                <input type="checkbox" x-model="filterInStock" @change="filter_by_input('stock')"
                                     class="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500">
                                 <span class="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">موجود
                                     در انبار</span>
@@ -541,6 +541,45 @@
                         }
                         
                     });    
+                },
+
+                filter_by_input(field){
+                    const params = new URLSearchParams(window.location.search)
+                    if(params.has(field)){
+                        params.delete(field)
+                        fetch(`/products/?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                        })
+                        .then(function(response) {
+                            return response.text();
+                        })
+                        .then(function(html) {
+                            document.getElementById('products_area').innerHTML = html;
+                            if (params.toString() == ''){
+                               history.pushState({}, '', '/products/');
+                            }
+                            else {
+                            history.pushState({}, '', `/products/?${params.toString()}`);
+                            }
+                        });  
+                    }
+                    else{
+                        params.append(field, 'true')
+                        fetch(`/products/?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                        })
+                        .then(function(response) {
+                            return response.text();
+                        })
+                        .then(function(html) {
+                            document.getElementById('products_area').innerHTML = html;
+                            history.pushState({}, '', `/products/?${params.toString()}`);
+                        });  
+                    }
                 },
 
                 toggleTag(tag) {
