@@ -34,8 +34,8 @@ on category and other criteria.
         stock_params = self.request.GET.get('stock')
         
         # fiter by category_params
-        if category_params:
-            query = query.filter(category__url_name__exact=category_params)
+        if category_params and category_params != 'همه':
+            query = query.filter(category__name__exact=category_params)
             
         
         # filter by popular_params
@@ -94,8 +94,17 @@ on category and other criteria.
         context['min_price'] = ProductVariant.objects.aggregate(Min('price'))['price__min']
         context['banner'] = Banner.objects.filter(is_active=True,).first()
         context['features'] = Feature.objects.filter(is_active=True, position__exact='products').order_by('?')[:4]
+        context['count_product'] = self.get_queryset().count()
         return context
     
+    
+    def get_template_names(self):
+
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            # print('OKOKOKOKOKOKOKOKOKOKo')
+            return ['product/includes/product_list.html']
+
+        return [self.template_name]
     
 
 class ProductDetailView(DetailView):
