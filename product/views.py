@@ -22,11 +22,6 @@ on category and other criteria.
         query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'))
         
         # order
-        popular_params = self.request.GET.get('popular')
-        price_asc_params = self.request.GET.get('price-asc')
-        price_desc_params = self.request.GET.get('price-desc')
-        rating_params = self.request.GET.get('rating')
-        newest_params = self.request.GET.get('newest')
         order_by_params = self.request.GET.get('order_by')
         
         # filter

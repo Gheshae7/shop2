@@ -337,24 +337,26 @@
                             <div class="flex items-center gap-3">
                                 <div class="flex-1">
                                     <label class="text-[10px] text-slate-400 mb-1 block">از</label>
-                                    <input type="number" x-model.number="priceRange.min" @change="applyFilters()"
+                                    <input type="number" step='500' max={{ max_price }} min={{ min_price }} value={{ min_price }}
+                                    @change="filter_by_price($event.target.value ,'min-price')"
                                         class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-violet-200 focus:border-violet-500 outline-none transition-all">
                                 </div>
                                 <div class="flex-1">
                                     <label class="text-[10px] text-slate-400 mb-1 block">تا</label>
-                                    <input type="number" x-model.number="priceRange.max" @change="applyFilters()"
+                                    <input type="number" step='500' max={{ max_price }} min={{ min_price }} value={{ max_price }}
+                                    @change="filter_by_price($event.target.value ,'max-price')"
                                         class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-violet-200 focus:border-violet-500 outline-none transition-all">
                                 </div>
                             </div>
                             <!-- Range Sliders -->
-                            <div class="relative pt-2">
-                                <input type="range" min="0" max="10000000" step="100000" x-model="priceRange.min"
+                            {% comment %} <div class="relative pt-2">
+                                <input type="range" min="{{ min_price }}" max="{{ max_price }}" step="100000" x-model="priceRange.min"
                                     @input="applyFilters()"
                                     class="w-full absolute top-0 pointer-events-none appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-violet-600 [&::-webkit-slider-thumb]:rounded-full z-20">
-                                <input type="range" min="0" max="10000000" step="100000" x-model="priceRange.max"
+                                <input type="range" min="{{ min_price }}" max="{{ max_price }}" step="100000" x-model="priceRange.max"
                                     @input="applyFilters()"
                                     class="w-full absolute top-0 pointer-events-none appearance-none bg-slate-200 h-1.5 rounded-full [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-violet-600 [&::-webkit-slider-thumb]:rounded-full z-30">
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                     </div>
 
@@ -408,7 +410,6 @@
                 wishlist: [],
                 currentPage: 1,
                 itemsPerPage: 9,
-                priceRange: { min: {{ min_price }}, max: {{ max_price }} },
                 selectedRatings: [],
                 selectedTags: [],
                 filterOnSale: false,
@@ -582,6 +583,22 @@
                     }
                 },
 
+                filter_by_price(value, min_or_max_price){
+                    const params = new URLSearchParams(window.location.search)
+                    params.set(min_or_max_price, value)
+                    fetch(`/products/?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }).then(function(response){
+                        return response.text();
+                    }).then(function(html){
+                        document.getElementById('products_area').innerHTML = html;
+                        history.pushState({}, '', `/products/?${params.toString()}`);
+                    })
+                    
+                },
+
                 toggleTag(tag) {
                     const idx = this.selectedTags.indexOf(tag);
                     if (idx > -1) this.selectedTags.splice(idx, 1);
@@ -593,13 +610,22 @@
                     this.searchQuery = '';
                     this.selectedCategory = 'همه';
                     this.sortBy = 'default';
-                    this.priceRange = { min: 0, max: 10000000 };
                     this.selectedRatings = [];
                     this.selectedTags = [];
                     this.filterOnSale = false;
-                    this.filterNew = false;
+                    this.filterNew = true;
                     this.filterInStock = false;
-                    this.applyFilters();
+                    fetch(`/products/?`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }).then(function(response){
+                        return response.text();
+                    }).then(function(html){
+                        document.getElementById('products_area').innerHTML = html;
+                        history.pushState({}, '', `/products/`);
+                    })
+                    
                 },
 
                 addToCart(product) {
