@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment, Banner
+from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment, Banner, ProductView
 from site_settings.models import Feature
 from site_settings.models import QuestionAnswer
 from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef, Q
@@ -63,6 +63,7 @@ on category and other criteria.
         # filter by is_new_params
         if is_new_params == 'true':
             query = query.filter(created_at__gte=(now() - timedelta(days=7)))
+
             
     # endregion filter by
         
@@ -119,6 +120,15 @@ on category and other criteria.
 
         return [self.template_name]
     
+    
+def get_client_ip(request, product_id):
+    ip_address = request.META.get('REMOTE_ADDR')
+    product_view, created = ProductView.objects.get_or_create(ip=ip_address, product_id=product_id)
+    if created:
+        print('created new product_view')
+    else:
+        print('not created new product_view')   
+     
 
 class ProductDetailView(DetailView):
     """This class is intended to display the details of a product."""
@@ -129,7 +139,7 @@ class ProductDetailView(DetailView):
     
     def get_queryset(self, *args, **kwargs):
         query = super().get_queryset(*args, **kwargs)
-        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock'), sales_count=Sum('variants__sales_count'), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'))
+        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock'), sales_count=Sum('variants__sales_count'), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'), count_view=Count('count_views', distinct=True))
         return query
     
     def get_context_data(self, **kwargs):
@@ -146,6 +156,7 @@ class ProductDetailView(DetailView):
         context['deliveries_info'] = ProductDeliveryInfo.objects.filter(is_active=True, product=self.object)
         context['comments_count'] = self.object.comments.aggregate(Count('id'))['id__count']
         first_image = ProductsImages.objects.filter(product=OuterRef('pk'), is_main=True, is_active=True).values_list('image',)[:1]
-        context['popular_poducts'] = Product.objects.filter(is_active=True).select_related('category', 'brand').annotate(discount=Max('variants__discount'), sales_count=Sum('variants__sales_count', distinct=True), price=Min('variants__price')).order_by('-count_view', '-sales_count').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:10]
+        context['popular_poducts'] = Product.objects.filter(is_active=True).select_related('category', 'brand').annotate(discount=Max('variants__discount'), sales_count=Sum('variants__sales_count', distinct=True), price=Min('variants__price')).order_by('-sales_count').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:10]
+        get_client_ip(self.request, self.object.id)
 
         return context
