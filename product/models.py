@@ -261,7 +261,7 @@ class ProductView(BaseModel):
     """This class is for counting the number of views for a product."""
     
     ip = models.GenericIPAddressField(verbose_name='آدرس کاربر')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='کدام محصول')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='کدام محصول', related_name='count_views')
     
     
     def __str__(self):
