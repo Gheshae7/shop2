@@ -84,7 +84,6 @@ class Product(BaseModel):
     short_description = models.CharField(max_length=255, null=True, blank=True, verbose_name='توضیحات کوتاه محصول')
     description = models.TextField(null=True, blank=True, verbose_name='توضیحات اصلی محصول')
     slug = models.SlugField(null=False, blank=False, unique=True, verbose_name='آدرس محصول در url')
-    count_view = models.PositiveIntegerField(default=0, verbose_name='بازدید از محصول')
     
     
     def __str__(self):
