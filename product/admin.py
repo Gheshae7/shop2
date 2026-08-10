@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner
+from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner, ProductView
 
 
 
@@ -258,3 +258,30 @@ class BannerAdmin(admin.ModelAdmin):
         "emoji",
     )
     
+    
+@admin.register(ProductView)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "product__name",
+        "ip",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "ip",
+        "product__name",
+    )
+    list_editable = ("is_active",)

@@ -256,3 +256,19 @@ class Banner(BaseModel):
         db_table = 'banners'
         db_table_comment = 'This table is for banners products page.'
         
+        
+class ProductView(BaseModel):
+    """This class is for counting the number of views for a product."""
+    
+    ip = models.GenericIPAddressField(verbose_name='آدرس کاربر')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='کدام محصول')
+    
+    
+    def __str__(self):
+        return f'{self.product.name} / {self.ip}'
+    
+    
+    class Meta:
+        db_table = 'product_views'
+        db_table_comment = 'This table is for counting the number of views for a product.'
+        ordering = ['is_active']
