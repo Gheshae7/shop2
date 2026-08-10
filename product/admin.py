@@ -156,7 +156,7 @@ class ProductVariantStackedInline(admin.StackedInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "is_active", "category", "brand", "slug", "updated_at", "created_at",)
+    list_display = ("name", "is_active", "category", "brand", "slug", "count_view",  "updated_at", "created_at",)
     list_filter = ("created_at", "updated_at", "is_active", "brand", "category")
     list_editable = ("is_active",)
     readonly_fields = ("updated_at", "created_at", "count_view")
