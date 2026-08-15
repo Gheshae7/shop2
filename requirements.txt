@@ -7,6 +7,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 Django==6.0.6
+django-debug-toolbar==7.0.0
 django-environ==0.14.0
 django-jalali==7.4.0
 django-multi-captcha-admin==2.0.0
