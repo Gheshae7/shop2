@@ -1,0 +1,69 @@
+{% load humanize %}
+{% load base_tags %}
+
+<div x-show="viewMode==='list'" class="space-y-3">
+    {% for product in products %}
+        <div
+            class="bg-white rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all flex gap-4 p-4 group">
+            <div class="relative flex-shrink-0 overflow-hidden rounded-2xl">
+                <img src="{{ product.images.first.image.url }}"
+                alt="{{ product.name }}"
+                    class="w-32 h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+
+                {% if product.discount > 0 %}
+                <span class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg">%{{ product.discount }} تخفیف</span>
+                {% endif %}
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+                <div>
+                    <p class="text-[10px] text-indigo-500 font-black uppercase">{{ product.category.name }} | {{ product.brand.name }}</p>
+                    <h3 class="font-black text-slate-800 mt-0.5 text-sm sm:text-base">{{ product.name }}</h3>
+                    <p class="text-slate-400 text-xs mt-1 line-clamp-2 leading-relaxed">{{ product.short_description }}</p>
+                </div>
+                <div class="flex items-center justify-between flex-wrap gap-3 mt-2">
+                    <div class="flex items-center gap-1.5">
+                        <div class="flex gap-0.5">
+                            {% for star in product.rating|times %}
+                                <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            {% endfor %}
+                        </div>
+                        <span class="text-xs text-slate-400">{{ product.rating }} ({{ product.comment_count }})</span>
+                        {% if product.stock < 15 %}
+                            <span class="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-lg">{{ product.stock }} مانده</span>
+                    {% endif %}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                        {% if product.discount >= 1 %}
+                            <p class="text-xs text-slate-400 line-through">{{ product.price|intcomma }}</p>
+                            {% calculating_discount price=product.price discount=product.discount as res_dis %}
+                            <p class="font-black text-xl text-slate-800">{{ res_dis.0|intcomma }} تومان</p>
+                            {% else %}
+                            <p class="font-black text-xl text-slate-800">{{ product.price|intcomma }} تومان</p>
+                        {% endif %}
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="toggleWish(p.id)"
+                                :class="wishes.has(p.id)?'bg-red-50 text-red-500 border-red-200':'border-slate-200 text-slate-400 hover:text-red-400'"
+                                class="w-9 h-9 rounded-xl flex items-center justify-center border transition-all">
+                                <svg class="w-4 h-4" :fill="wishes.has(p.id)?'currentColor':'none'"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </button>
+                            <button @click="addToCart(p)"
+                                :class="inCart(p.id)?'bg-emerald-500':'bg-indigo-600 hover:bg-indigo-700'"
+                                class="flex items-center gap-1.5 text-white px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-90">
+                                <span x-text="inCart(p.id)?'✓ در سبد':'+ افزودن'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+</div>
