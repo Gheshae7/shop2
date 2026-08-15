@@ -25,8 +25,8 @@
         sortBy: {% if show_sort_by %}'{{ show_sort_by }}'{% else %}'default'{% endif %},
         options: {
             'default': 'مرتب‌سازی: پیش‌فرض',
-            'price-asc': 'ارزان‌ترین',
-            'price-desc': 'گران‌ترین',
+            'price_asc': 'ارزان‌ترین',
+            'price_desc': 'گران‌ترین',
             'rating': 'بهترین امتیاز',
             'newest': 'جدیدترین',
             'popular': 'محبوب‌ترین'
@@ -144,7 +144,7 @@
             <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
                 <div class="flex flex-col">
                     {% if product.discount >= 1 %}
-                        <span class="text-xs text-slate-400 line-through mb-0.5">{{ product.price }}</span>
+                        <span class="text-xs text-slate-400 line-through mb-0.5">{{ product.price|intcomma }}</span>
                         {% calculating_discount price=product.price discount=product.discount as res_dis %}
                         <span class="font-black text-slate-900 text-base">{{ res_dis.0|intcomma }} تومان</span>
                     {% else %}

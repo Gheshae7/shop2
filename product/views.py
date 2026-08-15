@@ -19,7 +19,7 @@ on category and other criteria.
     
     def get_queryset(self):
         query = super().get_queryset()
-        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'))
+        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'), count_view=Count('count_views', distinct=True))
         
         # order
         order_by_params = self.request.GET.get('order_by')
@@ -76,7 +76,7 @@ on category and other criteria.
             
         
         # sort by price_asc_params
-        if order_by_params == 'price-asc':
+        if order_by_params == 'price_asc':
             query = query.order_by('price')
             
         
