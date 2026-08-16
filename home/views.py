@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from product.models import Category, Product, Brand, ProductsImages
-from site_settings.models import QuestionAnswer, Feature, Ticker, HeroSection
+from site_settings.models import QuestionAnswer, Feature, Ticker, HeroSection, SpecialOffer
 from django.db.models import Count, Prefetch, Sum, Min, Max, Avg
 from django.utils.timezone import now
 from datetime import timedelta
@@ -23,6 +23,7 @@ class HomePageView(TemplateView):
         context['tickers'] = Ticker.objects.filter(is_active=True).order_by('?')[:6]
         context['hero_section'] = HeroSection.objects.filter(is_active=True).first()
         context['show_sort_by'] = self.request.GET.get('order_by')
+        context['special_offers'] = SpecialOffer.objects.filter(is_active=True).order_by('btn_text')[:3]
         products_query = Product.objects.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category', 'brand').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'), comment_count=Count('comments__id', distinct=True), count_view=Count('count_views', distinct=True))
         context['seven_days_ago'] = now() - timedelta(days=7)
         

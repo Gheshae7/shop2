@@ -148,3 +148,23 @@ class HeroSection(BaseModel):
         ordering = ['is_active', 'updated_at']
         db_table = 'hero_section'
         db_table_comment = 'This table is for the upper section of the site, below the header.'
+
+
+class SpecialOffer(BaseModel):
+    """This class is for special_offers index page."""
+    
+    main_title = models.CharField(max_length=75, null=False, blank=False, verbose_name='عنوان اصلی')
+    short_title = models.CharField(max_length=75, null=False, blank=False, verbose_name='عنوان کوتاه')
+    btn_text = models.CharField(max_length=55, null=True, blank=True, verbose_name='متن درون دکمه', help_text='اگر میخای این بنر اصلی و بزرگ باشه این قسمت رو پر کن')
+    btn_url = models.CharField(max_length=512, null=True, blank=True, verbose_name='url دکمه', help_text='این قسمت رو برای هر بنری پر کن حتما')
+    image = models.ImageField(upload_to='site_setting/SpecialOffer', null=False, blank=False, verbose_name='تصویر بنر')
+    
+    
+    def __str__(self):
+        return self.main_title
+    
+    
+    class Meta:
+        ordering = ['is_active', 'updated_at']
+        db_table = 'special_offers'
+        db_table_comment = 'This class is for special_offers index page.'

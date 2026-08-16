@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FooterBox, FooterLink, SiteSettings, QuestionAnswer, Feature, Ticker, HeroSection
+from .models import FooterBox, FooterLink, SiteSettings, QuestionAnswer, Feature, Ticker, HeroSection, SpecialOffer
 # Register your models here.
 
 
@@ -155,3 +155,35 @@ class HeroSectionAdmin(admin.ModelAdmin):
     list_editable = (
         "is_active",
     )
+    
+
+@admin.register(SpecialOffer)
+class SpecialOfferAdmin(admin.ModelAdmin):
+    list_display = (
+        "main_title",
+        "id",
+        "is_active",
+        "btn_text",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "btn_text",
+        "short_title",
+        "main_title",
+    )
+    list_editable = (
+        "is_active",
+    )
+    

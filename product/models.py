@@ -271,3 +271,4 @@ class ProductView(BaseModel):
         db_table = 'product_views'
         db_table_comment = 'This table is for counting the number of views for a product.'
         ordering = ['is_active']
+        

@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_delete
 import os
-from .models import SiteSettings, HeroSection
+from .models import SiteSettings, HeroSection, SpecialOffer
 
 
 @receiver(post_delete, sender=SiteSettings)
@@ -59,4 +59,27 @@ def delete_image_in_modify(sender, instance, **kwargs):
     if current_hero_section.big_image != instance.big_image:
         if current_hero_section.big_image and os.path.isfile(current_hero_section.big_image.path):
             os.remove(current_hero_section.big_image.path)
-        
+    
+    
+@receiver(post_delete, sender=SpecialOffer)
+def delete_image_in_delete(sender, instance, **kwargs):
+    """When a record is deleted, I remove its corresponding photo to free up storage space."""
+    
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+            
+
+@receiver(pre_save, sender=SpecialOffer)   
+def delete_image_in_modify(sender, instance, **kwargs):
+    """When a record is edited, if the image has changed, I delete the previous image and replace it with the new one."""
+    
+    if not instance.pk:
+        pass
+    try:
+        current_special_offer = SpecialOffer.objects.get(pk=instance.pk)
+    except SiteSettings.DoesNotExist:
+        return
+    if current_special_offer.image != instance.image:
+        if current_special_offer.image and os.path.isfile(current_special_offer.image.path):
+            os.remove(current_special_offer.image.path)    
