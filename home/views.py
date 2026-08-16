@@ -29,6 +29,18 @@ class HomePageView(TemplateView):
         # order
         order_by_params = self.request.GET.get('order_by')
         
+        # filter
+        category_params = self.request.GET.get('category')
+        
+
+        # region filter by
+        
+        # fiter by category_params
+        if category_params and category_params != 'همه':
+            products_query = products_query.filter(category__name__exact=category_params) 
+
+        # endregion filter by
+        
         
         # region order by
         

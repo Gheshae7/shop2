@@ -501,7 +501,7 @@
             <!-- کارت‌های داینامیک Alpine -->
                 {% for category in categories %}
                     <button
-                        @click="activeCat='{{ category.name }}'; document.getElementById('products').scrollIntoView({behavior:'smooth'})"
+                        @click="activeCat='{{ category.name }}'; document.getElementById('products').scrollIntoView({behavior:'smooth'}); filter_by_category('{{ category.name }}')"
                         :class="activeCat==='{{ category.name }}' ? 'ring-2 ring-indigo-400 bg-white/80 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.3)] translate-y-[-4px]' : 'bg-white/40 border-white/60 hover:bg-white/60 hover:-translate-y-1 hover:shadow-[0_8px_15px_-5px_rgba(0,0,0,0.05)]'"
                         class="relative flex flex-col items-center justify-center gap-3 p-5 rounded-[1.25rem] backdrop-blur-xl border shadow-sm transition-all duration-400 group overflow-hidden cursor-pointer">
 
@@ -648,11 +648,11 @@
 
             <!-- Category Tabs -->
             <div class="flex flex-wrap gap-2 mb-5">
-                <button @click="activeCat='همه'"
+                <button @click="activeCat='همه'; filter_by_category('همه')"
                     :class="activeCat==='همه'?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
                     class="px-4 py-2 rounded-xl text-sm font-bold transition-all">همه</button>
                     {% for category in categories %}
-                    <button @click="activeCat='{{ category.name }}'"
+                    <button @click="activeCat='{{ category.name }}'; filter_by_category('{{ category.name }}')"
                         :class="activeCat==='{{ category.name }}'?'bg-indigo-600 text-white shadow-md shadow-indigo-200':'bg-white text-slate-500 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600'"
                         class="px-4 py-2 rounded-xl text-sm font-bold transition-all">{{ category.name }}</button>
                     {% endfor %}    
@@ -1511,6 +1511,22 @@
                     .then(function(html) {
                         document.getElementById('grid_view_products').innerHTML = html;
                     });
+                },
+
+                filter_by_category(cat){
+                    const params = new URLSearchParams()
+                    params.append('category', cat)
+                    fetch(`/?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(function(response) {
+                        return response.text();
+                    })
+                    .then(function(html) {
+                        document.getElementById('grid_view_products').innerHTML = html;
+                    }); 
                 },
 
                 showToast(type, title, body = '') {
