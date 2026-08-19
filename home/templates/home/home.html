@@ -391,6 +391,7 @@
         });
     </script>
 
+    {% csrf_token %}
 
 
     <!-- ═══════════════════════════════════
@@ -1471,11 +1472,39 @@
 
                 subscribeEmail() {
                     if (!this.email || !this.email.includes('@')) {
-                        this.showToast('error', 'ایمیل نامعتبر', 'لطفاً یک ایمیل صحیح وارد کنید');
+                        Swal.fire({
+                            position: "top-start",
+                            icon: "error",
+                            title: "لطفا یک ایمیل صحیح وارد کنید",
+                            showConfirmButton: false,
+                            timer: 3500
+                        });
                         return;
+                    }else{
+                        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        fetch('/newsletter/add/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken,
+                            },
+                            body: JSON.stringify({
+                                email: this.email
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(json => {
+                            Swal.fire({
+                                position: "top-start",
+                                icon: json.icon,
+                                title: json.title,
+                                showConfirmButton: false,
+                                timer: 3500
+                            });
+                            this.email = ''
+                        });
+                    
                     }
-                    this.showToast('success', 'عضویت موفق! 🎉', 'کد تخفیف ۱۵٪ به ' + this.email + ' ارسال شد');
-                    this.email = '';
                 },
 
                 sort_by(){
@@ -1527,3 +1556,7 @@
         }
     </script>
 {% endblock content %} 
+
+{% block footer_custom_references %}
+    <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
+{% endblock footer_custom_references %}
