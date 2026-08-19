@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('account/', include('account.urls')),
     path('products/', include('product.urls')),
+    path('newsletter/', include('newsletter.urls')),
     
 ] + debug_toolbar_urls()
 
