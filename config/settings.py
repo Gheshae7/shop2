@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "product",
     "site_settings",
     "newsletter",
+    "contact",
 ]
 
 MIDDLEWARE = [
