@@ -709,7 +709,7 @@
                             <span
                                 class="absolute bottom-0 right-0 w-0 h-[2px] bg-[#6294ff] group-hover:w-full transition-all duration-300"></span>
                         </a>
-                        <a href="./contact.html"
+                        <a href="{% url "contact:contact_us_page" %}"
                             class="relative text-[14px] text-[#67788E] mx-[20px] hover:text-[#6294ff] transition-colors group py-2
                             {% if request.resolver_match.view_name == "home:home_page" %}text-[#6294ff]{% else %}text-[#67788E] text-[#6294ff]{% endif %}">
                             <span>تماس با ما</span>
