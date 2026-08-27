@@ -70,6 +70,7 @@ class QuestionAnswer(BaseModel):
     class Positions(models.TextChoices):
         product_detail = "product_detail", _("صفحه جزییات محصول")
         home = "home", _("صفحه اصلی")
+        contact = "contact", _("صفحه تماس با ما")
         
     
     question = models.TextField(verbose_name='پرسش')

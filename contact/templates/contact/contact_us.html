@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
     تماس با ما - فروشگاه
@@ -52,6 +53,24 @@
 {% block body_attrs %}class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"{% endblock body_attrs %}
 
 {% block content %}
+    {% csrf_token %}
+
+        <!-- برای پیام های پاپ آپ -->
+    {% if messages %}
+    <script src="{% static "assets/js/sweetalert2.min.js" %}"></script>
+      <script>
+        {% for message in messages %}
+            Swal.fire({
+            position: "top-start",
+            icon: "{{ message.tags }}",
+            title: "{{ message }}",
+            showConfirmButton: false,
+            timer: 3500
+            });
+        {% endfor %}
+      </script>
+    {% endif %}
+
     <!-- Hero Section -->
     <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 gradient-animate">
         <div class="absolute inset-0 opacity-20">
@@ -167,8 +186,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">تماس تلفنی</h3>
                     <p class="text-gray-600 mb-4">پاسخگویی فوری</p>
-                    <p class="text-blue-600 font-bold text-lg">021-12345678</p>
-                    <p class="text-blue-600 font-bold">0912-3456789</p>
+                    <p class="text-blue-600 font-bold text-lg">{{ site_setting.0.phone }}</p>
                 </div>
             </div>
 
@@ -189,8 +207,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">ایمیل</h3>
                     <p class="text-gray-600 mb-4">پاسخ در کمتر از 24 ساعت</p>
-                    <p class="text-green-600 font-bold">info@shop.com</p>
-                    <p class="text-green-600 font-bold">support@shop.com</p>
+                    <p class="text-green-600 font-bold">{{ site_setting.0.support_email }}</p>
                 </div>
             </div>
 
@@ -236,14 +253,7 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-3">شبکه‌های اجتماعی</h3>
                     <p class="text-gray-600 mb-4">ما را دنبال کنید</p>
                     <div class="flex gap-3">
-                        <a href="#"
-                            class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                        </a>
-                        <a href="#"
+                        <a href="{{ site_setting.0.instagram_channel }}"
                             class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -252,7 +262,7 @@
                                     d="M12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                             </svg>
                         </a>
-                        <a href="#"
+                        <a href="{{ site_setting.0.x_channel }}"
                             class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path
@@ -292,7 +302,11 @@
                         </div>
                     </div>
                     <div class="h-48 bg-white/10 rounded-2xl backdrop-blur-sm flex items-center justify-center">
-                        <p class="text-white/70">نقشه اینجا قرار می‌گیرد</p>
+                        <p class="text-white/70">
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d206.97305570868411!2d48.73530131060626!3d33.90075516045953!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sde!4v1787845930255!5m2!1sen!2sde" width="397" height="192" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+                        </p>
                     </div>
                 </div>
 
@@ -325,7 +339,6 @@
                         phone: '',
                         subject: '',
                         message: '',
-                        priority: 'normal'
                     },
                     errors: {},
                     loading: false,
@@ -345,16 +358,48 @@
                         }
                     },
                     async submitForm() {
+
                         this.errors = {};
-                        ['name', 'email', 'phone', 'subject', 'message'].forEach(field => this.validateField(field));
-                        
-                        if (Object.keys(this.errors).length === 0) {
-                            this.loading = true;
-                            await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        ['name', 'email', 'phone', 'subject', 'message']
+                            .forEach(field => this.validateField(field));
+
+                        if (Object.keys(this.errors).length !== 0) {
+                            return;
+                        }
+
+                        this.loading = true;
+
+                        try {
+
+                            const response = await fetch('/contact/', {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': document.querySelector(
+                                        '[name=csrfmiddlewaretoken]'
+                                    ).value
+                                },
+
+                                body: JSON.stringify({
+                                    name: this.formData.name,
+                                    email: this.formData.email,
+                                    phone: this.formData.phone,
+                                    subject: this.formData.subject,
+                                    message: this.formData.message,
+                                })
+                            });
+
+                            const data = await response.json();
+                            this.success = data.success;
+
+                        } catch (error) {
+                            console.error(error);
+
+                        } finally {
                             this.loading = false;
-                            this.success = true;
-                            this.formData = { name: '', email: '', phone: '', subject: '', message: '', priority: 'normal' };
-                            setTimeout(() => this.success = false, 5000);
+
                         }
                     }
                 }" class="bg-white rounded-3xl shadow-2xl p-8 lg:p-12">
@@ -371,7 +416,7 @@
                         </svg>
                         <div>
                             <p class="font-bold">پیام شما با موفقیت ارسال شد!</p>
-                            <p class="text-sm text-white/90">به زودی با شما تماس می‌گیریم</p>
+                            <p class="text-sm text-white/90">در اسرع وقت به شما پاسخ خواهیم داد</p>
                         </div>
                     </div>
 
@@ -477,110 +522,27 @@
             </div>
 
             <div x-data="{ activeTab: 1 }" class="space-y-4">
-                <!-- FAQ Item 1 -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
-                    :class="activeTab === 1 ? 'ring-4 ring-blue-200' : ''">
-                    <button @click="activeTab = activeTab === 1 ? null : 1"
-                        class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
-                        <span class="text-lg font-bold text-gray-900">چگونه می‌توانم سفارش خود را پیگیری کنم؟</span>
-                        <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
-                            :class="activeTab === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="activeTab === 1" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        class="px-8 pb-6 text-gray-600 leading-relaxed">
-                        با وارد کردن کد پیگیری در بخش "پیگیری سفارش" می‌توانید وضعیت سفارش خود را مشاهده کنید. همچنین از
-                        طریق پیامک و ایمیل از وضعیت سفارش مطلع خواهید شد.
-                    </div>
-                </div>
 
-                <!-- FAQ Item 2 -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
-                    :class="activeTab === 2 ? 'ring-4 ring-blue-200' : ''">
-                    <button @click="activeTab = activeTab === 2 ? null : 2"
-                        class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
-                        <span class="text-lg font-bold text-gray-900">زمان ارسال سفارش چقدر است؟</span>
-                        <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
-                            :class="activeTab === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="activeTab === 2" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        class="px-8 pb-6 text-gray-600 leading-relaxed">
-                        سفارشات در شهر تهران ظرف 24 ساعت و در سایر شهرها ظرف 2 تا 5 روز کاری ارسال می‌شود. ارسال فوری
-                        نیز برای تهران در دسترس است.
+                {% for question in questions %}
+                    <!-- FAQ Item 2 -->
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
+                        :class="activeTab === {{ question.id }} ? 'ring-4 ring-blue-200' : ''">
+                        <button @click="activeTab = activeTab === {{ question.id }} ? null : {{ question.id }}"
+                            class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
+                            <span class="text-lg font-bold text-gray-900">{{ question.question }}</span>
+                            <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
+                                :class="activeTab === {{ question.id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="activeTab === {{ question.id }}" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-y-2"
+                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                            class="px-8 pb-6 text-gray-600 leading-relaxed">{{ question.answer }}</div>
                     </div>
-                </div>
+                {% endfor %}
 
-                <!-- FAQ Item 3 -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
-                    :class="activeTab === 3 ? 'ring-4 ring-blue-200' : ''">
-                    <button @click="activeTab = activeTab === 3 ? null : 3"
-                        class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
-                        <span class="text-lg font-bold text-gray-900">آیا امکان مرجوع کردن کالا وجود دارد؟</span>
-                        <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
-                            :class="activeTab === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="activeTab === 3" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        class="px-8 pb-6 text-gray-600 leading-relaxed">
-                        بله، شما می‌توانید تا 7 روز پس از دریافت کالا، در صورت عدم رضایت، کالا را مرجوع کنید. کالا باید
-                        در شرایط اولیه و با بسته‌بندی سالم باشد.
-                    </div>
-                </div>
-
-                <!-- FAQ Item 4 -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
-                    :class="activeTab === 4 ? 'ring-4 ring-blue-200' : ''">
-                    <button @click="activeTab = activeTab === 4 ? null : 4"
-                        class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
-                        <span class="text-lg font-bold text-gray-900">روش‌های پرداخت چیست؟</span>
-                        <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
-                            :class="activeTab === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="activeTab === 4" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        class="px-8 pb-6 text-gray-600 leading-relaxed">
-                        پرداخت آنلاین از طریق درگاه بانکی، پرداخت در محل (برای تهران)، و پرداخت اقساطی برای خریدهای
-                        بالای 5 میلیون تومان امکان‌پذیر است.
-                    </div>
-                </div>
-
-                <!-- FAQ Item 5 -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300"
-                    :class="activeTab === 5 ? 'ring-4 ring-blue-200' : ''">
-                    <button @click="activeTab = activeTab === 5 ? null : 5"
-                        class="w-full px-8 py-6 flex items-center justify-between text-right hover:bg-gray-50 transition-colors">
-                        <span class="text-lg font-bold text-gray-900">چگونه می‌توانم از تخفیف‌ها مطلع شوم؟</span>
-                        <svg class="w-6 h-6 text-blue-600 transform transition-transform duration-300"
-                            :class="activeTab === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="activeTab === 5" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        class="px-8 pb-6 text-gray-600 leading-relaxed">
-                        با عضویت در خبرنامه ما و دنبال کردن شبکه‌های اجتماعی، از جدیدترین تخفیف‌ها و پیشنهادهای ویژه
-                        مطلع خواهید شد.
-                    </div>
-                </div>
             </div>
         </div>
     </div>
