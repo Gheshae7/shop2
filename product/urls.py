@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProductListView, ProductDetailView
+from .views import ProductListView, ProductDetailView, get_price, add_comment_product
 
 
 app_name = 'product'
@@ -7,5 +7,7 @@ app_name = 'product'
 
 urlpatterns = [
     path('', ProductListView.as_view(), name='products_page'),
+    path('detail/get_price', get_price, name='get_price'),
+    path('detail/add_comment_product', add_comment_product, name='add_comment'),
     path('detail/<slug:slug>', ProductDetailView.as_view(), name='product_detail_page'),
 ]

@@ -6,6 +6,8 @@ from site_settings.models import Feature
 from site_settings.models import QuestionAnswer
 from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef, Q
 from django.utils.timezone import now, timedelta
+import json
+from django.http import JsonResponse
 
 
 class ProductListView(ListView):
@@ -139,7 +141,7 @@ class ProductDetailView(DetailView):
     
     def get_queryset(self, *args, **kwargs):
         query = super().get_queryset(*args, **kwargs)
-        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock'), sales_count=Sum('variants__sales_count'), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'), count_view=Count('count_views', distinct=True))
+        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock', distinct=True), sales_count=Sum('variants__sales_count', distinct=True), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'), count_view=Count('count_views', distinct=True))
         return query
     
     def get_context_data(self, **kwargs):
@@ -160,3 +162,47 @@ class ProductDetailView(DetailView):
         get_client_ip(self.request, self.object.id)
 
         return context
+    
+    
+def get_price(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        attributes = AttributeValue.objects.filter(value__in=[data.get('color'), data.get('size')])
+        product_varinat = ProductVariant.objects.filter(product_id=data.get('product_id'))
+        for attr in attributes:
+            product_varinat = product_varinat.filter(attributes=attr)
+        
+        product_varinat = product_varinat.first()
+        if product_varinat.discount is None:
+            return JsonResponse({
+                'price': product_varinat.price,
+                'price_discount': None,
+                'saving': None,
+            })
+        else:
+            dis = ((product_varinat.price / 100) * product_varinat.discount)
+            return JsonResponse({
+                'price': product_varinat.price,
+                'price_discount': (product_varinat.price - dis),
+                'saving': dis
+            })
+
+
+def add_comment_product(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        if data is not None:
+            if request.user.is_authenticated:
+                Comment.objects.create(product_id=data.get('product_id'), title=data.get('title'), text=data.get('text'), rating=data.get('rating'), name=data.get('name'), author_id=request.user.id, is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+            else:
+                Comment.objects.create(product_id=data.get('product_id'), title=data.get('title'), text=data.get('text'), rating=data.get('rating'), name=data.get('name'), is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+        

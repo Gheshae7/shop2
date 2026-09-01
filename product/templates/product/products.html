@@ -3,7 +3,7 @@
 {% load base_tags %}
 
 
-{% block custom_header_references %}
+{% block header_custom_references %}
 <style>
     [x-cloak] {
         display: none !important;
@@ -53,7 +53,7 @@
         margin-top: -6px;
     }
 </style>
-{% endblock custom_header_references %}
+{% endblock header_custom_references %}
 
 {% block body_attrs %} class="bg-gray-50 min-h-screen" x-data="shopApp()"{% endblock body_attrs %}
 

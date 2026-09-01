@@ -9,9 +9,7 @@
     جزییات محصول
 {% endblock title %}
 
-{% block body_attrs %}
-     class="bg-gray-50 min-h-screen" x-data="productApp()"
-{% endblock body_attrs %}
+{% block body_attrs %} class="bg-gray-50 min-h-screen" x-data="productApp()"{% endblock body_attrs %}
 
 
 
@@ -128,6 +126,7 @@
 {% block content %}
 
 {{ images_json|json_script:"images-data" }}
+{% csrf_token %}
     
     <!-- Cart Drawer -->
     <div x-show="cartOpen" x-cloak class="fixed inset-0 z-50 flex">
@@ -354,9 +353,9 @@
                     </div>
                     
                     <!-- Wishlist -->
-                    <button @click.stop="toggleWish()"
-                        class="absolute top-4 left-4 w-10 h-10 rounded-2xl shadow-md flex items-center justify-center transition-all hover:scale-110"
-                        :class="wished ? 'bg-pink-500 text-white' : 'bg-white text-gray-400'">
+                    <button 
+                        class="absolute top-4 left-4 w-10 h-10 rounded-2xl shadow-md flex items-center justify-center transition-all hover:scale-110 hover:text-rose-500 text-slate-400"
+>
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                         </svg>
@@ -462,16 +461,16 @@
                         <div>
                         {% calculating_discount price=product.price discount=product.discount as res_dis %}
                             <p class="text-xs text-gray-400 mb-1">قیمت فعلی</p>
-                            <p class="text-3xl font-900 text-indigo-600">{{ res_dis.0|intcomma }} تومان</p>
+                            <p class="text-3xl font-900 text-indigo-600" id="discount_price">{{ res_dis.0|intcomma }} تومان</p>
                         </div>
                         <div class="mb-1">
-                            <p class="text-sm text-gray-400 line-through">{{ product.price|intcomma }} تومان</p>
-                            <span class="text-xs font-700 text-red-500 bg-red-50 px-2 py-0.5 rounded-full">صرفه جویی {{ res_dis.1|intcomma }} تومان</span>
+                            <p class="text-sm text-gray-400 line-through" id="main_price">{{ product.price|intcomma }} تومان</p>
+                            <span class="text-xs font-700 text-red-500 bg-red-50 px-2 py-0.5 rounded-full" id="saving_price">صرفه جویی {{ res_dis.1|intcomma }} تومان</span>
                         </div>
                         {% else %}
                             <div>
                             <p class="text-xs text-gray-400 mb-1">قیمت فعلی</p>
-                            <p class="text-3xl font-900 text-indigo-600">{{ product.price|intcomma }} تومان</p>
+                            <p class="text-3xl font-900 text-indigo-600" id="main_price_not_discount">{{ product.price|intcomma }} تومان</p>
                         </div>
                         {% endif %}
                     </div>
@@ -487,7 +486,7 @@
                     <div class="flex gap-3 flex-wrap">
                         {% for attr in attributes %}
                             {% if attr.attribute.name == 'رنگ' %}
-                            <button @click="selectedColor = '{{ attr.value }}'"
+                            <button @click="selectedColor = '{{ attr.value }}'; getPrice();"
                                 class="color-ring cursor-pointer relative w-10 h-10 rounded-full shadow-md border-2 flex items-center justify-center transition-all"
                                 style="background: {{ attr.color_code }};"
                                 :class="selectedColor === '{{ attr.value }}' ? 'border-indigo-500 ring-2 ring-indigo-300 ring-offset-1 scale-110' : 'border-white hover:scale-110'"
@@ -511,7 +510,7 @@
                     <div class="flex gap-2 flex-wrap">
                         {% for attr in attributes %}
                             {% if attr.attribute.name != 'رنگ' %}
-                            <button @click="selectedSize = '{{ attr.value }}'"
+                            <button @click="selectedSize = '{{ attr.value }}'; getPrice();"
                                 class="relative cursor-pointer px-4 py-2.5 rounded-xl border-2 text-sm font-600 transition-all"
                                 :class="selectedSize === '{{ attr.value }}' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 hover:border-indigo-300 text-gray-700 hover:bg-gray-50'">
                                 <span>{{ attr.value }}</span>
@@ -528,13 +527,13 @@
                         <button @click="qty = Math.max(1, qty - 1)"
                             class="qty-btn w-12 h-12 flex items-center justify-center cursor-pointer text-gray-600 hover:bg-gray-200 transition-colors font-700 text-lg">−</button>
                         <span class="w-12 text-center font-800 text-gray-800 text-lg" x-text="qty"></span>
-                        <button @click="qty = Math.min(product.stock, qty + 1)"
+                        <button @click="qty = Math.min(qty + 1)"
                             class="qty-btn cursor-pointer w-12 h-12 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors font-700 text-lg">+</button>
                     </div>
                     <!-- Add to Cart -->
                     <button @click="addToCart()"
                         class="flex-1 h-12 cursor-pointer flex items-center justify-center gap-2 rounded-2xl font-700 text-sm transition-all shadow-lg"
-                        :class="addedToCart ? 'bg-green-500 text-white shadow-green-200' : 'bg-gradient-to-l from-indigo-500 to-purple-600 text-white shadow-indigo-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]'" disabled>
+                        :class="addedToCart ? 'bg-green-500 text-white shadow-green-200' : 'bg-gradient-to-l from-indigo-500 to-purple-600 text-white shadow-indigo-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]'">
                         <svg x-show="!addedToCart" class="w-5 h-5" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -802,7 +801,7 @@
                                     class="w-full px-4 py-2.5 bg-white rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"></textarea>
                             </div>
                             <div class="flex gap-3">
-                                <button @click="submitReview()"
+                                <button @click="submitComment('{{ product.id }}')"
                                     class="px-6 py-2.5 bg-indigo-500 text-white rounded-xl text-sm font-600 hover:bg-indigo-600 transition-colors">ارسال
                                     نظر</button>
                                 <button @click="reviewFormOpen=false"
@@ -1030,7 +1029,7 @@
                 wished: false,
                 addedToCart: false,
                 selectedColor: '',
-                selectedSize: '128GB',
+                selectedSize: '',
                 qty: 1,
                 reviewFormOpen: false,
                 lightbox: { open: false, idx: 0 },
@@ -1216,28 +1215,69 @@
                     this.product.price = Math.round(base + (size.extra || 0));
                 },
 
-                addToCart() {
-                    if (!this.selectedColor) { this.showToastMsg('لطفاً رنگ را انتخاب کنید', 'error', '⚠️'); return; }
-                    if (!this.selectedSize) { this.showToastMsg('لطفاً حافظه را انتخاب کنید', 'error', '⚠️'); return; }
-                    const existing = this.cartItems.find(i => i.id === this.product.id && i.selectedColor === this.selectedColor && i.selectedSize === this.selectedSize);
-                    if (existing) {
-                        existing.qty += this.qty;
-                    } else {
-                        this.cartItems.push({
-                            cartId: Date.now(),
-                            id: this.product.id,
-                            name: this.product.name,
-                            price: this.product.price,
-                            emoji: this.product.emoji,
-                            bgColor: this.product.bgColor,
-                            selectedColor: this.selectedColor,
-                            selectedSize: this.selectedSize,
-                            qty: this.qty,
+                getPrice() {
+                    if (this.selectedColor && this.selectedSize){
+                        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        fetch('/products/detail/get_price', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken,
+                            },
+                            body: JSON.stringify({
+                                color: this.selectedColor,
+                                size: this.selectedSize,
+                                product_id: {{ product.id }}
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(json => {
+                            if (json.price_discount && json.saving) {
+                                document.getElementById('discount_price').innerHTML = Intl.NumberFormat('fa-IR').format(json.price_discount) + ' تومان'; 
+                                document.getElementById('main_price').innerHTML = Intl.NumberFormat('fa-IR').format(json.price) + ' تومان'; 
+                                document.getElementById('saving_price').innerHTML = Intl.NumberFormat('fa-IR').format(json.saving) + ' تومان';                               
+                            } else {
+                                document.getElementById('discount_price').innerHTML = Intl.NumberFormat('fa-IR').format(json.price) + ' تومان';  
+                                document.getElementById('main_price').innerHTML = ''; 
+                                document.getElementById('saving_price').innerHTML = '';        
+                            }
                         });
                     }
-                    this.addedToCart = true;
-                    this.showToastMsg('محصول به سبد خرید اضافه شد', 'cart', '🛒');
-                    setTimeout(() => { this.addedToCart = false; }, 2500);
+                },
+
+                addToCart() {
+                    //if (!this.selectedColor) { console.log('farhan'); return; }
+                    //if (!this.selectedSize) { this.showToastMsg('لطفاً حافظه را انتخاب کنید', 'error', '⚠️'); return; }
+                    //const existing = this.cartItems.find(i => i.id === this.product.id && i.selectedColor === this.selectedColor && i.selectedSize === //this.selectedSize);
+                    //if (existing) {
+                        //existing.qty += this.qty;
+                    //} else {
+                        //this.cartItems.push({
+                            //cartId: Date.now(),
+                            //id: this.product.id,
+                            //name: this.product.name,
+                            //price: this.product.price,
+                            //emoji: this.product.emoji,
+                            //bgColor: this.product.bgColor,
+                            //selectedColor: this.selectedColor,
+                            //selectedSize: this.selectedSize,
+                            //qty: this.qty,
+                        //});
+                    //}
+                    //this.addedToCart = true;
+                    //this.showToastMsg('محصول به سبد خرید اضافه شد', 'cart', '🛒');
+                    //setTimeout(() => { this.addedToCart = false; }, 2500);
+                    if((this.selectedColor && this.selectedSize) && this.qty ) {
+                        console.log(this.selectedColor, this.selectedSize, this.qty);
+                    }else {
+                        Swal.fire({
+                        position: "top-start",
+                        icon: "warning",
+                        title: "لطفا مشخصات و تعداد محصول را انتخاب کنید",
+                        showConfirmButton: false,
+                        timer: 3500,
+                        });
+                    }
                 },
 
                 removeItem(cartId) {
@@ -1259,30 +1299,64 @@
                     this.showToastMsg(this.wished ? 'به علاقه‌مندی‌ها اضافه شد' : 'از علاقه‌مندی‌ها حذف شد', 'wish', this.wished ? '❤️' : '🤍');
                 },
 
-                submitReview() {
-                    if (!this.newReview.name || !this.newReview.text || !this.newReview.rating) {
-                        this.showToastMsg('لطفاً همه فیلدها را پر کنید', 'error', '⚠️');
+                submitComment(product_id) {
+                    if (!this.newReview.name || !this.newReview.text || !this.newReview.rating || !this.newReview.title) {
+                        Swal.fire({
+                        position: "top-start",
+                        icon: "warning",
+                        title: "لطفا تمام قسمت ها رو پر کنید",
+                        showConfirmButton: false,
+                        timer: 3500,
+                        });
                         return;
                     }
-                    this.reviews.unshift({
-                        id: Date.now(),
-                        name: this.newReview.name,
-                        avatar: this.newReview.name.charAt(0),
-                        avatarBg: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        rating: this.newReview.rating,
-                        date: 'همین الان',
-                        verified: false,
-                        title: this.newReview.title || 'نظر جدید',
-                        text: this.newReview.text,
-                        pros: '',
-                        cons: '',
-                        recommend: this.newReview.rating >= 4,
-                        likes: 0,
-                        dislikes: 0,
+
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    fetch('/products/detail/add_comment_product', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            product_id: {{ product.id }},
+                            name: this.newReview.name,
+                            title: this.newReview.title,
+                            text: this.newReview.text,
+                            rating: this.newReview.rating,
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        this.newReview = { name: '', title: '', text: '', rating: 0 };
+                        this.reviewFormOpen = false;
+                        Swal.fire({
+                        position: "top-start",
+                        icon: json.icon,
+                        title: json.title,
+                        showConfirmButton: false,
+                        timer: 3500,
+                        });
                     });
-                    this.newReview = { name: '', title: '', text: '', rating: 0 };
-                    this.reviewFormOpen = false;
-                    this.showToastMsg('نظر شما با موفقیت ثبت شد', 'success', '✅');
+                    //this.reviews.unshift({
+                        //id: Date.now(),
+                        //name: this.newReview.name,
+                        //avatar: this.newReview.name.charAt(0),
+                        //avatarBg: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        //rating: this.newReview.rating,
+                        //date: 'همین الان',
+                        //verified: false,
+                        //title: this.newReview.title || 'نظر جدید',
+                        //text: this.newReview.text,
+                        //pros: '',
+                        //cons: '',
+                        //recommend: this.newReview.rating >= 4,
+                        //likes: 0,
+                        //dislikes: 0,
+                    //});
+                    //this.newReview = { name: '', title: '', text: '', rating: 0 };
+                    //this.reviewFormOpen = false;
+                    //this.showToastMsg('نظر شما با موفقیت ثبت شد', 'success', '✅');
                 },
 
                 showToastMsg(message, type, icon) {
