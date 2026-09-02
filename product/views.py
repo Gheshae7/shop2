@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment, Banner, ProductView
+from .models import Product, ProductsImages, Category, ProductVariant, AttributeValue, Tag, SpecificationCategory, ProductSpecification, ProductDeliveryInfo, Comment, Banner, ProductView, CommentReaction
 from site_settings.models import Feature
 from site_settings.models import QuestionAnswer
 from django.db.models import Prefetch, Max, Min, Sum, Count, Avg, Subquery, OuterRef, Q
@@ -141,7 +141,7 @@ class ProductDetailView(DetailView):
     
     def get_queryset(self, *args, **kwargs):
         query = super().get_queryset(*args, **kwargs)
-        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,))).annotate(stock=Sum('variants__stock', distinct=True), sales_count=Sum('variants__sales_count', distinct=True), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'), count_view=Count('count_views', distinct=True))
+        query = query.select_related('category', 'brand').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True)), Prefetch('comments', queryset=Comment.objects.filter(is_active=True,).order_by('-created_at').annotate(like=Count('reactions', filter=Q(reactions__reaction='like')), dislike=Count('reactions', filter=Q(reactions__reaction='dislike'))))).annotate(stock=Sum('variants__stock', distinct=True), sales_count=Sum('variants__sales_count', distinct=True), discount=Max('variants__discount'), price=Min('variants__price'), comments_avg=Avg('comments__rating'), count_view=Count('count_views', distinct=True))
         return query
     
     def get_context_data(self, **kwargs):
@@ -205,4 +205,61 @@ def add_comment_product(request):
                     'icon': 'success',
                     'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
                 })
-        
+  
+  
+def like_dislike_comments(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            data = json.loads(request.body)
+            current_like = CommentReaction.objects.filter(user=request.user, comment_id=data.get('comment_id')).first()
+            if data.get('action') == 'like':
+                if current_like:
+                    if current_like.reaction == 'like':
+                        current_like.delete()
+                        return JsonResponse({
+                            'action': 'minus',
+                            'id': f"comment_likes_{ data.get('comment_id') }"
+                        })
+                    elif current_like.reaction == 'dislike':
+                        current_like.reaction = 'like'
+                        current_like.save()
+                        return JsonResponse({
+                            'action': 'plus_minus',
+                            'id_0': f"comment_likes_{ data.get('comment_id') }",
+                            'id_1': f"comment_dislikes_{ data.get('comment_id') }",
+                        })
+                else:
+                    CommentReaction.objects.create(user=request.user, comment_id=data.get('comment_id'), reaction='like')
+                    return JsonResponse({
+                        'action': 'plus',
+                        'id': f"comment_likes_{ data.get('comment_id') }"
+                    })
+            if data.get('action') == 'dislike':
+                if current_like:
+                    if current_like.reaction == 'dislike':
+                        current_like.delete()
+                        return JsonResponse({
+                            'action': 'minus',
+                            'id': f"comment_dislikes_{ data.get('comment_id') }"
+                        })
+                    elif current_like.reaction == 'like':
+                        current_like.reaction = 'dislike'
+                        current_like.save()
+                        return JsonResponse({
+                            'action': 'minus_plus',
+                            'id_0': f"comment_likes_{ data.get('comment_id') }",
+                            'id_1': f"comment_dislikes_{ data.get('comment_id') }",
+                        })
+                else:
+                    CommentReaction.objects.create(user=request.user, comment_id=data.get('comment_id'), reaction='dislike')
+                    return JsonResponse({
+                        'action': 'plus',
+                        'id': f"comment_dislikes_{ data.get('comment_id') }"
+                    })
+             
+        else:
+            return JsonResponse({
+                'icon': 'error',
+                'title': 'برای لایک و دیسلاک باید وارد حساب کاربری خود شده باشید'
+            })   
+  

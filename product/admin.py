@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner, ProductView
+from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner, ProductView, CommentReaction
 
 
 
@@ -218,10 +218,10 @@ class ProductsImagesAdmin(admin.ModelAdmin):
     
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("pk", "product__name", "is_active", "name", "like", "dislike", "author", "updated_at", "created_at",)
-    list_filter = ("created_at", "updated_at", "is_active", "like")
+    list_display = ("pk", "product__name", "is_active", "name", "author", "updated_at", "created_at",)
+    list_filter = ("created_at", "updated_at", "is_active",)
     list_editable = ("is_active",)
-    readonly_fields = ("updated_at", "created_at", "like", "dislike")
+    readonly_fields = ("updated_at", "created_at",)
     date_hierarchy = "created_at"
     search_fields = ("name", "product__name", "title",)
     
@@ -285,3 +285,33 @@ class BannerAdmin(admin.ModelAdmin):
         "product__name",
     )
     list_editable = ("is_active",)
+    
+
+@admin.register(CommentReaction)
+class CommentReactionAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "comment",
+        "reaction",
+        "is_active",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "reaction",
+        "comment",
+    )
+    list_editable = (
+        "is_active",
+        "reaction",
+    )
+    

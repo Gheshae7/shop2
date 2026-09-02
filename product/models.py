@@ -2,6 +2,7 @@ from django.db import models
 from basic.base_model import BaseModel
 from django.core.validators import MaxValueValidator, MinValueValidator
 from account.models import User
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -221,8 +222,6 @@ class Comment(BaseModel):
     rating = models.SmallIntegerField(validators=(MaxValueValidator(5), MinValueValidator(0)), verbose_name='امتیاز',)
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='کاربر', help_text='اگر کاربری که در سایت ثبت نام کرده باشد و این کامنت را بگذارد این مقدار پر می شود')
     name = models.CharField(max_length=100, null=True, blank=True, default='ناشناس', verbose_name='نام نویسنده', help_text='اگر کسی در سایت ما ثبت نام نکرده باشد و سپس کامنت بزاره ما اسمش رو از اینحا میزاریم اگر اسم پر نکنه به عنوان ناشناس این رو نشون میدیم')
-    like = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name='لایک')
-    dislike = models.PositiveIntegerField(default=0, null=True, blank=True, verbose_name='دیسلایک')
     
     
     def __str__(self):
@@ -233,6 +232,34 @@ class Comment(BaseModel):
         db_table = 'comments_products'
         db_table_comment = 'This table is for product comments.'
         ordering = ['is_active', '-created_at']
+
+
+class CommentReaction(BaseModel):
+    """This table is for comment reactions"""
+    
+    class ReactionType(models.TextChoices):
+        LIKE = 'like', 'like'
+        DISLIKE = 'dislike', 'dislike'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(
+        Comment,
+        on_delete=models.CASCADE,
+        related_name='reactions'
+    )
+    reaction = models.CharField(
+        max_length=10,
+        choices=ReactionType.choices
+    )
+    
+    def __str__(self):
+        return f'{self.user} / {self.reaction}'
+    
+    
+    class Meta:
+        ordering = ['is_active', 'updated_at']
+        db_table = 'comment_reactions'
+        db_table_comment = 'This table is for comment reactions'
 
 
 class Banner(BaseModel):

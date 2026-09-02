@@ -877,13 +877,13 @@
                                 <!-- Like/Dislike -->
                                 <div class="flex items-center gap-3 mt-4 pt-3 border-t border-gray-50">
                                     <span class="text-xs text-gray-400">آیا این نظر مفید بود؟</span>
-                                    <button @click="review.likes++"
+                                    <button @click="comment_like_product('{{ product.id }}' ,'{{ comment.id }}', 'like')"
                                         class="flex items-center gap-1 text-xs text-gray-400 hover:text-green-500 transition-colors">
-                                        <span>👍</span><span>{{ comment.like }}</span>
+                                        <span>👍</span><span id="comment_likes_{{ comment.id }}">{{ comment.like }}</span>
                                     </button>
-                                    <button @click="review.dislikes++"
+                                    <button @click="comment_like_product('{{ product.id }}' ,'{{ comment.id }}', 'dislike')"
                                         class="flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 transition-colors">
-                                        <span>👎</span><span>{{ comment.dislike }}</span>
+                                        <span>👎</span><span id="comment_dislikes_{{ comment.id }}">{{ comment.dislike }}</span>
                                     </button>
                                 </div>
                             </div>
@@ -1338,25 +1338,63 @@
                         timer: 3500,
                         });
                     });
-                    //this.reviews.unshift({
-                        //id: Date.now(),
-                        //name: this.newReview.name,
-                        //avatar: this.newReview.name.charAt(0),
-                        //avatarBg: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        //rating: this.newReview.rating,
-                        //date: 'همین الان',
-                        //verified: false,
-                        //title: this.newReview.title || 'نظر جدید',
-                        //text: this.newReview.text,
-                        //pros: '',
-                        //cons: '',
-                        //recommend: this.newReview.rating >= 4,
-                        //likes: 0,
-                        //dislikes: 0,
-                    //});
-                    //this.newReview = { name: '', title: '', text: '', rating: 0 };
-                    //this.reviewFormOpen = false;
-                    //this.showToastMsg('نظر شما با موفقیت ثبت شد', 'success', '✅');
+                },
+
+                comment_like_product(product_id ,comment_id, action){
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    fetch('/products/detail/like_dislike', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            product_id: product_id,
+                            comment_id: comment_id,
+                            action: action,
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.icon && json.title) {
+                            Swal.fire({
+                            position: "top-start",
+                            icon: json.icon,
+                            title: json.title,
+                            showConfirmButton: false,
+                            timer: 3500,
+                            });
+                        }
+                        else if (json.action && (json.id || json.id_0 || json.id_1)) {
+                            if (json.action == 'plus') {
+                            number = parseInt(document.getElementById(json.id).innerHTML);
+                            number ++;
+                            document.getElementById(json.id).innerHTML = number;
+                            } 
+                            else if (json.action == 'minus') {
+                                number = parseInt(document.getElementById(json.id).innerHTML);
+                                number --;
+                                document.getElementById(json.id).innerHTML = number;
+                            }
+                            else if (json.action == 'plus_minus') {
+                                number_0 = parseInt(document.getElementById(json.id_0).innerHTML);
+                                number_1 = parseInt(document.getElementById(json.id_1).innerHTML);
+                                number_0 ++;
+                                number_1 --;
+                                document.getElementById(json.id_0).innerHTML = number_0;
+                                document.getElementById(json.id_1).innerHTML = number_1;
+                            }
+                            else if (json.action == 'minus_plus') {
+                                number_0 = parseInt(document.getElementById(json.id_0).innerHTML);
+                                number_1 = parseInt(document.getElementById(json.id_1).innerHTML);
+                                number_0 --;
+                                number_1 ++;
+                                document.getElementById(json.id_0).innerHTML = number_0;
+                                document.getElementById(json.id_1).innerHTML = number_1;
+                            }
+                        }
+
+                    });
                 },
 
                 showToastMsg(message, type, icon) {
