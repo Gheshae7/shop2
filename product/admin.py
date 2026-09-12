@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Category, Brand, Product, ProductSpecification, Attribute, AttributeValue, ProductVariant, ProductsImages, Tag, SpecificationCategory, ProductDeliveryInfo, Comment, Banner, ProductView, CommentReaction
+from django_summernote.admin import SummernoteModelAdmin
 
 
 
@@ -155,7 +156,8 @@ class ProductVariantStackedInline(admin.StackedInline):
  
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(SummernoteModelAdmin):
+    summernote_fields = ('description',)
     list_display = ("name", "is_active", "category", "brand", "slug", "updated_at", "created_at",)
     list_filter = ("created_at", "updated_at", "is_active", "brand", "category")
     list_editable = ("is_active",)

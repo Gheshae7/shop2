@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # packages
     path('captcha/', include('captcha.urls')),
+    path('summernote/', include('django_summernote.urls')),
     # apps
     path('', include('home.urls')),
     path('account/', include('account.urls')),

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "captcha",
     "django_jalali",
     "debug_toolbar",
+    "django_summernote",
 	# apps
 	"home",
     "account",
