@@ -81,3 +81,21 @@ class BlogSection(BaseModel):
         db_table = 'blog_sections'
         db_table_comment = 'This table is for the various sections of a blog.'
         ordering = ['-order']
+        
+        
+class BlogView(BaseModel):
+    """This class is for counting the number of views for a blog."""
+    
+    ip = models.GenericIPAddressField(verbose_name='آدرس کاربر')
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name='کدام بلاک', related_name='count_views')
+    
+    
+    def __str__(self):
+        return f'{self.blog.name} / {self.ip}'
+    
+    
+    class Meta:
+        db_table = 'blog_views'
+        db_table_comment = 'This table is for counting the number of views for a blog.'
+        ordering = ['is_active']
+        
