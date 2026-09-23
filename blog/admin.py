@@ -1,9 +1,18 @@
 from django.contrib import admin
 from .models import BlogCategory, BlogTag, Blog, BlogSection
 from django_summernote.admin import SummernoteModelAdmin
+from django import forms
+from django_summernote.widgets import SummernoteWidget
 
 
-
+class BlogSectionForm(forms.ModelForm):
+    class Meta:
+        model = BlogSection
+        fields = "__all__"
+        widgets = {
+            "content": SummernoteWidget(),
+        }
+        
 
 @admin.register(BlogCategory)
 class BlogCategoryAdmin(admin.ModelAdmin):
@@ -88,9 +97,9 @@ class BlogSectionAdmin(SummernoteModelAdmin):
 class BlogSectionStackedInline(admin.StackedInline):
     model = BlogSection
     extra = 1
+    form = BlogSectionForm
     summernote_fields = ('content',)
 
-    
     
 @admin.register(Blog)   
 class BlogAdmin(admin.ModelAdmin):
