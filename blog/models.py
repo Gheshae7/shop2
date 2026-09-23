@@ -45,5 +45,33 @@ class Blog(BaseModel):
     summary = models.TextField(null=False, blank=False, verbose_name='خلاصه بلاگ')
     reading_time = models.PositiveSmallIntegerField(verbose_name='مدت زمان مطالعه', null=False, blank=False)
     image = models.ImageField(upload_to='blog/image/', verbose_name='عکس بلاگ', null=False, blank=False)
+    
+    
+    def __str__(self):
+        return self.name
+    
+    
+    class Meta:
+        db_table = 'blogs'
+        db_table_comment = 'This table is for posts or blogs.'
+        ordering = ['name']
 
 
+        
+class BlogSection(BaseModel):
+    """This class is for the various sections of a blog."""
+    
+    blog = models.ForeignKey(Blog, null=False, blank=False, on_delete=models.CASCADE, verbose_name='بلاگ')
+    title = models.CharField(max_length=250, null=False, blank=False, verbose_name='عنوان این بخش از مقاله')
+    content = models.TextField(verbose_name='توضیحات یا متن این قسمت')
+    order = models.PositiveSmallIntegerField(verbose_name='ترتیب نمایش', help_text='عددی که بالاتر می باشد الویت بیشتری دارد')
+    
+    
+    def __str__(self):
+        return self.blog
+    
+    
+    class Meta:
+        db_table = 'blog_sections'
+        db_table_comment = 'This table is for the various sections of a blog.'
+        ordering = ['-order']
