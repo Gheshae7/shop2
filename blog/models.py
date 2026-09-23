@@ -74,7 +74,7 @@ class BlogSection(BaseModel):
     
     
     def __str__(self):
-        return self.blog
+        return self.blog.name
     
     
     class Meta:

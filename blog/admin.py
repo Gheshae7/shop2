@@ -69,7 +69,7 @@ class BlogSectionAdmin(SummernoteModelAdmin):
     summernote_fields = ('content',)
     
     list_display = (
-        "blog",
+        "blog__name",
         "order",
         "is_active",
         "updated_at",
