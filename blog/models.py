@@ -1,5 +1,6 @@
 from django.db import models
 from basic.base_model import BaseModel
+from django.utils.text import slugify
 
 
 
@@ -45,6 +46,12 @@ class Blog(BaseModel):
     summary = models.TextField(null=False, blank=False, verbose_name='خلاصه بلاگ')
     reading_time = models.PositiveSmallIntegerField(verbose_name='مدت زمان مطالعه', null=False, blank=False)
     image = models.ImageField(upload_to='blog/image/', verbose_name='عکس بلاگ', null=False, blank=False)
+    slug = models.SlugField(max_length=550, null=False, blank=True, verbose_name='آدرس url در بلاگ')
+    
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name, allow_unicode=True)
+        return super().save(*args, **kwargs)
     
     
     def __str__(self):
@@ -55,7 +62,6 @@ class Blog(BaseModel):
         db_table = 'blogs'
         db_table_comment = 'This table is for posts or blogs.'
         ordering = ['name']
-
 
         
 class BlogSection(BaseModel):
