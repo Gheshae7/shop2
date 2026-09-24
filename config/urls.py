@@ -33,6 +33,7 @@ urlpatterns = [
     path('products/', include('product.urls')),
     path('newsletter/', include('newsletter.urls')),
     path('contact/', include('contact.urls')),
+    path('blogs/', include('blog.urls')),
     
 ] + debug_toolbar_urls()
 

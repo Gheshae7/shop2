@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BlogCategory, BlogTag, Blog, BlogSection, BlogView
+from .models import BlogCategory, BlogTag, Blog, BlogSection, BlogView, BlogLike
 from django_summernote.admin import SummernoteModelAdmin
 from django import forms
 from django_summernote.widgets import SummernoteWidget
@@ -135,7 +135,7 @@ class BlogAdmin(admin.ModelAdmin):
 
 
 @admin.register(BlogView)
-class BannerAdmin(admin.ModelAdmin):
+class BlogViewAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "blog__name",
@@ -157,6 +157,32 @@ class BannerAdmin(admin.ModelAdmin):
     search_fields = (
         "is_active",
         "ip",
-        "product__name",
+    )
+    list_editable = ("is_active",)
+    
+
+@admin.register(BlogLike)
+class BlogLikeAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "blog__name",
+        "user__email",
+        "is_active",
+        "updated_at",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "user__email",
     )
     list_editable = ("is_active",)

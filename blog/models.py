@@ -1,6 +1,7 @@
 from django.db import models
 from basic.base_model import BaseModel
 from django.utils.text import slugify
+from account.models import User
 
 
 
@@ -40,7 +41,7 @@ class Blog(BaseModel):
     """This class is for posts or blogs."""
     
     name = models.CharField(max_length=450, null=False, blank=False, unique=True, verbose_name='نام مقاله')
-    category = models.ManyToManyField(BlogCategory, verbose_name='دسته بندی ها', related_name='blogs_c')
+    category = models.ForeignKey(BlogCategory, verbose_name='دسته بندی ها', related_name='blogs_c', on_delete=models.SET_NULL, null=True)
     tag = models.ManyToManyField(BlogTag, verbose_name='تگ ها', related_name='blogs_t')
     short_text = models.CharField(max_length=600, null=False, blank=False, verbose_name='توضیحات کوتاه')
     summary = models.TextField(null=False, blank=False, verbose_name='خلاصه بلاگ')
@@ -98,4 +99,21 @@ class BlogView(BaseModel):
         db_table = 'blog_views'
         db_table_comment = 'This table is for counting the number of views for a blog.'
         ordering = ['is_active']
-        
+ 
+ 
+class BlogLike(BaseModel):
+    """This class is for counting the number of likes for a blog."""
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name='کاربر')
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name='کدام بلاک', related_name='count_likes')
+    
+    
+    def __str__(self):
+        return f'{self.blog.name} / {self.user.email}'
+    
+    
+    class Meta:
+        db_table = 'blog_likes'
+        db_table_comment = 'This table is for counting the number of likes for a blog.'
+        ordering = ['is_active']
+               
