@@ -1,6 +1,8 @@
 {% load jformat %}
+{% load base_tags %}
+
 {% for blog in blogs %}
-    <a href="#" class="block group relative">
+    <a href="{% url "blog:blog_detail_page" slug=blog.slug %}" class="block group relative">
         <!-- هاله نوری محو پشت کارت که با هاور فعال‌تر می‌شود -->
         <div
             class="absolute -inset-0.5 bg-gradient-to-br from-blue-400/0 via-blue-400/0 to-blue-400/0 group-hover:from-blue-400/20 group-hover:via-transparent group-hover:to-blue-400/20 rounded-3xl blur-xl transition-all duration-700 opacity-0 group-hover:opacity-100">

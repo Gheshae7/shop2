@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load base_tags %}
 
 {% block title %}بلاگ ها{% endblock title %}
 
@@ -7,57 +8,65 @@
 {% block content %}
     <section class="lg:px-[20px] xl:px-0 max-w-[90%] xl:max-w-7xl mx-auto">
         <div
-            class="flex flex-col-reverse lg:grid lg:grid-cols-10 gap-[10px] sm:gap-10 mx-auto mt-[15px] sm:mt-[20px] md:mt-[30px]">
+            class="flex flex-col-reverse lg:grid lg:grid-cols-10 gap-[10px] sm:gap-10 mx-auto mt-[15px] sm:mt-[20px] md:mt-[30px]" id="blog_wrapper">
 
             <div class="lg:col-span-7 mt-[10px] lg:mt-0">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[8px] sm:gap-[12px] md:gap-[20px]" id="blogs_content">
                     {% include "blog/includes/blogs_list.html" with blogs=blogs %}
                 </div>
-                <div
-                    class="w-full mt-[15px] sm:mt-[20px] md:mt-[30px] flex justify-between items-center mx-auto bg-white shadow h-[50px] sm:h-[65px] md:h-[88px] rounded-[16px] sm:rounded-[16px] md:rounded-[32px] px-[10px] sm:px-[15px] md:px-[20px]">
-                    <div class="flex justify-center group items-center gap-1 sm:gap-2">
+                <div class="w-full mt-[15px] sm:mt-[20px] md:mt-[30px] flex justify-between items-center mx-auto bg-white shadow h-[50px] sm:h-[65px] md:h-[88px] rounded-[16px] sm:rounded-[16px] md:rounded-[32px] px-[10px] sm:px-[15px] md:px-[20px]" id="blog_pagination">
+                        {% if page_obj.has_previous %}
+                    <div class="flex justify-center group items-center gap-1 sm:gap-2" onclick='pagination({{ page_obj.previous_page_number }})'>
 
-                        <svg class="rotate-180 transition duration-300 stroke-[#CFD6DF] cursor-pointer group-hover:stroke-[#14396C] w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
-                            viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7.97533 4.94165L2.91699 9.99998L7.97533 15.0583" stroke-width="1.5"
-                                stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M17.0836 10H3.05859" stroke-width="1.5" stroke-miterlimit="10"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                            <svg class="rotate-180 transition duration-300 stroke-[#CFD6DF] cursor-pointer group-hover:stroke-[#14396C] w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
+                                viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.97533 4.94165L2.91699 9.99998L7.97533 15.0583" stroke-width="1.5"
+                                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M17.0836 10H3.05859" stroke-width="1.5" stroke-miterlimit="10"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
 
-                        <p
-                            class="hidden sm:block text-[#CFD6DF] text-[12px] transition duration-300 group-hover:text-[#14396C] cursor-pointer">
-                            قبلی</p>
+                            <p class="hidden sm:block text-[#CFD6DF] text-[12px] transition duration-300 group-hover:text-[#14396C] cursor-pointer">
+                                قبلی
+                            </p>
                     </div>
+                        {% endif %}
+
                     <div
                         class="flex justify-center items-center gap-[2px] sm:gap-1 md:gap-4 text-[12px] sm:text-[14px] text-[#ACB8C4]">
-                        <span
-                            class="text-[#ffffff] cursor-pointer bg-[#14396C] p-[8px] sm:p-[12px] md:p-[15px] rounded-[8px] sm:rounded-[12px] md:rounded-[16px] mx-[3px] sm:mx-[5px] md:mx-[10px] text-[11px]">1</span>
-                        <span
-                            class="text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]">2</span>
-                        <span
-                            class="text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]">3</span>
-                        <span
-                            class="hidden sm:inline text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]">4</span>
-                        <span
-                            class="text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]">...</span>
-                        <span
-                            class="text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]">184</span>
+                    {% if page_obj.number > 1 %}
+                        {% for page in paginator.num_pages|times|slice:"4" %}
+                            {% if page|add:page_obj.number|add:"-1" <= paginator.num_pages %}
+                                <span onclick='pagination({{ page|add:page_obj.number|add:"-1" }})' id="pageID{{ page|add:page_obj.number|add:"-1" }}"
+                                    class="{% if page_obj.number == page|add:page_obj.number|add:"-1" %}text-[#ffffff] cursor-pointer bg-[#14396C] p-[8px] sm:p-[12px] md:p-[15px] rounded-[8px] sm:rounded-[12px] md:rounded-[16px] mx-[3px] sm:mx-[5px] md:mx-[10px] text-[11px]{% else %}text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]{% endif %}">
+                                        {{ page|add:page_obj.number|add:"-1" }}    
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                        {% else %}
+                            {% for page in paginator.page_range|slice:"4" %}
+                                <span onclick='pagination({{ page }})' id="pageID{{ page }}"
+                                    class="{% if page_obj.number == page %}text-[#ffffff] cursor-pointer bg-[#14396C] p-[8px] sm:p-[12px] md:p-[15px] rounded-[8px] sm:rounded-[12px] md:rounded-[16px] mx-[3px] sm:mx-[5px] md:mx-[10px] text-[11px]{% else %}text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]{% endif %}">
+                                    {{ page }}
+                                </span>
+                        {% endfor %}
+                    {% endif %}
                     </div>
-                    <div class="flex justify-center group items-center gap-1 sm:gap-2">
-                        <p
-                            class="hidden sm:block text-[#CFD6DF] text-[12px] transition duration-300 group-hover:text-[#14396C] cursor-pointer">
-                            بعدی</p>
-
-                        <svg class="transition duration-300 stroke-[#CFD6DF] cursor-pointer group-hover:stroke-[#14396C] w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
-                            viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7.97533 4.94165L2.91699 9.99998L7.97533 15.0583" stroke-width="1.5"
-                                stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M17.0836 10H3.05859" stroke-width="1.5" stroke-miterlimit="10"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-
+                    {% if page_obj.has_next %}
+                    <div class="flex justify-center group items-center gap-1 sm:gap-2" onclick='pagination({{ page_obj.next_page_number }})'>
+                            <p class="hidden sm:block text-[#CFD6DF] text-[12px] transition duration-300 group-hover:text-[#14396C] cursor-pointer">
+                            بعدی    
+                            </p>
+                            <svg class="transition duration-300 stroke-[#CFD6DF] cursor-pointer group-hover:stroke-[#14396C] w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
+                                viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.97533 4.94165L2.91699 9.99998L7.97533 15.0583" stroke-width="1.5"
+                                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M17.0836 10H3.05859" stroke-width="1.5" stroke-miterlimit="10"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                     </div>
+                    {% endif %}
+
                 </div>
             </div>
             <div class="lg:col-span-3 order-first lg:order-last">
@@ -75,6 +84,7 @@
             this.open = false;
                 const params = new URLSearchParams(window.location.search)
             params.delete('order_by');
+            params.delete('page');
             params.append('order_by', this.selected);
             fetch(`/blogs/?${params.toString()}`, {
                 headers: {
@@ -86,6 +96,7 @@
             })
             .then(function(html) {
                 document.getElementById('blogs_content').innerHTML = html;
+                history.replaceState({}, '', '/blogs/');
             });
           }
         }" @click.away="open = false" class="relative w-full mx-auto">
@@ -143,4 +154,33 @@
             </div>
         </div>
     </section>
+    <script>
+        function pagination(pageID) {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('page');
+            params.delete('order_by');
+            params.append('page', pageID);
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+
+            //fetch(`/blogs/?${params.toString()}`, {
+            //    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            //})
+            //.then(response => response.text())
+            //.then(html => {
+            //    document.getElementById('blog_wrapper').innerHTML = html;
+                //history.replaceState({}, '', `/blogs/?${params.toString()}`);
+
+                // به‌جای وابستگی به current_pageID، هر عنصری که کلاس فعال داره رو پیدا کن
+                //const activePage = document.querySelector('.pagination-item.active-page');
+                //if (activePage) {
+                //    activePage.setAttribute('class', 'pagination-item text-[#14396C] cursor-pointer mx-[2px] sm:mx-[3px] md:mx-[5px] p-[5px] sm:p-[7px] md:p-[15px] text-[11px]');
+                //}
+
+                //const newPage = document.getElementById('pageID' + pageID);
+                //if (newPage) {
+                //    newPage.setAttribute('class', 'pagination-item active-page text-[#ffffff] cursor-pointer bg-[#14396C] p-[8px] sm:p-[12px] md:p-[15px] rounded-[8px] sm:rounded-[12px] md:rounded-[16px] mx-[3px] sm:mx-[5px] md:mx-[10px] text-[11px]');
+                //}
+            //});
+        }
+    </script>
 {% endblock content %}

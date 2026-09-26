@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from .models import Blog, BlogCategory
 from django.db.models import Count
 
@@ -8,11 +8,12 @@ class BlogsListView(ListView):
     model = Blog
     context_object_name = 'blogs'
     template_name = 'blog/blogs.html'
+    paginate_by = 1
     
     
     def get_queryset(self, *args, **kwargs):
         query = super().get_queryset()
-        query = query.filter(is_active=True,).annotate(count_like=Count('count_likes')).select_related('category')
+        query = query.filter(is_active=True,).annotate(count_like=Count('count_likes')).select_related('category').order_by('-created_at')
         
         category_url_name = self.kwargs.get('url_name')
         if category_url_name:
@@ -54,3 +55,15 @@ class BlogsListView(ListView):
             return ['blog/includes/blogs_list.html']
 
         return [self.template_name]
+    
+    
+    
+class BlogDetailView(DetailView):
+    model = Blog
+    context_object_name = 'blog'
+    template_name = 'blog/blog_detail.html'
+    
+    def get_queryset(self, *args, **kwargs):
+        query = super().get_queryset()
+        query = query.filter(is_active=True)
+        return query

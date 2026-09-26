@@ -49,3 +49,16 @@ def calculateing_darsad_rating(comment_count, comments, number):
             
     res = (100 / comment_count) * count if comment_count != 0 else None
     return round(res) if res else None
+
+
+@register.simple_tag
+def get_page_range(current_page, total_pages, window=3):
+    pages = []
+    end = min(current_page + window, total_pages)
+    for p in range(current_page, end + 1):
+        pages.append(p)
+    if end < total_pages:
+        if end < total_pages - 1:
+            pages.append('...')
+        pages.append(total_pages)
+    return pages
