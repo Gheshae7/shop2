@@ -2,6 +2,8 @@ from django.db import models
 from basic.base_model import BaseModel
 from django.utils.text import slugify
 from account.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -116,4 +118,52 @@ class BlogLike(BaseModel):
         db_table = 'blog_likes'
         db_table_comment = 'This table is for counting the number of likes for a blog.'
         ordering = ['is_active']
-               
+   
+
+class BlogComment(BaseModel):
+    """This class is for a blog's comments."""
+    
+    blog = models.ForeignKey(Blog, null=False, blank=False, on_delete=models.CASCADE, verbose_name='بلاگ', related_name='blog_comments')
+    text = models.TextField(max_length=255, null=False, blank=False, verbose_name='متن کامنت')
+    rating = models.SmallIntegerField(validators=(MaxValueValidator(5), MinValueValidator(0)), verbose_name='امتیاز',)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='کاربر', help_text='اگر کاربری که در سایت ثبت نام کرده باشد و این کامنت را بگذارد این مقدار پر می شود')
+    name = models.CharField(max_length=100, null=True, blank=True, default='ناشناس', verbose_name='نام نویسنده', help_text='اگر کسی در سایت ما ثبت نام نکرده باشد و سپس کامنت بزاره ما اسمش رو از اینحا میزاریم اگر اسم پر نکنه به عنوان ناشناس این رو نشون میدیم')
+    
+    
+    def __str__(self):
+        return f'{self.pk} / {self.blog}'
+    
+    
+    class Meta:
+        db_table = 'comments_blogs'
+        db_table_comment = 'This table is for blog comments.'
+        ordering = ['is_active', '-created_at']
+        
+
+class BlogCommentReaction(BaseModel):
+    """This table is for comment reactions"""
+    
+    class ReactionType(models.TextChoices):
+        LIKE = 'like', 'like'
+        DISLIKE = 'dislike', 'dislike'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(
+        BlogComment,
+        on_delete=models.CASCADE,
+        related_name='blog_reactions'
+    )
+    reaction = models.CharField(
+        max_length=10,
+        choices=ReactionType.choices
+    )
+    
+    def __str__(self):
+        return f'{self.user} / {self.reaction}'
+    
+    
+    class Meta:
+        ordering = ['is_active', 'updated_at']
+        db_table = 'comment_reactions_blog'
+        db_table_comment = 'This table is for comment reactions' 
+                   

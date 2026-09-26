@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BlogCategory, BlogTag, Blog, BlogSection, BlogView, BlogLike
+from .models import BlogCategory, BlogTag, Blog, BlogSection, BlogView, BlogLike, BlogComment, BlogCommentReaction
 from django_summernote.admin import SummernoteModelAdmin
 from django import forms
 from django_summernote.widgets import SummernoteWidget
@@ -186,3 +186,42 @@ class BlogLikeAdmin(admin.ModelAdmin):
         "user__email",
     )
     list_editable = ("is_active",)
+    
+    
+@admin.register(BlogComment)
+class BlogCommentAdmin(admin.ModelAdmin):
+    list_display = ("pk", "blog__name", "is_active", "name", "author", "updated_at", "created_at",)
+    list_filter = ("created_at", "updated_at", "is_active",)
+    list_editable = ("is_active",)
+    readonly_fields = ("updated_at", "created_at",)
+    date_hierarchy = "created_at"
+    search_fields = ("name", "blog__name", "title",)
+    
+
+@admin.register(BlogCommentReaction)
+class BlogCommentReactionAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "comment",
+        "reaction",
+        "is_active",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+        "is_active",
+    )
+    readonly_fields = (
+        "updated_at",
+        "created_at",
+    )
+    date_hierarchy = "created_at"
+    search_fields = (
+        "is_active",
+        "reaction",
+        "comment",
+    )
+    list_editable = (
+        "is_active",
+        "reaction",
+    )
