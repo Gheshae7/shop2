@@ -68,7 +68,7 @@ class Blog(BaseModel):
 class BlogSection(BaseModel):
     """This class is for the various sections of a blog."""
     
-    blog = models.ForeignKey(Blog, null=False, blank=False, on_delete=models.CASCADE, verbose_name='بلاگ')
+    blog = models.ForeignKey(Blog, null=False, blank=False, on_delete=models.CASCADE, verbose_name='بلاگ', related_name='blog_sections')
     title = models.CharField(max_length=250, null=False, blank=False, verbose_name='عنوان این بخش از مقاله')
     content = models.TextField(verbose_name='توضیحات یا متن این قسمت')
     order = models.PositiveSmallIntegerField(verbose_name='ترتیب نمایش', help_text='عددی که بالاتر می باشد الویت بیشتری دارد')

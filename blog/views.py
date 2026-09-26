@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
-from .models import Blog, BlogCategory
-from django.db.models import Count
+from .models import Blog, BlogCategory, BlogTag, BlogSection
+from django.db.models import Count, Prefetch
 
 
 class BlogsListView(ListView):
@@ -65,5 +65,5 @@ class BlogDetailView(DetailView):
     
     def get_queryset(self, *args, **kwargs):
         query = super().get_queryset()
-        query = query.filter(is_active=True)
+        query = query.filter(is_active=True).select_related('category').annotate(count_like=Count('count_likes')).prefetch_related(Prefetch('blog_sections', queryset=BlogSection.objects.filter(is_active=True)))
         return query

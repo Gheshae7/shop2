@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load jformat %}
 
 {% block title %}
     {{ blog.title }}
@@ -384,7 +385,7 @@
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </button>
-          <span class="text-xs font-bold text-gray-500" x-text="liked ? post.likes+1 : post.likes"></span>
+          <span class="text-xs font-bold text-gray-500">{{ blog.count_like }}</span>
         </div>
 
         <!-- Comment -->
@@ -416,13 +417,13 @@
         <div class="w-8 h-px bg-gray-200"></div>
 
         <!-- Share Buttons -->
-        <template x-for="s in shareOptions.slice(0,3)" :key="s.name">
+        {% comment %} <template x-for="s in shareOptions.slice(0,3)" :key="s.name">
           <button @click="sharePost(s)"
             class="share-btn w-12 h-12 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-lg hover:shadow-md transition-all"
             :title="s.name">
             <span x-text="s.icon"></span>
           </button>
-        </template>
+        </template> {% endcomment %}
 
         <!-- Reading Progress Circle -->
         <div class="relative w-12 h-12 mt-2">
@@ -444,8 +445,7 @@
           <!-- Category & Tags -->
           <div class="flex flex-wrap items-center gap-2 mb-5">
             <a href="#"
-              class="px-4 py-1.5 bg-violet-600 text-white text-sm font-bold rounded-full hover:bg-violet-700 transition-colors"
-              x-text="post.category"></a>
+              class="px-4 py-1.5 bg-violet-600 text-white text-sm font-bold rounded-full hover:bg-violet-700 transition-colors">{{ blog.category.name }}</a>
             <template x-for="tag in post.tags" :key="tag">
               <a href="#"
                 class="tag-pill px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full hover:bg-violet-100 hover:text-violet-700 transition-colors"
@@ -454,23 +454,23 @@
           </div>
 
           <!-- Title -->
-          <h1 class="text-3xl sm:text-4xl font-black text-gray-900 leading-tight mb-4" x-text="post.title"></h1>
+          <h1 class="text-3xl sm:text-4xl font-black text-gray-900 leading-tight mb-4">{{ blog.name }}</h1>
 
           <!-- Excerpt -->
-          <p class="text-xl text-gray-500 font-light leading-relaxed mb-6" x-text="post.excerpt"></p>
+          <p class="text-xl text-gray-500 font-light leading-relaxed mb-6">{{ blog.short_text }}</p>
 
           <!-- Meta Row -->
           <div class="flex flex-wrap items-center gap-4 mb-7 pb-7 border-b border-gray-200">
-            <!-- Author -->
+            {% comment %} <!-- Author -->
             <div class="flex items-center gap-3">
               <img :src="post.author.avatar" class="w-11 h-11 rounded-full object-cover avatar-ring">
               <div>
                 <p class="text-sm font-bold text-gray-800" x-text="post.author.name"></p>
                 <p class="text-xs text-gray-400" x-text="post.author.role"></p>
               </div>
-            </div>
+            </div> {% endcomment %}
 
-            <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
+            {% comment %} <div class="h-6 w-px bg-gray-200 hidden sm:block"></div> {% endcomment %}
 
             <!-- Date -->
             <div class="flex items-center gap-1.5 text-sm text-gray-500">
@@ -478,7 +478,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span x-text="post.date"></span>
+              <span>{{ blog.created_at|jformat:"%-d / %-m / %Y" }}</span>
             </div>
 
             <!-- Read Time -->
@@ -487,7 +487,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span x-text="post.readTime + ' دقیقه مطالعه'"></span>
+              <span>{{ blog.reading_time }} دقیقه مطالعه</span>
             </div>
 
             <!-- Views -->
@@ -507,7 +507,7 @@
                 <path
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              <span x-text="(liked ? post.likes+1 : post.likes) + ' لایک'"></span>
+              <span>{{ blog.count_like }} لایک</span>
             </div>
 
             <!-- Updated -->
@@ -516,13 +516,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>به‌روز شده: <span x-text="post.updated"></span></span>
+              <span>به‌روز شده: <span>{{ blog.updated_at|jformat:"%-d / %-m / %Y" }}</span></span>
             </div>
           </div>
 
           <!-- Hero Image -->
           <div class="img-zoom mb-8 relative">
-            <img :src="post.image" :alt="post.title" class="w-full h-72 sm:h-96 object-cover">
+            <img class="w-full h-72 sm:h-96 object-cover" src="{{ blog.image.url }}">
             <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
             <div
               class="absolute bottom-4 right-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm text-white text-xs rounded-full flex items-center gap-1.5">
@@ -532,11 +532,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span x-text="post.imageCredit"></span>
+              {% comment %} <span>تصویر از {{  }}</span> {% endcomment %}
             </div>
           </div>
 
-          <!-- Mobile Action Bar -->
+          {% comment %} <!-- Mobile Action Bar -->
           <div
             class="xl:hidden flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-3 mb-7 shadow-sm">
             <div class="flex items-center gap-1">
@@ -574,7 +574,7 @@
                 </template>
               </div>
             </div>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Highlight Box -->
           <div class="highlight-box rounded-2xl p-5 mb-8">
@@ -583,7 +583,7 @@
               </div>
               <div>
                 <h4 class="font-bold text-violet-800 mb-1">خلاصه مقاله</h4>
-                <p class="text-sm text-violet-700 leading-relaxed" x-text="post.summary"></p>
+                <p class="text-sm text-violet-700 leading-relaxed">{{ blog.summary }}</p>
               </div>
             </div>
           </div>
@@ -591,52 +591,30 @@
           <!-- Post Content -->
           <div class="prose-custom" id="article-content">
 
-            <h2>چرا انتخاب درست اهمیت دارد؟</h2>
-            <p>در دنیای امروز که بازار فناوری به سرعت در حال تغییر است، انتخاب درست تجهیزات دیجیتال می‌تواند تاثیر
-              قابل‌توجهی بر بهره‌وری و کیفیت زندگی شما داشته باشد. با هزاران گزینه موجود در بازار، دانستن اینکه چه چیزی
-              را باید دنبال کنید، اهمیت فوق‌العاده‌ای دارد.</p>
+            {% for section in blog.blog_sections.all %}
+              <h2 id="section-{{ section.title }}">
+                {{ section.title }}
+              </h2>
+                <p>
+                  {{ section.content }}
+                </p>
+            {% endfor %}
 
-            <blockquote>
+            {% comment %} <blockquote>
               "بهترین فناوری آن نیست که پیشرفته‌ترین مشخصات را دارد، بلکه آن است که نیازهای واقعی شما را برطرف می‌کند."
-            </blockquote>
+            </blockquote> {% endcomment %}
 
-            <p>قبل از هر خریدی، باید چند سوال اساسی از خود بپرسید: هدف اصلی من از این خرید چیست؟ چه بودجه‌ای در نظر
-              دارم؟ و آیا این محصول در بلند مدت به‌صرفه است؟</p>
+            
 
-            <div class="callout">
+            {% comment %} <div class="callout">
               <p class="font-bold text-amber-800 mb-1">⚠️ نکته مهم</p>
               <p class="text-sm text-amber-700">همیشه قبل از خرید، نظرات کاربران واقعی را مطالعه کنید و از منابع معتبر
                 کمک بگیرید.</p>
-            </div>
-
-            <h2>۵ معیار طلایی برای انتخاب بهتر</h2>
-
-            <p>متخصصان حوزه فناوری معمولاً پنج معیار اساسی را برای ارزیابی محصولات دیجیتال در نظر می‌گیرند:</p>
-
-            <ul>
-              <li>کیفیت ساخت و دوام: یک محصول باکیفیت باید حداقل ۳ تا ۵ سال عمر مفید داشته باشد</li>
-              <li>عملکرد در دنیای واقعی: مشخصات روی کاغذ همیشه با تجربه واقعی یکسان نیست</li>
-              <li>پشتیبانی پس از فروش: اطمینان از موجود بودن قطعات و خدمات در بلند مدت</li>
-              <li>ارزش در برابر هزینه: گران‌ترین همیشه بهترین نیست</li>
-              <li>سازگاری با نیاز شخصی: هر کسی نیازهای خاص خودش را دارد</li>
-            </ul>
-
-            <h3>درک مشخصات فنی</h3>
-            <p>یکی از بزرگترین چالش‌های خریداران، درک مشخصات فنی است. وقتی می‌بینید <code>RAM 16GB DDR5</code> یا
-              <code>OLED 120Hz</code>، آیا می‌دانید دقیقاً چه تفاوتی با گزینه‌های ارزان‌تر دارد؟</p>
-
-            <div class="callout callout-info">
-              <p class="font-bold text-blue-800 mb-1">ℹ️ آیا می‌دانستید؟</p>
-              <p class="text-sm text-blue-700">در اکثر موارد، افزایش ۳۰ درصدی قیمت تنها ۱۵ درصد بهبود در عملکرد واقعی به
-                همراه دارد. نقطه بهینه اغلب در محدوده میانی قیمت قرار دارد.</p>
-            </div>
-
-            <h2>جدول مقایسه رده‌های قیمتی</h2>
-            <p>برای درک بهتر، در اینجا یک مقایسه کلی ارائه می‌دهیم:</p>
+            </div> {% endcomment %}
 
           </div>
 
-          <!-- Comparison Table -->
+          {% comment %} <!-- Comparison Table -->
           <div class="overflow-x-auto mb-8 rounded-2xl border border-gray-200 shadow-sm">
             <table class="w-full text-sm">
               <thead>
@@ -665,9 +643,9 @@
                 </template>
               </tbody>
             </table>
-          </div>
+          </div> {% endcomment %}
 
-          <!-- Continue Content -->
+          {% comment %} <!-- Continue Content -->
           <div class="prose-custom">
             <h2>نکات کلیدی خرید آنلاین</h2>
             <p>خرید آنلاین مزایای فراوانی دارد، اما نیاز به دقت بیشتری نیز دارد. در اینجا مهم‌ترین نکاتی که باید رعایت
@@ -689,7 +667,7 @@
               <li>سیاست بازگشت کالا را مطالعه کنید</li>
               <li>پشتیبانی آنلاین و تلفنی فروشنده را بسنجید</li>
             </ul>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Inline Product Recommendation -->
           <div class="my-8 p-5 bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-100 rounded-2xl">
@@ -730,7 +708,7 @@
             </div>
           </div>
 
-          <!-- Rest of Content -->
+          {% comment %} <!-- Rest of Content -->
           <div class="prose-custom">
             <h2>نتیجه‌گیری</h2>
             <p>خرید هوشمند به معنای صرف بیشترین پول نیست، بلکه به معنای سرمایه‌گذاری درست در محصولی است که دقیقاً
@@ -738,7 +716,7 @@
               تصمیم بگیرید.</p>
             <p>به یاد داشته باشید که بهترین محصول برای شما، محصولی است که نه لزوماً پیشرفته‌ترین یا گران‌ترین، بلکه
               مناسب‌ترین برای سبک زندگی و بودجه‌ی شما باشد.</p>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Author Bio -->
           <div class="mt-10 p-6 gradient-border rounded-2xl">
@@ -974,19 +952,26 @@
               فهرست مطالب
             </h3>
             <nav class="space-y-1">
-              <template x-for="(item, i) in toc" :key="i">
-                <a :href="'#' + item.id"
+                {% for section in blog.blog_sections.all %}
+                  <a :href="'#section-{{ section.title }}'"
+                    class="toc-link flex items-start gap-2 px-3 py-2 rounded-xl text-sm border-r-2 transition-all block"
+                    :class="activeToc === 'section-{{ section.slug }}' ? 'border-violet-600 bg-violet-50 text-violet-700 font-semibold' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-800'">
+                      <span class="w-5 h-5 rounded-full text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold"
+                          :class="activeToc === 'section-{{ section.title }}' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-500'">
+                          {{ forloop.counter }}
+                      </span>
+                      <span>{{ section.title }}</span>
+                  </a>
+                  {% comment %} <a :href="'#' + 'section ' +'{{ section.title }}'"
                   class="toc-link flex items-start gap-2 px-3 py-2 rounded-xl text-sm border-r-2 transition-all block"
-                  :class="activeToc===item.id ? 'border-violet-600 bg-violet-50 text-violet-700 font-semibold' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-800'"
+                  :class="activeToc==="section '{{ section.title }}'" ? 'border-violet-600 bg-violet-50 text-violet-700 font-semibold' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-800'"
                   :style="item.level===3 ? 'padding-right: 20px' : ''">
                   <span
                     class="w-5 h-5 rounded-full text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold"
-                    :class="activeToc===item.id ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-500'"
-                    x-text="i+1">
-                  </span>
-                  <span x-text="item.title"></span>
-                </a>
-              </template>
+                    :class="activeToc===item.id ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-500'">{{ forloop.counter }}</span>
+                  <span>{{ section.title }}</span>
+                </a> {% endcomment %}
+                {% endfor %}
             </nav>
           </div>
 
