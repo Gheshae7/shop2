@@ -3,6 +3,9 @@ from product.models import Category
 from django.db.models import Prefetch
 from site_settings.models import FooterBox, SiteSettings
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
+
 
 register = template.Library()
 
@@ -62,3 +65,10 @@ def get_page_range(current_page, total_pages, window=3):
             pages.append('...')
         pages.append(total_pages)
     return pages
+
+
+@register.simple_tag
+def is_new(created_at, hours=1):
+    if not created_at:
+        return False
+    return True if timezone.now() - created_at < timedelta(hours=hours) else False

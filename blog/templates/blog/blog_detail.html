@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% load jformat %}
+{% load static %}
+{% load base_tags %}
+{% load humanize %}
 
 {% block title %}
     {{ blog.title }}
@@ -376,17 +379,15 @@
       <!-- Left Floating Action Bar (Desktop) -->
       <aside class="hidden xl:flex flex-col items-center gap-4 sticky-sidebar w-16 flex-shrink-0">
         <!-- Like -->
-        <div class="flex flex-col items-center gap-1.5">
-          <button @click="toggleLike()"
-            class="like-btn w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm"
-            :class="liked ? 'bg-pink-500 text-white shadow-pink-200 shadow-lg' : 'bg-white text-gray-500 hover:text-pink-500 hover:bg-pink-50 border border-gray-200'">
-            <svg class="w-5 h-5" :fill="liked?'currentColor':'none'" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-          <span class="text-xs font-bold text-gray-500">{{ blog.count_like }}</span>
-        </div>
+          <div class="flex flex-col items-center gap-1.5">
+        <button class="like-btn w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm
+          {% if blog.is_liked_by_user %}bg-pink-500 text-white shadow-pink-200 shadow-lg{% else %}bg-white text-gray-500 hover:text-pink-500 hover:bg-pink-50 border border-gray-200{% endif %}">
+          <svg class="w-5 h-5" fill="{% if blog.is_liked_by_user %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
+            <span class="text-xs font-bold text-gray-500">{{ blog.count_like }}</span>
+          </div>
 
         <!-- Comment -->
         <div class="flex flex-col items-center gap-1.5">
@@ -397,7 +398,7 @@
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </button>
-          <span class="text-xs font-bold text-gray-500" x-text="comments.length"></span>
+          <span class="text-xs font-bold text-gray-500">{{ blog.count_comment }}</span>
         </div>
 
         <!-- Bookmark -->
@@ -446,11 +447,10 @@
           <div class="flex flex-wrap items-center gap-2 mb-5">
             <a href="#"
               class="px-4 py-1.5 bg-violet-600 text-white text-sm font-bold rounded-full hover:bg-violet-700 transition-colors">{{ blog.category.name }}</a>
-            <template x-for="tag in post.tags" :key="tag">
+              {% for tag in tags %}
               <a href="#"
-                class="tag-pill px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full hover:bg-violet-100 hover:text-violet-700 transition-colors"
-                x-text="'#' + tag"></a>
-            </template>
+                class="tag-pill px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full hover:bg-violet-100 hover:text-violet-700 transition-colors">#{{ tag.name }}</a>
+              {% endfor %}
           </div>
 
           <!-- Title -->
@@ -498,7 +498,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <span x-text="post.views.toLocaleString('fa') + ' بازدید'"></span>
+              <span>{{ blog.count_view }} بازدید</span>
             </div>
 
             <!-- Likes -->
@@ -681,30 +681,39 @@
               <h4 class="font-black text-violet-800">محصولات مرتبط با این مقاله</h4>
             </div>
             <div class="grid sm:grid-cols-2 gap-3">
-              <template x-for="p in inlineProducts" :key="p.id">
+
+
+
+
+              {% for product in blog.product.all|slice:"2" %}
                 <div
                   class="product-card bg-white rounded-xl p-3 flex gap-3 cursor-pointer border border-transparent hover:border-violet-200">
-                  <img :src="p.image" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                  {% for imgage in product.images.all %}
+                    <img src="{{ product.images.first.image.url}}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                  {% endfor %}
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-800 line-clamp-1" x-text="p.name"></p>
+                    <p class="text-sm font-bold text-gray-800 line-clamp-1">{{ product.name }}</p>
                     <div class="flex items-center gap-1 my-1">
-                      <template x-for="i in 5">
-                        <svg class="w-3 h-3" :class="i<=p.rating ? 'text-amber-400' : 'text-gray-200'"
+                      {% for star in product.rating|times %}
+                              <svg class="w-3 h-3 text-amber-400" 
                           fill="currentColor" viewBox="0 0 20 20">
                           <path
                             d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
-                      </template>
-                      <span class="text-xs text-gray-400" x-text="'(' + p.reviews + ')'"></span>
+                      {% endfor %}
+                      <span class="text-xs text-gray-400">({{ product.count_view }})</span>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span class="text-sm font-black text-violet-600" x-text="formatPrice(p.price)"></span>
+                      <span class="text-sm font-black text-violet-600">{{ product.price|intcomma }} تومان</span>
                       <button @click.stop="addToCart(p)"
                         class="text-xs px-2.5 py-1 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-semibold">افزودن</button>
                     </div>
                   </div>
                 </div>
-              </template>
+              {% endfor %}
+
+
+
             </div>
           </div>
 
@@ -719,7 +728,7 @@
           </div> {% endcomment %}
 
           <!-- Author Bio -->
-          <div class="mt-10 p-6 gradient-border rounded-2xl">
+          {% comment %} <div class="mt-10 p-6 gradient-border rounded-2xl">
             <div class="flex gap-4">
               <img :src="post.author.avatar" class="w-16 h-16 rounded-2xl object-cover flex-shrink-0 shadow-md">
               <div>
@@ -738,45 +747,37 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Tags Footer -->
           <div class="mt-8 flex flex-wrap gap-2">
             <span class="text-sm font-bold text-gray-600 ml-2">برچسب‌ها:</span>
-            <template x-for="tag in post.tags" :key="tag">
+            {% for tag in tags %}
               <a href="#"
-                class="tag-pill px-4 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-full hover:bg-violet-100 hover:text-violet-700 transition-all font-medium"
-                x-text="'#' + tag"></a>
-            </template>
+                class="tag-pill px-4 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-full hover:bg-violet-100 hover:text-violet-700 transition-all font-medium">{{ tag.name }}</a>
+            {% endfor %}
           </div>
 
           <!-- Post Navigation -->
           <div class="mt-8 grid sm:grid-cols-2 gap-4">
-            <a href="#"
+            {% for blog_n_p in next_previous_blog %}
+                <a href="{% url "blog:blog_detail_page" slug=blog_n_p.slug %}"
               class="group p-4 bg-white border border-gray-200 rounded-2xl hover:border-violet-300 hover:shadow-md transition-all">
               <div
                 class="flex items-center gap-1.5 text-xs text-gray-400 mb-2 group-hover:text-violet-600 transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                مقاله قبلی
+                {% if blog_n_p.id < blog.id %}
+                  مقاله قبلی  
+                {% else %}
+                  مقاله بعدی
+                {% endif %}
               </div>
-              <p class="text-sm font-bold text-gray-700 group-hover:text-violet-700 transition-colors line-clamp-2">
-                راهنمای کامل خرید هدفون بی‌سیم در سال ۲۰۲۶</p>
+              <p class="text-sm font-bold text-gray-700 group-hover:text-violet-700 transition-colors line-clamp-2">{{ blog_n_p.name }}</p>
             </a>
-            <a href="#"
-              class="group p-4 bg-white border border-gray-200 rounded-2xl hover:border-violet-300 hover:shadow-md transition-all text-left">
-              <div
-                class="flex items-center gap-1.5 text-xs text-gray-400 mb-2 justify-end group-hover:text-violet-600 transition-colors">
-                مقاله بعدی
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <p
-                class="text-sm font-bold text-gray-700 group-hover:text-violet-700 transition-colors line-clamp-2 text-right">
-                بهترین گوشی‌های میانرده برای خریداران با بودجه محدود</p>
-            </a>
+            {% endfor %}
+
           </div>
         </article>
 
@@ -786,8 +787,7 @@
         <section id="comments" class="mt-14">
           <div class="flex items-center gap-3 mb-7">
             <h2 class="text-2xl font-black text-gray-900">دیدگاه‌ها</h2>
-            <span class="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-bold rounded-full"
-              x-text="comments.length + ' دیدگاه'"></span>
+            <span class="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-bold rounded-full">{{ blog.count_comment }} دیدگاه</span>
           </div>
 
           <!-- Comment Form -->
@@ -842,47 +842,78 @@
 
           <!-- Comments List -->
           <div class="space-y-5">
-            <template x-for="comment in comments" :key="comment.id">
-              <div class="comment-appear bg-white border border-gray-100 rounded-2xl p-5 shadow-sm"
+
+
+
+
+
+
+
+
+
+
+
+
+              {% for comment in blog.blog_comments.all %}
+                <div class="comment-appear bg-white border border-gray-100 rounded-2xl p-5 shadow-sm"
                 :class="comment.isNew ? 'border-violet-200 bg-violet-50/30' : ''">
                 <div class="flex items-start gap-3">
-                  <img :src="comment.avatar"
+                  {% if comment.author.avatar %}
+                    <img src="{{ comment.author.avatar.url }}"
                     class="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm">
+                    {% else %}
+                      <img src="{% static "assets/images/default_avatar2.png" %}"
+                    class="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm">
+                  {% endif %}
                   <div class="flex-1">
                     <div class="flex items-center flex-wrap gap-2 mb-1.5">
-                      <span class="font-bold text-gray-800 text-sm" x-text="comment.name"></span>
-                      <span x-show="comment.isAuthor"
-                        class="px-2 py-0.5 bg-violet-600 text-white text-xs font-bold rounded-full">نویسنده</span>
-                      <span x-show="comment.isNew"
-                        class="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">جدید</span>
-                      <div class="flex mr-1">
-                        <template x-for="i in 5" :key="i">
-                          <span class="text-xs" :class="i<=comment.rating?'text-amber-400':'text-gray-200'">★</span>
-                        </template>
-                      </div>
-                      <span class="text-xs text-gray-400 mr-auto" x-text="comment.date"></span>
-                    </div>
-                    <p class="text-sm text-gray-600 leading-relaxed" x-text="comment.text"></p>
+                      {% if comment.author %}
+                        <span class="font-bold text-gray-800 text-sm">{{ comment.author.username }}</span>
+                        {% else %}
+                        <span class="font-bold text-gray-800 text-sm">{{ comment.name }}</span>
+                      {% endif %}
+                      {% comment %} <span x-show="comment.isAuthor"
+                        class="px-2 py-0.5 bg-violet-600 text-white text-xs font-bold rounded-full">نویسنده</span> {% endcomment %}
+                      {% is_new created_at=comment.created_at hours=1 as is_new %}
+                      {% if is_new %}
+                        <span class="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">جدید</span>
+                      {% endif %}
 
-                    <!-- Reply -->
-                    <div x-show="comment.reply" class="mt-3 pr-4 border-r-2 border-violet-200">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs font-bold text-violet-700">پاسخ نویسنده:</span>
-                        <span class="text-xs text-gray-400" x-text="comment.reply?.date"></span>
+                      <div class="flex mr-1">
+                        {% for rating in comment.rating|times %}
+                          <span class="text-xs text-amber-400">★</span>
+                        {% endfor %}
+                          
                       </div>
-                      <p class="text-xs text-gray-600 leading-relaxed" x-text="comment.reply?.text"></p>
+                      <span class="text-xs text-gray-400 mr-auto">{{ comment.created_at|jformat:"%-d / %-m / %Y | %-H:%-M" }}</span>
                     </div>
+                    <p class="text-sm text-gray-600 leading-relaxed">{{ comment.text }}</p>
+
+                    {% for reply in comment.child_comment.all %}
+                      <!-- Reply -->
+                    <div class="mt-3 pr-4 border-r-2 border-violet-200">
+                      <div class="flex items-center gap-2 mb-1">
+                        {% if reply.author %}
+                          <span class="text-xs font-bold text-violet-700">{{ reply.author.username }}</span>
+                        {% else %}
+                          <span class="text-xs font-bold text-violet-700">{{ reply.name }}</span>
+                        {% endif %}
+
+                        <span class="text-xs text-gray-400">{{ reply.created_at|jformat:"%-d / %-m / %Y | %-H:%-M" }}</span>
+                      </div>
+                      <p class="text-xs text-gray-600 leading-relaxed">{{ reply.text }}</p>
+                    </div>
+                    {% endfor %}
 
                     <div class="flex items-center gap-3 mt-3">
                       <button @click="likeComment(comment.id)"
-                        class="flex items-center gap-1.5 text-xs font-medium transition-all"
-                        :class="comment.liked ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'">
-                        <svg class="w-4 h-4" :fill="comment.liked?'currentColor':'none'" viewBox="0 0 24 24"
-                          stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                        </svg>
-                        <span x-text="comment.likes + (comment.liked ? 1 : 0) + ' مفید'"></span>
+                        class="flex items-center gap-1.5 text-xs font-medium transition-all text-gray-400 hover:text-pink-400"
+                        :class="comment.liked ? 'text-gray-400 hover:text-pink-400'">
+                      <svg class="w-4 h-4 text-gray-400 hover:text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                      </svg>
+                        <span>{{ comment.count_like_reaction }} مفید</span>
                       </button>
                       <button @click="setReplyingTo(comment.id)"
                         class="text-xs font-medium text-gray-400 hover:text-violet-600 transition-colors">
@@ -905,7 +936,7 @@
                   </div>
                 </div>
               </div>
-            </template>
+              {% endfor %}
           </div>
         </section>
 
@@ -913,25 +944,29 @@
         <section class="mt-14 mb-8">
           <h2 class="text-2xl font-black text-gray-900 mb-6">مقالات مرتبط</h2>
           <div class="grid sm:grid-cols-3 gap-5">
-            <template x-for="p in relatedPosts" :key="p.id">
-              <a href="#"
+
+
+            {% for related_blog in related_blogs %}
+                  <a href="{% url "blog:blog_detail_page" slug=related_blog.slug %}"
                 class="group block bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <div class="overflow-hidden">
-                  <img :src="p.image" :alt="p.title"
+                  <img src="{{ related_blog.image.url }}"
                     class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500">
                 </div>
                 <div class="p-4">
-                  <span class="text-xs font-bold text-violet-600" x-text="p.category"></span>
+                  <span class="text-xs font-bold text-violet-600">{{ related_blog.categroy }}</span>
                   <h3
-                    class="text-sm font-bold text-gray-800 mt-1 mb-2 line-clamp-2 group-hover:text-violet-700 transition-colors"
-                    x-text="p.title"></h3>
+                    class="text-sm font-bold text-gray-800 mt-1 mb-2 line-clamp-2 group-hover:text-violet-700 transition-colors">{{ related_blog.name }}</h3>
                   <div class="flex items-center justify-between text-xs text-gray-400">
-                    <span x-text="p.date"></span>
-                    <span x-text="p.readTime + ' دقیقه'"></span>
+                    <span>{{ related_blog.created_at|jformat:"%-d / %-m / %Y" }}</span>
+                    <span>{{ related_blog.reading_time }} دقیقه</span>
                   </div>
                 </div>
               </a>
-            </template>
+            {% endfor %}
+
+              
+
           </div>
         </section>
 
@@ -992,15 +1027,14 @@
           <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
             <h3 class="font-black text-gray-800 mb-4">برچسب‌های محبوب</h3>
             <div class="flex flex-wrap gap-2">
-              <template x-for="tag in popularTags" :key="tag.name">
+              {% for tag in popular_tags %}
                 <a href="#"
                   class="tag-pill flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-violet-100 hover:text-violet-700 text-gray-600 text-xs font-medium rounded-full transition-all border border-gray-200 hover:border-violet-300">
-                  <span x-text="tag.name"></span>
+                  <span>{{ tag.name }}</span>
                   <span
-                    class="w-4 h-4 bg-gray-200 text-gray-600 rounded-full text-xs flex items-center justify-center font-bold"
-                    x-text="tag.count"></span>
+                    class="w-4 h-4 bg-gray-200 text-gray-600 rounded-full text-xs flex items-center justify-center font-bold">{{ tag.count_blog }}</span>
                 </a>
-              </template>
+              {% endfor %}
             </div>
           </div>
 
@@ -1011,41 +1045,34 @@
             </div>
             <div class="p-4">
               <div class="relative mb-3 img-zoom">
-                <img :src="featuredProduct.image" class="w-full h-36 object-cover rounded-xl">
-                <span class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-black rounded-lg"
-                  x-text="'%' + Math.round((1 - featuredProduct.price/featuredProduct.originalPrice)*100) + ' تخفیف'"></span>
+                <img src="{{ special_product.images.first.image.url }}" class="w-full h-36 object-cover rounded-xl">
+                <span class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-black rounded-lg">
+                  {{ special_product.discount }}% تخفیف
+                </span>
               </div>
-              <h4 class="font-bold text-gray-800 text-sm mb-1" x-text="featuredProduct.name"></h4>
+              <h4 class="font-bold text-gray-800 text-sm mb-1">{{ special_product.name }}</h4>
               <div class="flex items-center gap-1 mb-2">
-                <template x-for="i in 5">
-                  <span class="text-sm" :class="i<=featuredProduct.rating?'text-amber-400':'text-gray-200'">★</span>
-                </template>
-                <span class="text-xs text-gray-400" x-text="'(' + featuredProduct.reviews + ')'"></span>
-              </div>
-
-              <!-- Countdown Timer -->
-              <div class="flex items-center gap-1.5 mb-3">
-                <span class="text-xs text-gray-500">پایان تخفیف:</span>
-                <div class="flex gap-1">
-                  <template x-for="(val, unit) in countdown">
-                    <div class="flex items-center">
-                      <div class="bg-gray-900 text-white text-xs font-black px-1.5 py-1 rounded-lg min-w-7 text-center"
-                        x-text="val"></div>
-                      <span x-show="unit !== 'seconds'" class="text-gray-400 text-xs mx-0.5">:</span>
-                    </div>
-                  </template>
-                </div>
+                {% for star in special_product.rating|times %}
+                  <span class="text-sm text-amber-400">★</span>
+                {% endfor %}
+                  
+                <span class="text-xs text-gray-400">({{ special_product.count_view }})</span>
               </div>
 
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="font-black text-violet-600 text-lg" x-text="formatPrice(featuredProduct.price)"></p>
-                  <p class="text-xs text-gray-400 line-through" x-text="formatPrice(featuredProduct.originalPrice)"></p>
+                  {% if special_product.discount > 1 %}
+                    {% calculating_discount price=special_product.price discount=special_product.discount as res_dis %}
+                    <p class="font-black text-violet-600 text-lg">{{ res_dis.0|intcomma }} تومان</p>
+                    <p class="text-xs text-gray-400 line-through">{{ special_product.price }} تومان</p>
+                    {% else %}
+                    <p class="font-black text-violet-600 text-lg">{{ special_product.price|intcomma }} تومان</p>
+                  {% endif %}
                 </div>
-                <button @click="addToCart(featuredProduct)"
+                <a href="{% url "product:product_detail_page" slug=special_product.slug %}"
                   class="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-200 transition-all hover:-translate-y-0.5">
-                  خرید
-                </button>
+                  مشاهده
+              </a>
               </div>
             </div>
           </div>

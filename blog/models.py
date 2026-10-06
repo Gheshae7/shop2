@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from account.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
+from product.models import Product
 
 
 
@@ -43,8 +44,9 @@ class Blog(BaseModel):
     """This class is for posts or blogs."""
     
     name = models.CharField(max_length=450, null=False, blank=False, unique=True, verbose_name='نام مقاله')
+    product = models.ManyToManyField(Product, verbose_name='محصولات مرتبط با این مقاله', help_text='حداکثر 4 تا انتخاب کنید و به صورت رندوم 2 تا نمایش داده می شود یا اگر می خواهید فقط 2 تا نمایش دهید', related_name='realted_products')
     category = models.ForeignKey(BlogCategory, verbose_name='دسته بندی ها', related_name='blogs_c', on_delete=models.SET_NULL, null=True)
-    tag = models.ManyToManyField(BlogTag, verbose_name='تگ ها', related_name='blogs_t')
+    tag = models.ManyToManyField(BlogTag, verbose_name='تگ ها')
     short_text = models.CharField(max_length=600, null=False, blank=False, verbose_name='توضیحات کوتاه')
     summary = models.TextField(null=False, blank=False, verbose_name='خلاصه بلاگ')
     reading_time = models.PositiveSmallIntegerField(verbose_name='مدت زمان مطالعه', null=False, blank=False)
@@ -124,8 +126,9 @@ class BlogComment(BaseModel):
     """This class is for a blog's comments."""
     
     blog = models.ForeignKey(Blog, null=False, blank=False, on_delete=models.CASCADE, verbose_name='بلاگ', related_name='blog_comments')
+    parent = models.ForeignKey('BlogComment', null=True, blank=True, on_delete=models.CASCADE, verbose_name='والد', related_name='child_comment')
     text = models.TextField(max_length=255, null=False, blank=False, verbose_name='متن کامنت')
-    rating = models.SmallIntegerField(validators=(MaxValueValidator(5), MinValueValidator(0)), verbose_name='امتیاز',)
+    rating = models.SmallIntegerField(validators=(MaxValueValidator(5), MinValueValidator(0)), null=True, blank=True, verbose_name='امتیاز',)
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='کاربر', help_text='اگر کاربری که در سایت ثبت نام کرده باشد و این کامنت را بگذارد این مقدار پر می شود')
     name = models.CharField(max_length=100, null=True, blank=True, default='ناشناس', verbose_name='نام نویسنده', help_text='اگر کسی در سایت ما ثبت نام نکرده باشد و سپس کامنت بزاره ما اسمش رو از اینحا میزاریم اگر اسم پر نکنه به عنوان ناشناس این رو نشون میدیم')
     
