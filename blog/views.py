@@ -3,6 +3,8 @@ from django.views.generic import ListView, DetailView
 from .models import Blog, BlogCategory, BlogTag, BlogSection, BlogComment, BlogCommentReaction, BlogView, BlogLike
 from django.db.models import Count, Prefetch, Q, Exists, OuterRef, BooleanField, Value, Avg, Min, Max
 from product.models import Product, ProductsImages
+from django.http import JsonResponse
+import json
 
 
 class BlogsListView(ListView):
@@ -81,13 +83,13 @@ class BlogDetailView(DetailView):
             query = query.annotate(is_liked_by_user=Exists(user_blog_like_subquery))
         else:
             query = query.annotate(is_liked_by_user=Value(False, output_field=BooleanField()))
-        
+           
         query = query.filter(is_active=True).select_related('category').annotate(
             count_like=Count('count_likes', distinct=True),
             count_comment=Count('blog_comments', distinct=True),
             count_view=Count('count_views', distinct=True),
             ).prefetch_related(Prefetch('blog_sections', queryset=BlogSection.objects.filter(is_active=True)),
-                Prefetch('blog_comments', queryset=BlogComment.objects.filter(is_active=True, parent__isnull=True).prefetch_related(Prefetch('child_comment', queryset=BlogComment.objects.filter(is_active=True, parent__isnull=False).select_related('author'))).annotate(count_like_reaction=Count('blog_reactions', filter=Q(blog_reactions__reaction='like'))).select_related('author').order_by('-created_at')), Prefetch('product', queryset=Product.objects.filter(is_active=True).annotate(rating=Avg('comments__rating'), count_view=Count('count_views', distinct=True), price=Min('variants__price')).order_by('?').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))))
+                Prefetch('blog_comments', queryset=BlogComment.objects.filter(is_active=True, parent__isnull=True).annotate(count_like=Count('blog_reactions'), is_liked_comment_by_user=Exists(BlogCommentReaction.objects.filter(is_active=True, comment_id=OuterRef('pk'), user_id=self.request.user.id))).prefetch_related(Prefetch('child_comment', queryset=BlogComment.objects.filter(is_active=True, parent__isnull=False).select_related('author'))).order_by('-created_at')), Prefetch('product', queryset=Product.objects.filter(is_active=True).annotate(rating=Avg('comments__rating'), count_view=Count('count_views', distinct=True), price=Min('variants__price')).order_by('?').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))))
             )
         return query
     
@@ -102,3 +104,69 @@ class BlogDetailView(DetailView):
         context['special_product'] = Product.objects.filter(is_active=True, variants__discount__isnull=False).annotate(discount=Max('variants__discount'), rating=Avg('comments__rating'), count_view=Count('count_views', distinct=True), price=Min('variants__price')).order_by('?').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).first()
         get_client_ip(self.request, self.object.id)
         return context
+    
+
+def add_comment_blog(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        if data is not None:
+            if request.user.is_authenticated:
+                BlogComment.objects.create(blog_id=data.get('blog_id'), text=data.get('text'), rating=data.get('rating'), name=data.get('name'), author_id=request.user.id, is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+            else:
+                BlogComment.objects.create(blog_id=data.get('blog_id'), text=data.get('text'), rating=data.get('rating'), name=data.get('name'), is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+                
+                
+def add_comment_blog_react(request):
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        if data is not None:
+            if request.user.is_authenticated:
+                BlogComment.objects.create(blog_id=data.get('blog_id'), parent_id=data.get('parent_id'), text=data.get('text'), author_id=request.user.id, is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+            else:
+                BlogComment.objects.create(blog_id=data.get('blog_id'), parent_id=data.get('parent_id'), text=data.get('text'), is_active=False)
+                return JsonResponse({
+                    'icon': 'success',
+                    'title': 'از نظر شما ممنونیم پس از بررسی نظر شما نمایش داده می شود.'
+                })
+                
+                
+def like_comment(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            data = json.loads(request.body)
+            if data is not None:
+                current_comment_reaction = BlogCommentReaction.objects.filter(is_active=True, comment_id=data.get('comment_id'), user_id=request.user.id).first()
+                if current_comment_reaction:
+                    current_comment_reaction.delete()
+                    return JsonResponse({
+                            'action': 'minus',
+                            'id': f"comment_like_{ data.get('comment_id') }",
+                    })
+                else:
+                    BlogCommentReaction.objects.create(is_active=True, comment_id=data.get('comment_id'), user_id=request.user.id)
+                    return JsonResponse({
+                        'action': 'plus',
+                        'id': f"comment_like_{ data.get('comment_id') }",
+                        'author': 'true'
+                    })
+        else:
+            return JsonResponse({
+                'icon': 'error',
+                'title': 'ابتدا باید وارد حساب کاربری خود شوید'
+            })
+    else:
+        pass

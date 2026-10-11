@@ -279,6 +279,7 @@
 {% block body_attrs %} class="bg-gray-50 text-gray-800" x-data="blogPost()" x-init="init()"{% endblock body_attrs %}
 
 {% block content %}
+{% csrf_token %}
   <!-- Reading Progress Bar -->
   <div class="fixed top-0 left-0 right-0 z-50 h-0.5 bg-gray-200">
     <div class="reading-bar" :style="'width:' + readingProgress + '%'"></div>
@@ -402,7 +403,7 @@
         </div>
 
         <!-- Bookmark -->
-        <div class="flex flex-col items-center gap-1.5">
+        {% comment %} <div class="flex flex-col items-center gap-1.5">
           <button @click="toggleBookmark()"
             class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm"
             :class="bookmarked ? 'bg-violet-600 text-white shadow-violet-200 shadow-lg' : 'bg-white text-gray-500 hover:text-violet-600 hover:bg-violet-50 border border-gray-200'">
@@ -412,7 +413,7 @@
             </svg>
           </button>
           <span class="text-xs font-bold text-gray-500" x-text="bookmarked ? '✓' : '—'"></span>
-        </div>
+        </div> {% endcomment %}
 
         <!-- Divider -->
         <div class="w-8 h-px bg-gray-200"></div>
@@ -705,8 +706,8 @@
                     </div>
                     <div class="flex items-center justify-between">
                       <span class="text-sm font-black text-violet-600">{{ product.price|intcomma }} تومان</span>
-                      <button @click.stop="addToCart(p)"
-                        class="text-xs px-2.5 py-1 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-semibold">افزودن</button>
+                      <a href="{% url "product:product_detail_page" slug=product.slug %}"
+                        class="text-xs px-2.5 py-1 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-semibold">دیدن</a>
                     </div>
                   </div>
                 </div>
@@ -805,8 +806,6 @@
             <div class="grid sm:grid-cols-2 gap-3 mb-3">
               <input type="text" x-model="newComment.name" placeholder="نام شما *"
                 class="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 text-sm transition-all bg-gray-50 focus:bg-white">
-              <input type="email" x-model="newComment.email" placeholder="ایمیل شما (نمایش داده نمی‌شود)"
-                class="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 text-sm transition-all bg-gray-50 focus:bg-white">
             </div>
 
             <!-- Rating Input -->
@@ -828,12 +827,7 @@
               class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 text-sm resize-none transition-all bg-gray-50 focus:bg-white mb-3"></textarea>
 
             <div class="flex items-center justify-between">
-              <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer">
-                <input type="checkbox" x-model="newComment.notify"
-                  class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500">
-                اطلاع‌رسانی پاسخ‌ها
-              </label>
-              <button @click="submitComment()" :disabled="!newComment.name || !newComment.text"
+              <button @click="submitComment()" :disabled="!newComment.name || !newComment.text || !newComment.rating"
                 class="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-200 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none">
                 ارسال دیدگاه
               </button>
@@ -906,30 +900,29 @@
                     {% endfor %}
 
                     <div class="flex items-center gap-3 mt-3">
-                      <button @click="likeComment(comment.id)"
-                        class="flex items-center gap-1.5 text-xs font-medium transition-all text-gray-400 hover:text-pink-400"
-                        :class="comment.liked ? 'text-gray-400 hover:text-pink-400'">
-                      <svg class="w-4 h-4 text-gray-400 hover:text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <button @click="likeComment('{{ comment.id }}')" id="btn_comment_like_{{ comment.id }}"
+                        class="flex items-center gap-1.5 text-xs font-medium transition-all text-gray-400 hover:text-pink-400 {% if comment.is_liked_comment_by_user %}text-pink-400{% endif %}">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                       </svg>
-                        <span>{{ comment.count_like_reaction }} مفید</span>
+                        <span id="comment_like_{{ comment.id }}">{{ comment.count_like }}</span><span>مفید</span>
                       </button>
-                      <button @click="setReplyingTo(comment.id)"
+                      <button @click="setReplyingTo('{{ comment.id }}')"
                         class="text-xs font-medium text-gray-400 hover:text-violet-600 transition-colors">
                         پاسخ دادن
                       </button>
                     </div>
 
                     <!-- Inline Reply Form -->
-                    <div x-show="replyingTo===comment.id" x-cloak
+                    <div x-show="replyingTo=='{{ comment.id }}'" x-cloak
                       class="mt-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
                       <textarea x-model="replyText" rows="2" placeholder="پاسخ شما..."
                         class="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 resize-none bg-white mb-2"></textarea>
                       <div class="flex gap-2 justify-end">
                         <button @click="replyingTo=null"
                           class="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors">انصراف</button>
-                        <button @click="submitReply(comment.id)"
+                        <button @click="submitReply('{{ comment.id }}')"
                           class="px-4 py-1.5 bg-violet-600 text-white text-xs rounded-lg font-semibold hover:bg-violet-700 transition-colors">ارسال</button>
                       </div>
                     </div>
@@ -1078,7 +1071,7 @@
           </div>
 
           <!-- Stats Widget -->
-          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+          {% comment %} <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
             <h3 class="font-black text-gray-800 mb-4">آمار مقاله</h3>
             <div class="space-y-3">
               <template x-for="stat in articleStats" :key="stat.label">
@@ -1098,7 +1091,7 @@
                 </div>
               </template>
             </div>
-          </div>
+          </div> {% endcomment %}
 
         </div>
       </aside>
@@ -1324,39 +1317,152 @@
 
         // Comments
         submitComment() {
-          const c = {
-            id: Date.now(),
-            name: this.newComment.name,
-            text: this.newComment.text,
-            avatar: 'https://i.pravatar.cc/100?' + Math.floor(Math.random() * 50),
-            rating: this.newComment.rating,
-            date: 'لحظاتی پیش',
-            likes: 0,
-            liked: false,
-            isNew: true
-          };
-          this.comments.unshift(c);
-          this.newComment = { name: '', email: '', text: '', rating: 0, notify: false };
-          this.pushToast('دیدگاه شما ثبت شد', 'success');
+          //const c = {
+            //id: Date.now(),
+            //name: this.newComment.name,
+            //text: this.newComment.text,
+            //avatar: 'https://i.pravatar.cc/100?' + Math.floor(Math.random() * 50),
+            //rating: this.newComment.rating,
+            //date: 'لحظاتی پیش',
+            //likes: 0,
+            //liked: false,
+            //isNew: true
+          //};
+
+            if (!this.newComment.name || !this.newComment.text || !this.newComment.rating) {
+              Swal.fire({
+              position: "top-start",
+              icon: "warning",
+              title: "لطفا تمام قسمت ها رو پر کنید",
+              showConfirmButton: false,
+              timer: 3500,
+              });
+              return;
+            }
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            fetch('/blogs/detail/add_comment_blog', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    blog_id: {{ blog.id }},
+                    name: this.newComment.name,
+                    text: this.newComment.text,
+                    rating: this.newComment.rating,
+                })
+            })
+            .then(res => res.json())
+            .then(json => {
+                this.newComment = { name: '', email: '', text: '', rating: 0 };
+                //this.reviewFormOpen = false;
+                Swal.fire({
+                position: "top-start",
+                icon: json.icon,
+                title: json.title,
+                showConfirmButton: false,
+                timer: 3500,
+                });
+            });
+          //this.comments.unshift(c);
+          //this.newComment = { name: '', email: '', text: '', rating: 0, notify: false };
+          //this.pushToast('دیدگاه شما ثبت شد', 'success');
         },
 
-        likeComment(id) {
-          const c = this.comments.find(x => x.id === id);
-          if (!c) return;
-          c.liked = !c.liked;
+        likeComment(comment_id) {
+          //const c = this.comments.find(x => x.id === id);
+          //if (!c) return;
+          //c.liked = !c.liked;
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          fetch('/blogs/detail/like', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken,
+              },
+              body: JSON.stringify({
+                  comment_id: comment_id,
+              })
+          })
+          .then(res => res.json())
+          .then(json => {
+              if (json.icon && json.title) {
+                  Swal.fire({
+                  position: "top-start",
+                  icon: json.icon,
+                  title: json.title,
+                  showConfirmButton: false,
+                  timer: 3500,
+                  });
+              }
+              else if (json.action && json.id) {
+                  if (json.action == 'plus' && json.author == 'true') {
+                  number = parseInt(document.getElementById(json.id).innerHTML);
+                  number ++;
+                  document.getElementById(json.id).innerHTML = number;
+                  document.getElementById(`btn_${ json.id }`).classList.add('text-pink-400');
+
+                  } 
+                  else if (json.action == 'minus') {
+                      number = parseInt(document.getElementById(json.id).innerHTML);
+                      number --;
+                      document.getElementById(json.id).innerHTML = number;
+                      document.getElementById(`btn_${ json.id }`).classList.remove('text-pink-400');
+                  }
+              }
+
+          });
         },
 
-        setReplyingTo(id) {
-          this.replyingTo = id;
+        setReplyingTo(comment_id) {
+          this.replyingTo = comment_id;
           this.replyText = '';
         },
 
-        submitReply(id) {
-          const c = this.comments.find(x => x.id === id);
-          if (!c || !this.replyText) return;
-          c.reply = { text: this.replyText, date: 'همین الان' };
-          this.replyingTo = null;
-          this.pushToast('پاسخ ثبت شد', 'success');
+        submitReply(comment_id) {
+          //const c = this.comments.find( x =>x.id === id);
+          //if (!c || !this.replyText) return;
+          //c.reply = { text: this.replyText, date: 'همین الان' };
+          //this.replyingTo = null;
+          //this.pushToast('پاسخ ثبت شد', 'success');
+
+            if (!this.replyText) {
+              Swal.fire({
+              position: "top-start",
+              icon: "warning",
+              title: "لطفا تمام قسمت ها رو پر کنید",
+              showConfirmButton: false,
+              timer: 3500,
+              });
+              return;
+            }
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            fetch('/blogs/detail/add_comment_blog_react', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    blog_id: {{ blog.id }},
+                    text: this.replyText,
+                    parent_id: comment_id,
+                })
+            })
+            .then(res => res.json())
+            .then(json => {
+                this.replyingTo = null;
+                Swal.fire({
+                position: "top-start",
+                icon: json.icon,
+                title: json.title,
+                showConfirmButton: false,
+                timer: 3500,
+                });
+            });
         },
 
         // Wishlist

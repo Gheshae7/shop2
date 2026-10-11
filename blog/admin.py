@@ -203,7 +203,6 @@ class BlogCommentReactionAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "comment",
-        "reaction",
         "is_active",
     )
     list_filter = (
@@ -218,10 +217,8 @@ class BlogCommentReactionAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     search_fields = (
         "is_active",
-        "reaction",
         "comment",
     )
     list_editable = (
         "is_active",
-        "reaction",
     )

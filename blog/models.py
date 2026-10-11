@@ -145,10 +145,6 @@ class BlogComment(BaseModel):
 
 class BlogCommentReaction(BaseModel):
     """This table is for comment reactions"""
-    
-    class ReactionType(models.TextChoices):
-        LIKE = 'like', 'like'
-        DISLIKE = 'dislike', 'dislike'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey(
@@ -156,13 +152,9 @@ class BlogCommentReaction(BaseModel):
         on_delete=models.CASCADE,
         related_name='blog_reactions'
     )
-    reaction = models.CharField(
-        max_length=10,
-        choices=ReactionType.choices
-    )
     
     def __str__(self):
-        return f'{self.user} / {self.reaction}'
+        return f'{self.user}'
     
     
     class Meta:
