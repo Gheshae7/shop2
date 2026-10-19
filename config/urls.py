@@ -34,6 +34,7 @@ urlpatterns = [
     path('newsletter/', include('newsletter.urls')),
     path('contact/', include('contact.urls')),
     path('blogs/', include('blog.urls')),
+    path('order/', include('order.urls')),
     
 ] + debug_toolbar_urls()
 

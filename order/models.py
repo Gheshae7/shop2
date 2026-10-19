@@ -91,6 +91,13 @@ class Order(BaseModel):
         db_table = 'orders'
         db_table_comment = 'This table is for user orders.'
         ordering = ['is_active', '-created_at']
+        
+        
+    @property
+    def total_price(self, *args, **kwargs):
+        result = sum(item.calculate_price for item in self.order_items.all())
+        return int(result)
+        
 
 
 class OrderItem(BaseModel):
@@ -101,7 +108,7 @@ class OrderItem(BaseModel):
     product_name = models.CharField(max_length=255, verbose_name='نام محصول در زمان خرید', null=True, blank=True)
     price = models.PositiveBigIntegerField(null=True, blank=True, verbose_name='قیمت محصول')
     discount = models.PositiveSmallIntegerField(default=0 ,validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='درصد تخفیف', null=True, blank=True,)
-    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], verbose_name='چه تعداد از این محصول', null=True, blank=True,)
+    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], verbose_name='چه تعداد از این محصول', null=True, blank=True, default=0)
     
     def __str__(self):
         return f'{self.order.id} / {self.product_variant.product.name}'
@@ -111,3 +118,10 @@ class OrderItem(BaseModel):
         db_table = 'order_items'
         db_table_comment = 'This table is created for products that are included in an order.'
         ordering = ['is_active',]
+        
+        
+    @property
+    def calculate_price(self, *args, **kwargs):
+        discount = self.discount or 0
+        price = self.product_variant.price - ((self.product_variant.price / 100) * discount)
+        return price * self.quantity
