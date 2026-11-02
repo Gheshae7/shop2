@@ -1,0 +1,778 @@
+{% load humanize %}
+{% load base_tags %}
+  
+  <!-- Page Content -->
+  {% comment %} <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8" id="#page_content"> {% endcomment %}
+    {% if request.user.is_authenticated %}
+
+
+
+
+
+
+
+
+    <!-- Top Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-black text-gray-900">سبد خرید شما</h1>
+        <p class="text-sm text-gray-400 mt-1">
+          <span></span> {{ order.order_items.all|length }} کالا
+          <span class="text-violet-600 font-semibold">{{ order.total_price|intcomma }} تومان</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Free Shipping Progress -->
+        <div x-show="subtotal < freeShippingAt"
+          class="flex-1 sm:w-64 bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-semibold text-gray-600">تا ارسال رایگان</span>
+            <span class="text-xs font-black text-violet-600"
+              x-text="fmtPrice(freeShippingAt - subtotal) + ' مانده'"></span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="progress-bar h-full" :style="'width:'+Math.min(100,(subtotal/freeShippingAt)*100)+'%'"></div>
+          </div>
+        </div>
+        <div x-show="subtotal >= freeShippingAt"
+          class="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
+          <span class="text-emerald-600 text-xl">🎉</span>
+          <span class="text-sm font-bold text-emerald-700">ارسال رایگان!</span>
+        </div>
+        <!-- Clear Cart -->
+        <button x-show="cartItems.length>0" @click="askClearCart()"
+          class="cursor-pointer p-3 rounded-2xl border border-gray-200 text-gray-400 hover:text-red-400 hover:border-red-200 hover:bg-red-50 transition-all">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {% comment %} <!-- Empty State -->
+    <div x-show="cartItems.length===0" class="text-center py-24">
+      <div class="text-8xl mb-6 float-anim inline-block">🛒</div>
+      <h2 class="text-2xl font-black text-gray-700 mb-3">سبد شما خالی است</h2>
+      <p class="text-gray-400 mb-8 max-w-sm mx-auto">هیچ محصولی در سبد خرید نیست. بیایید چیزی پیدا کنیم!</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button class="px-8 py-3.5 btn-primary text-white rounded-2xl font-bold shadow-lg shadow-violet-200">
+          رفتن به فروشگاه
+        </button>
+        <button @click="restoreWishlist()" x-show="wishlist.length>0"
+          class="px-8 py-3.5 border-2 border-violet-200 text-violet-700 rounded-2xl font-bold hover:bg-violet-50 transition-colors">
+          افزودن از علاقه‌مندی‌ها
+        </button>
+      </div>
+    </div> {% endcomment %}
+
+    <!-- Main Grid -->
+    <div x-show="cartItems.length>0" class="grid lg:grid-cols-3 gap-6">
+
+      <!-- Cart Items Column -->
+      <div class="lg:col-span-2 space-y-4">
+
+        <!-- Select All / Sort -->
+        <div
+          class="bg-white rounded-2xl border border-gray-100 px-5 py-3.5 md:flex items-center justify-between shadow-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <div class="relative">
+              <input type="checkbox" class="sr-only"
+                :checked="selectedItems.length===cartItems.length && cartItems.length>0"
+                @change="toggleSelectAll($event)">
+              <div class="w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center"
+                :class="selectedItems.length===cartItems.length && cartItems.length>0 ? 'border-violet-600 bg-violet-600' : 'border-gray-300'">
+                <svg x-show="selectedItems.length===cartItems.length && cartItems.length>0" class="w-3 h-3 text-white"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            <span class="text-sm font-semibold text-gray-600">
+              <span x-show="selectedItems.length===0">انتخاب همه</span>
+              <span x-show="selectedItems.length>0" x-text="selectedItems.length + ' مورد انتخاب شده'"></span>
+            </span>
+          </label>
+          <div class="flex items-center gap-3">
+            <button x-show="selectedItems.length>0" @click="deleteSelected()"
+              class="cursor-pointer text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              حذف انتخاب‌شده
+            </button>
+            <div class="flex items-center gap-3">
+              <!-- Free Shipping و بقیه المان‌ها -->
+
+              <!-- ✅ Custom Select با Wrapper صحیح -->
+
+
+<div class="relative w-52" x-data="{
+    open: false,
+    sortBy: '{{ selected_sort_by }}',
+
+    options: [
+        { value: 'default', label: 'مرتب‌سازی', icon: '📊' },
+        { value: 'price-asc', label: 'قیمت: کم به زیاد', icon: '⬆️' },
+        { value: 'price-desc', label: 'قیمت: زیاد به کم', icon: '⬇️' },
+        { value: 'name', label: 'نام محصول', icon: '🔤' }
+    ],
+
+    selectSort(value) {
+        this.sortBy = value;
+        this.open = false;
+        this.applyFilters();
+    },
+
+    applyFilters() {
+        const params = new URLSearchParams(window.location.search);
+
+        params.delete('order_by');
+        params.append('order_by', this.sortBy);
+
+                fetch(`{% url "order:order_page" %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+            })
+            .then(function(response) {
+                return response.text();
+            })
+            .then(function(html) {
+                document.getElementById('page_content').innerHTML = html;
+            });
+    }
+}">
+  <!-- Selected Button -->
+  <button @click="open = !open" @click.outside="open = false"
+    :class="open ? 'ring-2 ring-violet-400 border-violet-400' : 'hover:border-gray-300'"
+    class="w-full flex items-center justify-between gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm transition-all duration-200">
+    <div class="flex items-center gap-2">
+      <span class="text-sm" x-text="options.find(o => o.value === sortBy)?.icon || '📊'"></span>
+      <span class="text-xs font-semibold text-gray-600"
+        x-text="options.find(o => o.value === sortBy)?.label || 'مرتب‌سازی'"></span>
+    </div>
+    <svg class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="open ? 'rotate-180' : ''"
+      fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  <!-- Dropdown -->
+  <div x-show="open" x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1"
+    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-50">
+    <template x-for="option in options" :key="option.value">
+      <button @click="selectSort(option.value)"
+        :class="sortBy === option.value ? 'bg-violet-50 text-violet-700' : 'hover:bg-gray-50 text-gray-600'"
+        class="w-full flex items-center gap-2 px-4 py-3 text-right transition-colors duration-150">
+        <span class="text-base" x-text="option.icon"></span>
+        <span class="text-xs font-medium" x-text="option.label"></span>
+        <svg x-show="sortBy === option.value" class="w-4 h-4 mr-auto text-violet-500" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </button>
+    </template>
+  </div>
+</div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Cart Items -->
+        {% for item in order.order_items.all %}
+
+
+
+
+
+
+
+          <div class="item-enter bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden card-hover"
+            :class="selectedItems.includes(item.id)?'border-violet-200 bg-violet-50/20':''">
+
+            <!-- Out of Stock Banner -->
+            {% if item.product_variant.discount <= 0 %}
+                <div
+                class="bg-red-50 border-b border-red-100 px-3 sm:px-5 py-2 flex items-center gap-2">
+                <span class="text-red-500 text-xs font-black">⚠ این محصول ناموجود شده است</span>
+                </div>
+            {% endif %}
+
+
+            <div class="p-3 sm:p-5">
+              <div class="flex gap-2 sm:gap-4">
+                <!-- Checkbox -->
+                <div class="flex flex-col items-center gap-3 flex-shrink-0">
+                  <div class="relative cursor-pointer mt-1" @click="toggleSelect(item.id)">
+                    <div class="w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center"
+                      :class="selectedItems.includes(item.id)?'border-violet-600 bg-violet-600':'border-gray-300'">
+                      <svg x-show="selectedItems.includes(item.id)" class="w-3 h-3 text-white" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Image -->
+                <div
+                  class="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50">
+                  <img src="{{ MEDIA_URL }}{{ item.image_path }}" alt="{{ item.product_variant.product.name }}"
+                    class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                  <!-- Discount Badge -->
+                    {% if item.product_variant.discount > 0 %}
+                        <div class="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 px-1.5 py-0.5 bg-red-500 text-white text-xs font-black rounded-lg">
+                            <span>
+                                %{{ item.product_variant.discount }}
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Details -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                      <span class="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">{{ item.product_variant.product.category.name }}</span>
+                      <h3 class="text-sm sm:text-base font-black text-gray-800 mt-1.5 leading-snug">
+                        {{ item.product_variant.product.name }}
+                      </h3>
+                    </div>
+                    <!-- Actions -->
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                      <button @click="toggleWishlist(item.id)" class="p-1.5 sm:p-2 rounded-xl transition-all"
+                        :class="wishlist.includes(item.id)?'text-pink-500 bg-pink-50':'text-gray-300 hover:text-pink-400 hover:bg-pink-50'">
+                        <svg class="w-4 h-4" :fill="wishlist.includes(item.id)?'currentColor':'none'"
+                          viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                      <button @click="askRemove('{{ item.id }}')"
+                        class="p-1.5 sm:p-2 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Variant Selectors -->
+
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-2.5">
+                        {% for attr in item.product_variant.attributes.all %}
+                            {% if attr.color_code %}
+                            <div
+                                class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium">
+                                <div class="w-3 h-3 rounded-full" style="background:{{ attr.color_code }}"></div>
+                                <span>{{ attr.value }}</span>
+                            </div>
+                            {% else %}
+                                <div
+                                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium">
+                                    <span>{{ attr.value }}</span>
+                                </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                  <!-- Stock Indicator -->
+                  <div class="mt-2 sm:mt-2.5">
+                    {% if item.product_variant.stock > 5 %}
+                        <span class="text-xs font-medium text-emerald-600 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> موجود در انبار
+                        </span>
+                        {% elif item.product_variant.stock <= 5 %}
+                            <span class="text-xs font-medium text-amber-600 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                                <span>فقط {{ item.product_variant.stock }} عدد باقی مانده</span>
+                            </span>
+                        {% else %}
+                            <span class="text-xs font-medium text-red-500 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> ناموجود
+                            </span>
+                    {% endif %}
+                  </div>
+
+                  <!-- Bottom Row: Qty + Price -->
+                  <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mt-2.5 sm:mt-3">
+                    <!-- Qty Control -->
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                        <button @click="dec_quantity('{{ item.id }}')"
+                          class="cursor-pointer qty-btn w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-500 bg-gray-50 hover:text-white text-lg font-bold border-l border-gray-200 transition-all" {% if item.quantity < 2 %}disabled{% endif %}>−</button>
+                        <input type="text" value="{{ item.quantity }}" class="w-10 sm:w-12 h-8 sm:h-9 text-center text-sm font-black text-gray-800 focus:outline-none bg-white border-none" disabled id="quantity_{{ item.id }}">
+                        <button @click="inc_quantity('{{ item.id }}')"
+                          class="cursor-pointer qty-btn w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-500 bg-gray-50 hover:text-white text-lg font-bold border-l border-gray-200 transition-all" {% if item.quantity >= item.product_variant.stock %}disabled{% endif %}>+</button>
+                      </div>
+                      <!-- Save for later -->
+                      <button @click="saveForLater(item.id)"
+                        class="text-xs text-gray-400 hover:text-violet-600 transition-colors font-medium whitespace-nowrap">
+                        ذخیره برای بعد
+                      </button>
+                    </div>
+
+                    <!-- Price -->
+
+                    <div class="text-right">
+                        {% if item.product_variant.discount >= 1 %}
+                          <div class="text-base sm:text-lg font-black text-gray-900">{{ item.calculate_price|intcomma }} تومان</div>
+                          {% if item.quantity > 1 %}
+                            <div class="text-xs text-gray-400">{{ item.product_variant.price|intcomma }} تومان واحد</div>
+                          {% endif %}
+                          <div class="text-xs text-gray-400 line-through">{{ item.price_without_discount|intcomma }} تومان</div>
+                        {% else %}
+                          <div class="text-base sm:text-lg font-black text-gray-900">{{ item.price_without_discount|intcomma }} تومان</div>
+                          {% if item.quantity > 1 %}
+                          <div class="text-xs text-gray-400">{{ item.product_variant.price|intcomma }} تومان واحد</div>
+                          {% endif %}
+                        {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% if item.product_variant.discount >= 1 %}
+                              <!-- Savings Row -->
+                <div
+                  class="mt-2.5 sm:mt-3 flex items-center gap-2 px-2.5 sm:px-3 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
+                  <span class="text-emerald-600 text-xs font-black">💰 صرفه‌جویی:</span>
+                  <span class="text-emerald-700 text-xs font-bold">{{ item.calculate_saving|intcomma }} تومان در این خرید</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+
+
+
+
+
+
+
+
+
+        {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Coupon Section -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl gradient-bg flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+            کوپن تخفیف
+          </h3>
+          <div class="flex gap-3">
+            <div class="flex-1 relative">
+              <input type="text" x-model="couponCode" placeholder="کد تخفیف را وارد کنید" @keyup.enter="applyCoupon()"
+                class="coupon-input w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm font-medium focus:outline-none transition-all bg-gray-50 focus:bg-white placeholder-gray-400 tracking-widest"
+                :class="couponStatus==='valid'?'border-emerald-400 bg-emerald-50':couponStatus==='invalid'?'border-red-400 bg-red-50':''">
+              <div x-show="couponStatus==='valid'" class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500">✓
+              </div>
+              <div x-show="couponStatus==='invalid'" class="absolute left-3 top-1/2 -translate-y-1/2 text-red-500">✕
+              </div>
+            </div>
+            <button @click="applyCoupon()" :disabled="!couponCode || couponStatus==='valid'"
+              class="px-5 py-3 btn-primary text-white rounded-xl font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+              اعمال
+            </button>
+          </div>
+          <!-- Active Coupon Badge -->
+          <div x-show="couponStatus==='valid'"
+            class="mt-3 flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <span class="text-emerald-600 font-black text-sm">🎫</span>
+            <span class="text-emerald-700 font-bold text-sm">کوپن <span x-text="appliedCoupon?.code"
+                class="tracking-widest"></span> اعمال شد</span>
+            <span class="text-emerald-600 font-black text-sm mr-auto" x-text="'−' + fmtPrice(discountAmount)"></span>
+            <button @click="removeCoupon()"
+              class="cursor-pointer text-emerald-500 hover:text-emerald-700 text-xs font-bold">حذف</button>
+          </div>
+          <!-- Suggested Coupons -->
+          <div class="mt-4">
+            <p class="text-xs font-bold text-gray-400 mb-2.5">کدهای پیشنهادی:</p>
+            <div class="flex flex-wrap gap-2">
+              <template x-for="c in suggestedCoupons" :key="c.code">
+                <button @click="couponCode=c.code; applyCoupon()"
+                  class="cursor-pointer tag-bounce flex items-center gap-1.5 px-3 py-1.5 border border-dashed border-violet-300 text-violet-600 text-xs font-bold rounded-xl hover:bg-violet-50 transition-all">
+                  <span>🏷️</span><span x-text="c.code"></span>
+                  <span class="text-gray-400 font-medium" x-text="c.desc"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Special Notes -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <h3 class="font-black text-gray-800 mb-3 flex items-center gap-2 text-base">
+            <span class="text-xl">📝</span> یادداشت سفارش
+          </h3>
+          <textarea x-model="orderNote" rows="2" placeholder="نکته‌ای برای فروشنده دارید؟"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-violet-400 focus:bg-white bg-gray-50 transition-all placeholder-gray-400"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Summary Column -->
+      <div class="space-y-5">
+        <div class="sticky-summary space-y-5">
+
+          <!-- Order Summary -->
+          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-5 pt-5 pb-4 border-b border-gray-100">
+              <h2 class="font-black text-gray-800 text-lg">خلاصه سفارش</h2>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>جمع اقلام <span>({{ order.order_items.all|length }} عدد)</span></span>
+                <span class="font-semibold">{{ order.total_price|intcomma }} تومان</span>
+              </div>
+              <div class="flex justify-between text-sm text-emerald-600">
+                <span>تخفیف محصولات</span>
+                <span class="font-bold">{{ order.total_saving|intcomma }} تومان</span>
+              </div>
+              <div x-show="discountAmount>0" class="flex justify-between text-sm text-emerald-600">
+                <span>تخفیف کوپن</span>
+                <span class="font-bold" x-text="'−' + fmtPrice(discountAmount)"></span>
+              </div>
+              <div class="flex justify-between text-sm text-gray-600">
+                <span class="flex items-center gap-1">هزینه ارسال
+                </span>
+                <span class="font-semibold" :class="shippingCost===0?'text-emerald-600 font-bold':''">
+                  {% if order.shippingmethod %}
+                    <span>{{ order.shippingmethod.price|intcomma }} تومان</span>
+                    {% else %}
+                      <span>انتخاب نشده</span>
+                  {% endif %}
+                </span>
+              </div>
+              <!-- Shipping Info Tooltip -->
+              <div x-show="shippingInfo"
+                class="text-xs text-gray-500 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5">
+                📦 ارسال به تمام نقاط ایران · خریدهای بالای <span x-text="fmtPrice(freeShippingAt)"></span> رایگان
+              </div>
+
+              <!-- Shipping Method -->
+              <div class="space-y-2 pt-1">
+                <p class="text-xs font-bold text-gray-500">روش ارسال:</p>
+                  {% for method in shippings %}
+                    <label class="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all {% if order.shippingmethod.name == method.name %}border-violet-400 bg-violet-50 {% else %}border-gray-200 hover:border-gray-300{% endif %}">
+                      {% comment %} class="selectedShipping==='{{ method.id }}'?'border-violet-400 bg-violet-50':'border-gray-200 hover:border-gray-300'"> {% endcomment %}
+                      <input type="radio" :value="'{{ method.id }}'" x-model="selectedShipping" class="sr-only" @click="change_shipping_method('{{ method.id }}')">
+                      <div
+                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all {% if order.shippingmethod.name == method.name %}border-violet-600 {% else %} border-gray-300{% endif %}">
+                        {% comment %} :class="selectedShipping==='{{ method.id }}'?'border-violet-600':'border-gray-300'"> {% endcomment %}
+                        <div class="{% if order.shippingmethod.name == method.name %}w-2 h-2 rounded-full bg-violet-600{% endif %}"></div>
+                      </div>
+                      <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-bold text-gray-700">{{ method.name }}</span>
+                          <span class="text-sm font-black" :class="'{{ method.price }}'===0?'text-emerald-600':'text-gray-800'">{{ method.price|intcomma }} تومان</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ method.short_description }}</span>
+                      </div>
+                    </label>
+                  {% endfor %}
+              </div>
+
+              <div class="border-t border-gray-100 pt-2 flex justify-between">
+                <span class="font-black text-gray-800">جمع کل</span>
+                <span class="font-black text-xl text-violet-600">{{ order.total_price_with_shipping_price|intcomma }} تومان</span>
+              </div>
+
+              <!-- Savings Summary -->
+              <div x-show="totalSavings + discountAmount > 0"
+                class="saving-badge text-white rounded-xl px-4 py-2.5 flex items-center gap-2">
+                <span class="text-lg">💰</span>
+                <div>
+                  <p class="text-xs opacity-80">مجموع صرفه‌جویی شما</p>
+                  <p class="font-black text-sm">{{ order.total_saving|intcomma }} تومان</p>
+                </div>
+              </div>
+
+              <!-- Checkout Button -->
+              <button @click="checkout()"
+                class="cursor-pointer w-full py-4 btn-primary text-white rounded-2xl font-black text-base shadow-lg shadow-violet-200 flex items-center justify-center gap-2 group">
+                <span>تکمیل خرید</span>
+                <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </button>
+
+              <!-- Trust Icons -->
+              <div class="grid grid-cols-3 gap-2 pt-1">
+                <template x-for="t in trustBadges" :key="t.label">
+                  <div class="flex flex-col items-center gap-1.5 p-2 bg-gray-50 rounded-xl">
+                    <span class="text-xl" x-text="t.icon"></span>
+                    <span class="text-xs text-gray-500 font-medium text-center leading-tight" x-text="t.label"></span>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Payment Methods -->
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <span class="text-xs text-gray-400 font-medium">پرداخت با:</span>
+                <template x-for="pm in paymentMethods" :key="pm">
+                  <div class="px-2 py-1 border border-gray-200 rounded-lg bg-white">
+                    <span class="text-xs font-bold text-gray-600" x-text="pm"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery Estimate -->
+          <div class="gradient-border-card bg-white rounded-2xl p-5 shadow-sm">
+            <h3 class="font-black text-gray-800 mb-3 flex items-center gap-2">
+              <span class="text-xl">🚚</span> تخمین تحویل
+            </h3>
+            <div class="space-y-2">
+              <template x-for="(d, i) in deliverySteps" :key="i">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0"
+                    :class="i===0?'gradient-bg text-white shadow-sm':'bg-gray-100 text-gray-500'" x-text="d.icon"></div>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-700" x-text="d.label"></p>
+                    <p class="text-xs text-gray-400" x-text="d.time"></p>
+                  </div>
+                  <div x-show="i < deliverySteps.length-1" class="absolute"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Promo Banner -->
+          <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-5 text-white">
+            <div class="flex items-start gap-3">
+              <span class="text-3xl">⚡</span>
+              <div>
+                <h4 class="font-black mb-1">پیشنهاد زمان‌دار!</h4>
+                <p class="text-sm opacity-90 mb-3">خرید بالای ۲ میلیون = ارسال اکسپرس رایگان</p>
+                <div class="flex items-center gap-1.5">
+                  <template x-for="(unit, label) in promoTimer" :key="label">
+                    <div class="flex items-center gap-1">
+                      <div class="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg">
+                        <span class="font-black text-sm" x-text="unit"></span>
+                      </div>
+                      <span x-show="label!=='seconds'" class="text-white/70">:</span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    {% else %}
+        <div role="alert">
+            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                خطا
+            </div>
+            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                <p>برای دسترسی به سبد خرید خود ابتدا باید وارد <a class='text-blue-500' href={% url "account:login_register_page" %}>حساب کابری<a/> خود شوید</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Related / Recommended Products -->
+    <section class="mt-14">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-black text-gray-900">محصولات پیشنهادی</h2>
+          <p class="text-sm text-gray-400 mt-1">کاربرانی که این محصولات را خریدند، اینها را هم پسندیدند</p>
+        </div>
+        <!-- Navigation Buttons -->
+        <div class="flex gap-2">
+
+        </div>
+      </div>
+
+      <!-- Swiper Container -->
+      <div class="swiper related-swiper mt-[40px]" data-swiper='{
+            "slidesPerView": 2,
+            "spaceBetween": 20,
+            "loop": true,
+            "autoplay": {"delay": 3000, "disableOnInteraction": false},
+            "speed": 600,
+            "grabCursor": true,
+            "breakpoints": {
+                "640":  { "slidesPerView": 3, "spaceBetween": 16 },
+                "768":  { "slidesPerView": 3, "spaceBetween": 20 },
+                "1024": { "slidesPerView": 4, "spaceBetween": 20 },
+                "1280": { "slidesPerView": 4, "spaceBetween": 24 }
+            }
+         }'>
+        <div class="swiper-wrapper pb-12">
+
+{% for product in related_products %}
+
+
+
+
+
+
+            <div class="swiper-slide">
+              <div
+                class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group card-hover cursor-pointer">
+
+                <!-- Image Section -->
+                        <a href={% url "product:product_detail_page" slug=product.slug %}>
+
+                <div class="relative overflow-hidden h-40">
+                  <img src="{{ product.images.first.image.url }}"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        </a>
+
+
+                  <!-- Discount Badge -->
+                   {% if product.discount >= 1 %}
+                    <div class="cursor-pointer absolute top-2 right-2 px-2 py-0.5 bg-red-500 text-white text-xs font-black rounded-lg">
+                        %{{ product.discount }}
+                    </div>
+                    {% endif %}
+
+                  {% comment %} <!-- Quick View Overlay -->
+                  <div
+                    class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button @click.stop="openQuickView(p)"
+                      class="cursor-pointer px-4 py-2 bg-white text-violet-700 font-bold text-xs rounded-xl shadow-lg hover:bg-violet-600 hover:text-white transition-colors">
+                      مشاهده سریع
+                    </button>
+                  </div> {% endcomment %}
+
+                  <!-- Wishlist Button -->
+                  {% comment %} <button @click.stop="toggleWishlist(p.id)"
+                    class="cursor-pointer absolute top-2 left-2 w-8 h-8 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                    :class="wishlist.includes(p.id)?'text-pink-500':'text-gray-400'">
+                    <svg class="w-4 h-4" :fill="wishlist.includes(p.id)?'currentColor':'none'" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button> {% endcomment %}
+                </div>
+
+                <!-- Content Section -->
+                <div class="p-4">
+                  <!-- Category -->
+                  <span class="text-xs text-violet-600 font-bold">{{ product.category.name }}</span>
+
+                  <!-- Name -->
+                        <a href={% url "product:product_detail_page" slug=product.slug %}>
+
+                  <h4 class="text-sm font-bold text-gray-800 mt-1 mb-2 line-clamp-2 leading-snug">{{ product.name }}</h4>
+                        </a>
+
+
+                  <!-- Rating -->
+                  <div class="flex items-center gap-1 mb-3">
+                    {% for star in product.rating|times %}
+                      <span class="text-xs text-amber-400">★</span>
+                      {% endfor %}
+                    <span class="text-xs text-gray-400">({{ product.count_view }})</span>
+                  </div>
+
+                  <!-- Price & Add to Cart -->
+                  <div class="flex items-center justify-between">
+                    <div>
+                      {% if product.discount >= 1 %}
+                        {% calculating_discount price=product.price discount=product.discount as res_dis %}
+                        <p class="font-black text-violet-600 text-sm">{{ res_dis.0|intcomma }} تومان</p>
+                        <p class="text-xs text-gray-400 line-through">{{ product.price|intcomma }} تومان</p>
+                        {% else %}
+                        <p class="font-black text-violet-600 text-sm">{{ product.price|intcomma }} تومان</p>
+                      {% endif %}
+                    </div>
+                    <button @click="addRelated(p)"
+                      class="cursor-pointer w-8 h-8 gradient-bg rounded-xl flex items-center justify-center text-white hover:shadow-md hover:shadow-violet-200 transition-all hover:scale-110">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+{% endfor %}
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="dev-slider-pagination !bottom-0"></div>
+      </div>
+    </section>
+  {% comment %} </div> {% endcomment %}

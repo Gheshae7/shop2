@@ -44,12 +44,12 @@ class DiscountCodeUsage(BaseModel):
         ]
 
 
-
 class ShippingMethod(BaseModel):
     """This class is for the delivery method."""
     
     name = models.CharField(max_length=100, null=False, blank=False, verbose_name='نام روش ارسال')
     price = models.PositiveIntegerField(verbose_name='هزینه ارسال')
+    short_description = models.CharField(max_length=200, null=False, blank=False, default='', verbose_name='زمان ارسال')
     
     def __str__(self):
         return self.name
@@ -59,7 +59,6 @@ class ShippingMethod(BaseModel):
         db_table_comment = 'This table is for the delivery method.'
         ordering = ['is_active',]
         
-
 
 class Order(BaseModel):
     """This table is for user orders."""
@@ -81,7 +80,7 @@ class Order(BaseModel):
     receiver_address = models.TextField(verbose_name='آدرس گیرنده', null=True, blank=True)
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name='زمان پرداخت')
     payment_ref_id = models.CharField(max_length=500, null=True, blank=True, verbose_name='کد پیگیری درگاه')
-    shippingmethod = models.ForeignKey(ShippingMethod, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='روش ارسال')
+    shippingmethod = models.ForeignKey(ShippingMethod, on_delete=models.SET_DEFAULT, default=1, null=False, blank=True, verbose_name='روش ارسال')
     shipping_cost = models.PositiveIntegerField(default=0, verbose_name='هزینه ارسال', null=True, blank=True)
     
     def __str__(self):
@@ -97,8 +96,18 @@ class Order(BaseModel):
     def total_price(self, *args, **kwargs):
         result = sum(item.calculate_price for item in self.order_items.all())
         return int(result)
-        
+    
+    @property
+    def total_price_with_shipping_price(self, *args, **kwargs):
+        result = sum(item.calculate_price for item in self.order_items.all())
+        return int(result + self.shippingmethod.price) if self.shippingmethod else int(result)
+    
 
+    @property
+    def total_saving(self, *args, **kwargs):
+        saving = sum(item.calculate_saving for item in self.order_items.all())
+        return int(saving)
+    
 
 class OrderItem(BaseModel):
     """This class is created for products that are included in an order."""
@@ -108,7 +117,7 @@ class OrderItem(BaseModel):
     product_name = models.CharField(max_length=255, verbose_name='نام محصول در زمان خرید', null=True, blank=True)
     price = models.PositiveBigIntegerField(null=True, blank=True, verbose_name='قیمت محصول')
     discount = models.PositiveSmallIntegerField(default=0 ,validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='درصد تخفیف', null=True, blank=True,)
-    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], verbose_name='چه تعداد از این محصول', null=True, blank=True, default=0)
+    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], verbose_name='چه تعداد از این محصول', null=True, blank=True, default=1)
     
     def __str__(self):
         return f'{self.order.id} / {self.product_variant.product.name}'
@@ -122,6 +131,21 @@ class OrderItem(BaseModel):
         
     @property
     def calculate_price(self, *args, **kwargs):
-        discount = self.discount or 0
-        price = self.product_variant.price - ((self.product_variant.price / 100) * discount)
-        return price * self.quantity
+        discount = self.product_variant.discount
+        price = (self.product_variant.price - ((self.product_variant.price / 100) * discount)) if discount else self.product_variant.price
+        return int(price * self.quantity)
+        # result = int(self.product_variant.price - ((self.product_variant.price / 100) * self.product_variant.discount))
+        # saving = self.product_variant.discount - result
+        # return (result, saving)
+    
+    @property
+    def price_without_discount(self, *args, **kwargs):
+        return int(self.product_variant.price * self.quantity)
+
+
+    @property
+    def calculate_saving(self):
+        discount = self.product_variant.discount or 0
+        saving = ((self.product_variant.price * discount / 100 ) * self.quantity)
+        return int(saving)
+        

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load base_tags %}
 
 {% block title %}
     سبد خرید من 
@@ -278,6 +279,8 @@
 {% block body_attrs %}class="bg-gray-50 text-gray-800" x-data="cartPage()" x-init="init()"{% endblock body_attrs %}
 
 {% block content %}
+
+    {% csrf_token %}
   <!-- Toast -->
   <div class="fixed top-4 left-4 z-50 space-y-2 w-80" x-cloak>
     <template x-for="t in toasts" :key="t.id">
@@ -357,1091 +360,672 @@
 
 
   <!-- Page Content -->
-  <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
-    {% if request.user.is_authenticated %}
-
-
-
-
-
-
-
-
-    <!-- Top Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-gray-900">سبد خرید شما</h1>
-        <p class="text-sm text-gray-400 mt-1">
-          <span></span> {{ order.order_items.all|length }} کالا
-          <span class="text-violet-600 font-semibold">{{ order.total_price|intcomma }} تومان</span>
-        </p>
-      </div>
-      <div class="flex items-center gap-3">
-        <!-- Free Shipping Progress -->
-        <div x-show="subtotal < freeShippingAt"
-          class="flex-1 sm:w-64 bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-semibold text-gray-600">تا ارسال رایگان</span>
-            <span class="text-xs font-black text-violet-600"
-              x-text="fmtPrice(freeShippingAt - subtotal) + ' مانده'"></span>
-          </div>
-          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div class="progress-bar h-full" :style="'width:'+Math.min(100,(subtotal/freeShippingAt)*100)+'%'"></div>
-          </div>
-        </div>
-        <div x-show="subtotal >= freeShippingAt"
-          class="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
-          <span class="text-emerald-600 text-xl">🎉</span>
-          <span class="text-sm font-bold text-emerald-700">ارسال رایگان!</span>
-        </div>
-        <!-- Clear Cart -->
-        <button x-show="cartItems.length>0" @click="askClearCart()"
-          class="cursor-pointer p-3 rounded-2xl border border-gray-200 text-gray-400 hover:text-red-400 hover:border-red-200 hover:bg-red-50 transition-all">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    {% comment %} <!-- Empty State -->
-    <div x-show="cartItems.length===0" class="text-center py-24">
-      <div class="text-8xl mb-6 float-anim inline-block">🛒</div>
-      <h2 class="text-2xl font-black text-gray-700 mb-3">سبد شما خالی است</h2>
-      <p class="text-gray-400 mb-8 max-w-sm mx-auto">هیچ محصولی در سبد خرید نیست. بیایید چیزی پیدا کنیم!</p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button class="px-8 py-3.5 btn-primary text-white rounded-2xl font-bold shadow-lg shadow-violet-200">
-          رفتن به فروشگاه
-        </button>
-        <button @click="restoreWishlist()" x-show="wishlist.length>0"
-          class="px-8 py-3.5 border-2 border-violet-200 text-violet-700 rounded-2xl font-bold hover:bg-violet-50 transition-colors">
-          افزودن از علاقه‌مندی‌ها
-        </button>
-      </div>
-    </div> {% endcomment %}
-
-    <!-- Main Grid -->
-    <div x-show="cartItems.length>0" class="grid lg:grid-cols-3 gap-6">
-
-      <!-- Cart Items Column -->
-      <div class="lg:col-span-2 space-y-4">
-
-        <!-- Select All / Sort -->
-        <div
-          class="bg-white rounded-2xl border border-gray-100 px-5 py-3.5 md:flex items-center justify-between shadow-sm">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <div class="relative">
-              <input type="checkbox" class="sr-only"
-                :checked="selectedItems.length===cartItems.length && cartItems.length>0"
-                @change="toggleSelectAll($event)">
-              <div class="w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center"
-                :class="selectedItems.length===cartItems.length && cartItems.length>0 ? 'border-violet-600 bg-violet-600' : 'border-gray-300'">
-                <svg x-show="selectedItems.length===cartItems.length && cartItems.length>0" class="w-3 h-3 text-white"
-                  fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            <span class="text-sm font-semibold text-gray-600">
-              <span x-show="selectedItems.length===0">انتخاب همه</span>
-              <span x-show="selectedItems.length>0" x-text="selectedItems.length + ' مورد انتخاب شده'"></span>
-            </span>
-          </label>
-          <div class="flex items-center gap-3">
-            <button x-show="selectedItems.length>0" @click="deleteSelected()"
-              class="cursor-pointer text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              حذف انتخاب‌شده
-            </button>
-            <div class="flex items-center gap-3">
-              <!-- Free Shipping و بقیه المان‌ها -->
-
-              <!-- ✅ Custom Select با Wrapper صحیح -->
-              <div class="relative w-52" x-data="{ 
-        open: false,
-        sortBy: 'default',
-        options: [
-            { value: 'default', label: 'مرتب‌سازی', icon: '📊' },
-            { value: 'price-asc', label: 'قیمت: کم به زیاد', icon: '⬆️' },
-            { value: 'price-desc', label: 'قیمت: زیاد به کم', icon: '⬇️' },
-            { value: 'name', label: 'نام محصول', icon: '🔤' }
-        ]
-    }">
-
-                <!-- Selected Button -->
-                <button @click="open = !open" @click.outside="open = false"
-                  :class="open ? 'ring-2 ring-violet-400 border-violet-400' : 'hover:border-gray-300'"
-                  class="w-full flex items-center justify-between gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm transition-all duration-200">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm" x-text="options.find(o => o.value === sortBy)?.icon || '📊'"></span>
-                    <span class="text-xs font-semibold text-gray-600"
-                      x-text="options.find(o => o.value === sortBy)?.label || 'مرتب‌سازی'"></span>
-                  </div>
-                  <svg class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="open ? 'rotate-180' : ''"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                <!-- Dropdown - ✅ الان درست position میگیره -->
-                <div x-show="open" x-transition:enter="transition ease-out duration-200"
-                  x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
-                  x-transition:leave="transition ease-in duration-150"
-                  x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1"
-                  class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-50">
-                  <template x-for="option in options" :key="option.value">
-                    <button @click="sortBy = option.value; open = false"
-                      :class="sortBy === option.value ? 'bg-violet-50 text-violet-700' : 'hover:bg-gray-50 text-gray-600'"
-                      class="w-full flex items-center gap-2 px-4 py-3 text-right transition-colors duration-150">
-                      <span class="text-base" x-text="option.icon"></span>
-                      <span class="text-xs font-medium" x-text="option.label"></span>
-                      <svg x-show="sortBy === option.value" class="w-4 h-4 mr-auto text-violet-500" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                  </template>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- Cart Items -->
-        {% for item in order.order_items.all %}
-
-
-
-
-
-
-
-          <div class="item-enter bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden card-hover"
-            :class="selectedItems.includes(item.id)?'border-violet-200 bg-violet-50/20':''">
-
-            <!-- Out of Stock Banner -->
-            {% if item.product_variant.discount <= 0 %}
-                <div
-                class="bg-red-50 border-b border-red-100 px-3 sm:px-5 py-2 flex items-center gap-2">
-                <span class="text-red-500 text-xs font-black">⚠ این محصول ناموجود شده است</span>
-                </div>
-            {% endif %}
-
-
-            <div class="p-3 sm:p-5">
-              <div class="flex gap-2 sm:gap-4">
-                <!-- Checkbox -->
-                <div class="flex flex-col items-center gap-3 flex-shrink-0">
-                  <div class="relative cursor-pointer mt-1" @click="toggleSelect(item.id)">
-                    <div class="w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center"
-                      :class="selectedItems.includes(item.id)?'border-violet-600 bg-violet-600':'border-gray-300'">
-                      <svg x-show="selectedItems.includes(item.id)" class="w-3 h-3 text-white" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Image -->
-                <div
-                  class="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50">
-                  <img :src="item.image" alt="{{ item.product_variant.product.name }}"
-                    class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
-                  <!-- Discount Badge -->
-                    {% if item.product_variant.discount > 0 %}
-                        <div class="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 px-1.5 py-0.5 bg-red-500 text-white text-xs font-black rounded-lg">
-                            <span>
-                                %{{ item.product_variant.discount }}
-                            </span>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- Details -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0 flex-1">
-                      <span class="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">{{ item.product_variant.product.category.name }}</span>
-                      <h3 class="text-sm sm:text-base font-black text-gray-800 mt-1.5 leading-snug">
-                        {{ item.product_variant.product.name }}
-                      </h3>
-                    </div>
-                    <!-- Actions -->
-                    <div class="flex items-center gap-1 flex-shrink-0">
-                      <button @click="toggleWishlist(item.id)" class="p-1.5 sm:p-2 rounded-xl transition-all"
-                        :class="wishlist.includes(item.id)?'text-pink-500 bg-pink-50':'text-gray-300 hover:text-pink-400 hover:bg-pink-50'">
-                        <svg class="w-4 h-4" :fill="wishlist.includes(item.id)?'currentColor':'none'"
-                          viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      </button>
-                      <button @click="askRemove(item.id)"
-                        class="p-1.5 sm:p-2 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Variant Selectors -->
-
-                    <div class="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-2.5">
-                        {% for attr in item.product_variant.attributes.all %}
-                            {% if attr.color_code %}
-                            <div
-                                class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium">
-                                <div class="w-3 h-3 rounded-full" style="background:{{ attr.color_code }}"></div>
-                                <span>{{ attr.value }}</span>
-                            </div>
-                            {% else %}
-                                <div
-                                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium">
-                                    <span>{{ attr.value }}</span>
-                                </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-
-                  <!-- Stock Indicator -->
-                  <div class="mt-2 sm:mt-2.5">
-                    {% if item.product_variant.stock > 5 %}
-                        <span class="text-xs font-medium text-emerald-600 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> موجود در انبار
-                        </span>
-                        {% elif item.product_variant.stock <= 5 %}
-                            <span class="text-xs font-medium text-amber-600 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                                <span>فقط {{ item.product_variant.stock }} عدد باقی مانده</span>
-                            </span>
-                        {% else %}
-                            <span class="text-xs font-medium text-red-500 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> ناموجود
-                            </span>
-                    {% endif %}
-                  </div>
-
-                  <!-- Bottom Row: Qty + Price -->
-                  <div
-                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mt-2.5 sm:mt-3">
-                    <!-- Qty Control -->
-                    <div class="flex items-center gap-2">
-                      <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden">
-                        <button @click="decQty(item.id)"
-                          class="cursor-pointer qty-btn w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-500 bg-gray-50 hover:text-white text-lg font-bold border-l border-gray-200 transition-all"
-                          :disabled="item.qty<=1">−</button>
-                        <input type="number" :value="item.qty" @change="setQty(item.id, $event.target.value)"
-                          class="w-10 sm:w-12 h-8 sm:h-9 text-center text-sm font-black text-gray-800 focus:outline-none bg-white border-none"
-                          min="1" :max="item.stock">
-                        <button @click="incQty(item.id)"
-                          class="cursor-pointer qty-btn w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-500 bg-gray-50 hover:text-white text-lg font-bold border-r border-gray-200 transition-all"
-                          :disabled="item.qty>=item.stock">+</button>
-                      </div>
-                      <!-- Save for later -->
-                      <button @click="saveForLater(item.id)"
-                        class="text-xs text-gray-400 hover:text-violet-600 transition-colors font-medium whitespace-nowrap">
-                        ذخیره برای بعد
-                      </button>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="text-right">
-                        {% if item.prodcut_variant_discount > 0 %}
-
-
-
-
-                                <div class="text-base sm:text-lg font-black text-gray-900"
-                                x-text="fmtPrice(item.price * item.qty)"></div>
-                            <div x-show="item.qty>1" class="text-xs text-gray-400" x-text="fmtPrice(item.price) + ' واحد'">
-                            </div>
-                            <div x-show="item.originalPrice" class="text-xs text-gray-400 line-through"
-                                x-text="fmtPrice(item.originalPrice * item.qty)"></div>
-                            </div>
-
-
-
-
-
-                        {% endif %}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Savings Row -->
-              <template x-if="item.originalPrice">
-                <div
-                  class="mt-2.5 sm:mt-3 flex items-center gap-2 px-2.5 sm:px-3 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
-                  <span class="text-emerald-600 text-xs font-black">💰 صرفه‌جویی:</span>
-                  <span class="text-emerald-700 text-xs font-bold"
-                    x-text="fmtPrice((item.originalPrice - item.price)*item.qty) + ' در این خرید'"></span>
-                </div>
-              </template>
-            </div>
-          </div>
-
-
-
-
-
-
-
-
-
-
-        {% endfor %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- Saved for Later -->
-        <div x-show="savedItems.length>0" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="font-black text-gray-800 flex items-center gap-2">
-              <svg class="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-              ذخیره‌شده برای بعد
-            </h3>
-            <span class="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full"
-              x-text="savedItems.length + ' کالا'"></span>
-          </div>
-          <div class="divide-y divide-gray-50">
-            <template x-for="item in savedItems" :key="'saved-'+item.id">
-              <div class="p-4 flex items-center gap-4">
-                <img :src="item.image" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-bold text-gray-700 truncate" x-text="item.name"></p>
-                  <p class="text-sm font-black text-violet-600 mt-0.5" x-text="fmtPrice(item.price)"></p>
-                </div>
-                <button @click="moveTocart(item.id)"
-                  class="px-4 py-2 text-sm font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-xl transition-colors whitespace-nowrap">
-                  افزودن به سبد
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <!-- Coupon Section -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl gradient-bg flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-            </div>
-            کوپن تخفیف
-          </h3>
-          <div class="flex gap-3">
-            <div class="flex-1 relative">
-              <input type="text" x-model="couponCode" placeholder="کد تخفیف را وارد کنید" @keyup.enter="applyCoupon()"
-                class="coupon-input w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm font-medium focus:outline-none transition-all bg-gray-50 focus:bg-white placeholder-gray-400 tracking-widest"
-                :class="couponStatus==='valid'?'border-emerald-400 bg-emerald-50':couponStatus==='invalid'?'border-red-400 bg-red-50':''">
-              <div x-show="couponStatus==='valid'" class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500">✓
-              </div>
-              <div x-show="couponStatus==='invalid'" class="absolute left-3 top-1/2 -translate-y-1/2 text-red-500">✕
-              </div>
-            </div>
-            <button @click="applyCoupon()" :disabled="!couponCode || couponStatus==='valid'"
-              class="px-5 py-3 btn-primary text-white rounded-xl font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-              اعمال
-            </button>
-          </div>
-          <!-- Active Coupon Badge -->
-          <div x-show="couponStatus==='valid'"
-            class="mt-3 flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
-            <span class="text-emerald-600 font-black text-sm">🎫</span>
-            <span class="text-emerald-700 font-bold text-sm">کوپن <span x-text="appliedCoupon?.code"
-                class="tracking-widest"></span> اعمال شد</span>
-            <span class="text-emerald-600 font-black text-sm mr-auto" x-text="'−' + fmtPrice(discountAmount)"></span>
-            <button @click="removeCoupon()"
-              class="cursor-pointer text-emerald-500 hover:text-emerald-700 text-xs font-bold">حذف</button>
-          </div>
-          <!-- Suggested Coupons -->
-          <div class="mt-4">
-            <p class="text-xs font-bold text-gray-400 mb-2.5">کدهای پیشنهادی:</p>
-            <div class="flex flex-wrap gap-2">
-              <template x-for="c in suggestedCoupons" :key="c.code">
-                <button @click="couponCode=c.code; applyCoupon()"
-                  class="cursor-pointer tag-bounce flex items-center gap-1.5 px-3 py-1.5 border border-dashed border-violet-300 text-violet-600 text-xs font-bold rounded-xl hover:bg-violet-50 transition-all">
-                  <span>🏷️</span><span x-text="c.code"></span>
-                  <span class="text-gray-400 font-medium" x-text="c.desc"></span>
-                </button>
-              </template>
-            </div>
-          </div>
-        </div>
-
-        <!-- Special Notes -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <h3 class="font-black text-gray-800 mb-3 flex items-center gap-2 text-base">
-            <span class="text-xl">📝</span> یادداشت سفارش
-          </h3>
-          <textarea x-model="orderNote" rows="2" placeholder="نکته‌ای برای فروشنده دارید؟"
-            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-violet-400 focus:bg-white bg-gray-50 transition-all placeholder-gray-400"></textarea>
-        </div>
-
-      </div>
-
-      <!-- Summary Column -->
-      <div class="space-y-5">
-        <div class="sticky-summary space-y-5">
-
-          <!-- Order Summary -->
-          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-5 pt-5 pb-4 border-b border-gray-100">
-              <h2 class="font-black text-gray-800 text-lg">خلاصه سفارش</h2>
-            </div>
-            <div class="p-5 space-y-3">
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>جمع اقلام (<span x-text="totalQty"></span> عدد)</span>
-                <span class="font-semibold" x-text="fmtPrice(subtotal)"></span>
-              </div>
-              <div x-show="totalSavings>0" class="flex justify-between text-sm text-emerald-600">
-                <span>تخفیف محصولات</span>
-                <span class="font-bold" x-text="'−' + fmtPrice(totalSavings)"></span>
-              </div>
-              <div x-show="discountAmount>0" class="flex justify-between text-sm text-emerald-600">
-                <span>تخفیف کوپن</span>
-                <span class="font-bold" x-text="'−' + fmtPrice(discountAmount)"></span>
-              </div>
-              <div class="flex justify-between text-sm text-gray-600">
-                <span class="flex items-center gap-1">هزینه ارسال
-                  <button @click="shippingInfo=!shippingInfo"
-                    class="cursor-pointer text-gray-400 hover:text-violet-600">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
-                </span>
-                <span class="font-semibold" :class="shippingCost===0?'text-emerald-600 font-bold':''">
-                  <span x-text="shippingCost===0 ? 'رایگان' : fmtPrice(shippingCost)"></span>
-                </span>
-              </div>
-              <!-- Shipping Info Tooltip -->
-              <div x-show="shippingInfo"
-                class="text-xs text-gray-500 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5">
-                📦 ارسال به تمام نقاط ایران · خریدهای بالای <span x-text="fmtPrice(freeShippingAt)"></span> رایگان
-              </div>
-
-              <!-- Shipping Method -->
-              <div class="space-y-2 pt-1">
-                <p class="text-xs font-bold text-gray-500">روش ارسال:</p>
-                <template x-for="m in shippingMethods" :key="m.id">
-                  <label class="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="selectedShipping===m.id?'border-violet-400 bg-violet-50':'border-gray-200 hover:border-gray-300'">
-                    <input type="radio" :value="m.id" x-model="selectedShipping" class="sr-only">
-                    <div
-                      class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                      :class="selectedShipping===m.id?'border-violet-600':'border-gray-300'">
-                      <div x-show="selectedShipping===m.id" class="w-2 h-2 rounded-full bg-violet-600"></div>
-                    </div>
-                    <div class="flex-1">
-                      <div class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-gray-700" x-text="m.name"></span>
-                        <span class="text-sm font-black" :class="m.price===0?'text-emerald-600':'text-gray-800'"
-                          x-text="m.price===0?'رایگان':fmtPrice(m.price)"></span>
-                      </div>
-                      <span class="text-xs text-gray-400" x-text="m.time"></span>
-                    </div>
-                  </label>
-                </template>
-              </div>
-
-              <div class="border-t border-gray-100 pt-3 flex justify-between">
-                <span class="font-black text-gray-800">جمع کل</span>
-                <span class="font-black text-xl text-violet-600" x-text="fmtPrice(grandTotal)"></span>
-              </div>
-
-              <!-- Savings Summary -->
-              <div x-show="totalSavings + discountAmount > 0"
-                class="saving-badge text-white rounded-xl px-4 py-2.5 flex items-center gap-2">
-                <span class="text-lg">💰</span>
-                <div>
-                  <p class="text-xs opacity-80">مجموع صرفه‌جویی شما</p>
-                  <p class="font-black text-sm" x-text="fmtPrice(totalSavings + discountAmount)"></p>
-                </div>
-              </div>
-
-              <!-- Checkout Button -->
-              <button @click="checkout()"
-                class="cursor-pointer w-full py-4 btn-primary text-white rounded-2xl font-black text-base shadow-lg shadow-violet-200 flex items-center justify-center gap-2 group">
-                <span>تکمیل خرید</span>
-                <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </button>
-
-              <!-- Trust Icons -->
-              <div class="grid grid-cols-3 gap-2 pt-1">
-                <template x-for="t in trustBadges" :key="t.label">
-                  <div class="flex flex-col items-center gap-1.5 p-2 bg-gray-50 rounded-xl">
-                    <span class="text-xl" x-text="t.icon"></span>
-                    <span class="text-xs text-gray-500 font-medium text-center leading-tight" x-text="t.label"></span>
-                  </div>
-                </template>
-              </div>
-
-              <!-- Payment Methods -->
-              <div class="flex items-center justify-center gap-2 pt-1">
-                <span class="text-xs text-gray-400 font-medium">پرداخت با:</span>
-                <template x-for="pm in paymentMethods" :key="pm">
-                  <div class="px-2 py-1 border border-gray-200 rounded-lg bg-white">
-                    <span class="text-xs font-bold text-gray-600" x-text="pm"></span>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </div>
-
-          <!-- Delivery Estimate -->
-          <div class="gradient-border-card bg-white rounded-2xl p-5 shadow-sm">
-            <h3 class="font-black text-gray-800 mb-3 flex items-center gap-2">
-              <span class="text-xl">🚚</span> تخمین تحویل
-            </h3>
-            <div class="space-y-2">
-              <template x-for="(d, i) in deliverySteps" :key="i">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-                    :class="i===0?'gradient-bg text-white shadow-sm':'bg-gray-100 text-gray-500'" x-text="d.icon"></div>
-                  <div class="flex-1">
-                    <p class="text-sm font-bold text-gray-700" x-text="d.label"></p>
-                    <p class="text-xs text-gray-400" x-text="d.time"></p>
-                  </div>
-                  <div x-show="i < deliverySteps.length-1" class="absolute"></div>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Promo Banner -->
-          <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-5 text-white">
-            <div class="flex items-start gap-3">
-              <span class="text-3xl">⚡</span>
-              <div>
-                <h4 class="font-black mb-1">پیشنهاد زمان‌دار!</h4>
-                <p class="text-sm opacity-90 mb-3">خرید بالای ۲ میلیون = ارسال اکسپرس رایگان</p>
-                <div class="flex items-center gap-1.5">
-                  <template x-for="(unit, label) in promoTimer" :key="label">
-                    <div class="flex items-center gap-1">
-                      <div class="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg">
-                        <span class="font-black text-sm" x-text="unit"></span>
-                      </div>
-                      <span x-show="label!=='seconds'" class="text-white/70">:</span>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-
-
-
-
-
-
-    {% else %}
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                خطا
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>برای دسترسی به سبد خرید خود ابتدا باید وارد <a class='text-blue-500' href={% url "account:login_register_page" %}>حساب کابری<a/> خود شوید</p>
-            </div>
-        </div>
-    {% endif %}
-
-    <!-- Related / Recommended Products -->
-    <section class="mt-14">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-2xl font-black text-gray-900">محصولات پیشنهادی</h2>
-          <p class="text-sm text-gray-400 mt-1">کاربرانی که این محصولات را خریدند، اینها را هم پسندیدند</p>
-        </div>
-        <!-- Navigation Buttons -->
-        <div class="flex gap-2">
-
-        </div>
-      </div>
-
-      <!-- Swiper Container -->
-      <div class="swiper related-swiper mt-[40px]" data-swiper='{
-            "slidesPerView": 2,
-            "spaceBetween": 20,
-            "loop": true,
-            "autoplay": {"delay": 3000, "disableOnInteraction": false},
-            "speed": 600,
-            "grabCursor": true,
-            "breakpoints": {
-                "640":  { "slidesPerView": 3, "spaceBetween": 16 },
-                "768":  { "slidesPerView": 3, "spaceBetween": 20 },
-                "1024": { "slidesPerView": 4, "spaceBetween": 20 },
-                "1280": { "slidesPerView": 4, "spaceBetween": 24 }
-            }
-         }'>
-        <div class="swiper-wrapper pb-12">
-
-          <template x-for="p in recProducts" :key="p.id">
-            <div class="swiper-slide">
-              <div
-                class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group card-hover cursor-pointer">
-
-                <!-- Image Section -->
-                <div class="relative overflow-hidden h-40">
-                  <img :src="p.image"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-
-                  <!-- Discount Badge -->
-                  <div x-show="p.originalPrice"
-                    class="cursor-pointer absolute top-2 right-2 px-2 py-0.5 bg-red-500 text-white text-xs font-black rounded-lg"
-                    x-text="'%'+Math.round((1-p.price/p.originalPrice)*100)">
-                  </div>
-
-                  <!-- Quick View Overlay -->
-                  <div
-                    class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button @click.stop="openQuickView(p)"
-                      class="cursor-pointer px-4 py-2 bg-white text-violet-700 font-bold text-xs rounded-xl shadow-lg hover:bg-violet-600 hover:text-white transition-colors">
-                      مشاهده سریع
-                    </button>
-                  </div>
-
-                  <!-- Wishlist Button -->
-                  <button @click.stop="toggleWishlist(p.id)"
-                    class="cursor-pointer absolute top-2 left-2 w-8 h-8 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-                    :class="wishlist.includes(p.id)?'text-pink-500':'text-gray-400'">
-                    <svg class="w-4 h-4" :fill="wishlist.includes(p.id)?'currentColor':'none'" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- Content Section -->
-                <div class="p-4">
-                  <!-- Category -->
-                  <span class="text-xs text-violet-600 font-bold" x-text="p.category"></span>
-
-                  <!-- Name -->
-                  <h4 class="text-sm font-bold text-gray-800 mt-1 mb-2 line-clamp-2 leading-snug" x-text="p.name"></h4>
-
-                  <!-- Rating -->
-                  <div class="flex items-center gap-1 mb-3">
-                    <template x-for="i in 5">
-                      <span class="text-xs" :class="i<=p.rating?'text-amber-400':'text-gray-200'">★</span>
-                    </template>
-                    <span class="text-xs text-gray-400" x-text="'('+p.reviews+')'"></span>
-                  </div>
-
-                  <!-- Price & Add to Cart -->
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="font-black text-violet-600 text-sm" x-text="fmtPrice(p.price)"></p>
-                      <p x-show="p.originalPrice" class="text-xs text-gray-400 line-through"
-                        x-text="fmtPrice(p.originalPrice)"></p>
-                    </div>
-                    <button @click="addRelated(p)"
-                      class="cursor-pointer w-8 h-8 gradient-bg rounded-xl flex items-center justify-center text-white hover:shadow-md hover:shadow-violet-200 transition-all hover:scale-110">
-                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-
-        </div>
-
-        <!-- Pagination -->
-        <div class="dev-slider-pagination !bottom-0"></div>
-      </div>
-    </section>
+  <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8" id="page_content">
+    {% include "order/includes/page_content_in_order.html" %}
   </div>
 
-  <script>
+<script>
     function cartPage() {
-      return {
-        // UI State
-        toasts: [],
-        toastId: 0,
-        shippingInfo: false,
-        sortBy: 'default',
-        recSlide: 0,
-        recCardWidth: 208,
-        slidesVisible: 4,
-        couponCode: '',
-        couponStatus: '',
-        appliedCoupon: null,
-        orderNote: '',
-        selectedItems: [],
-        wishlist: [],
-        savedItems: [],
-        selectedShipping: 'standard',
-        quickView: { show: false, item: null },
-        confirmModal: { show: false, title: '', message: '', icon: '', action: () => { }, danger: false },
-        promoTimer: { hours: '03', minutes: '47', seconds: '22' },
-        freeShippingAt: 2000000,
+        return {
 
-        steps: ['سبد خرید', 'تحویل', 'پرداخت', 'تأیید'],
-        currentStep: 0,
+            // UI State
+            toasts: [],
+            toastId: 0,
+            shippingInfo: false,
+            sortBy: 'default',
+            recSlide: 0,
+            recCardWidth: 208,
+            slidesVisible: 4,
+            couponCode: '',
+            couponStatus: '',
+            appliedCoupon: null,
+            orderNote: '',
+            selectedItems: [],
+            wishlist: [],
+            savedItems: [],
+            selectedShipping: 'standard',
+            quickView: { show: false, item: null },
+            confirmModal: { show: false, title: '', message: '', icon: '', action: () => { }, danger: false },
+            promoTimer: { hours: '03', minutes: '47', seconds: '22' },
+            freeShippingAt: 2000000,
 
-        suggestedCoupons: [
-          { code: 'MEGA20', desc: '۲۰٪ تخفیف' },
-          { code: 'FIRST10', desc: '۱۰٪ اول' },
-          { code: 'SUMMER', desc: '۱۵٪ تابستان' }
-        ],
+            steps: ['سبد خرید', 'تحویل', 'پرداخت', 'تأیید'],
+            currentStep: 0,
 
-        coupons: [
-          { code: 'MEGA20', type: 'percent', value: 20 },
-          { code: 'FIRST10', type: 'percent', value: 10 },
-          { code: 'SUMMER', type: 'percent', value: 15 },
-          { code: 'VIP50', type: 'fixed', value: 500000 }
-        ],
+            suggestedCoupons: [
+                { code: 'MEGA20', desc: '۲۰٪ تخفیف' },
+                { code: 'FIRST10', desc: '۱۰٪ اول' },
+                { code: 'SUMMER', desc: '۱۵٪ تابستان' }
+            ],
 
-        shippingMethods: [
-          { id: 'standard', name: 'پست پیشتاز', price: 0, time: '۳ تا ۵ روز کاری' },
-          { id: 'express', name: 'ارسال اکسپرس', price: 150000, time: 'فردا تا پس‌فردا' },
-          { id: 'sameday', name: 'ارسال همروز', price: 280000, time: 'امروز (تا ۶ ساعت)' }
-        ],
+            coupons: [
+                { code: 'MEGA20', type: 'percent', value: 20 },
+                { code: 'FIRST10', type: 'percent', value: 10 },
+                { code: 'SUMMER', type: 'percent', value: 15 },
+                { code: 'VIP50', type: 'fixed', value: 500000 }
+            ],
 
-        trustBadges: [
-          { icon: '🔒', label: 'پرداخت امن' },
-          { icon: '↩️', label: 'ضمانت بازگشت' },
-          { icon: '✅', label: 'کالای اصل' }
-        ],
+            shippingMethods: [
+                { id: 'standard', name: 'پست پیشتاز', price: 0, time: '۳ تا ۵ روز کاری' },
+                { id: 'express', name: 'ارسال اکسپرس', price: 150000, time: 'فردا تا پس‌فردا' },
+                { id: 'sameday', name: 'ارسال همروز', price: 280000, time: 'امروز (تا ۶ ساعت)' }
+            ],
 
-        paymentMethods: ['ملت', 'سامان', 'زرین‌پال', 'صادرات'],
+            trustBadges: [
+                { icon: '🔒', label: 'پرداخت امن' },
+                { icon: '↩️', label: 'ضمانت بازگشت' },
+                { icon: '✅', label: 'کالای اصل' }
+            ],
 
-        deliverySteps: [
-          { icon: '📦', label: 'آماده‌سازی', time: 'امروز' },
-          { icon: '🚚', label: 'ارسال', time: 'فردا' },
-          { icon: '🏠', label: 'تحویل', time: '۳ - ۵ روز کاری' }
-        ],
+            paymentMethods: ['ملت', 'سامان', 'زرین‌پال', 'صادرات'],
 
-        cartItems: [
-          {
-            id: 1, name: 'ماوس سیمی تسکو مدل گیمینگ',
-            category: 'صوتی', price: 4290000, originalPrice: 5500000, qty: 1, stock: 5,
-            image: './assets/images/mouse tesco.webp',
-            description: 'ماوس سیمی تسکو مدل گیمینگ',
-            rating: 5, reviews: 320,
-            colors: [{ name: 'مشکی', hex: '#1a1a1a' }, { name: 'نقره‌ای', hex: '#c0c0c0' }, { name: 'آبی', hex: '#3b82f6' }],
-            selectedColor: { name: 'مشکی', hex: '#1a1a1a' },
-            selectedSize: null
-          },
-          {
-            id: 2, name: 'کیبورد مکانیکال Keychron K8',
-            category: 'کامپیوتر', price: 1850000, originalPrice: 0, qty: 2, stock: 15,
-            image: './assets/images/laptop holder.webp',
-            description: 'کیبورد مکانیکال با سوئیچ Gateron',
-            rating: 4, reviews: 187,
-            colors: [{ name: 'خاکستری', hex: '#9ca3af' }, { name: 'سفید', hex: '#f3f4f6' }],
-            selectedColor: { name: 'خاکستری', hex: '#9ca3af' },
-            selectedSize: null
-          },
-          {
-            id: 3, name: 'ماوس بی‌سیم Logitech MX Master 3',
-            category: 'کامپیوتر', price: 2100000, originalPrice: 2450000, qty: 1, stock: 3,
-            image: './assets/images/mouse tesco.webp',
-            description: 'ماوس ارگونومیک حرفه‌ای',
-            rating: 5, reviews: 450,
-            colors: [{ name: 'مشکی', hex: '#1a1a1a' }, { name: 'گرافیت', hex: '#4b5563' }],
-            selectedColor: { name: 'مشکی', hex: '#1a1a1a' },
-            selectedSize: null
-          },
-          {
-            id: 4, name: 'مانیتور LG UltraWide 34"',
-            category: 'نمایشگر', price: 18500000, originalPrice: 22000000, qty: 1, stock: 0,
-            image: './assets/images/asus laptop.webp',
-            description: 'مانیتور اولترا-واید ۳۴ اینچ IPS',
-            rating: 4, reviews: 98,
-            colors: null, selectedColor: null, selectedSize: null
-          }
-        ],
+            deliverySteps: [
+                { icon: '📦', label: 'آماده‌سازی', time: 'امروز' },
+                { icon: '🚚', label: 'ارسال', time: 'فردا' },
+                { icon: '🏠', label: 'تحویل', time: '۳ - ۵ روز کاری' }
+            ],
 
-        recProducts: [
-          { id: 101, name: 'وب‌کم Logitech C920', category: 'وب‌کم', price: 890000, originalPrice: 1100000, image: './assets/images/mouse tesco.webp', rating: 4, reviews: 210, description: 'وب‌کم HD برای ویدیوکنفرانس' },
-          { id: 102, name: 'هاب USB-C 7 پورت', category: 'لوازم جانبی', price: 420000, originalPrice: 0, image: './assets/images/laptop holder.webp', rating: 5, reviews: 143, description: 'هاب USB-C با ۷ پورت مختلف' },
-          { id: 103, name: 'پایه مانیتور تنظیم‌شونده', category: 'لوازم دفتری', price: 750000, originalPrice: 900000, image: './assets/images/asus laptop.webp', rating: 4, reviews: 89, description: 'پایه ارگونومیک برای مانیتور' },
-          { id: 104, name: 'اسپیکر JBL Flip 6', category: 'صوتی', price: 1650000, originalPrice: 2000000, image: './assets/images/mouse tesco.webp', rating: 5, reviews: 560, description: 'اسپیکر پرتابل بلوتوثی' },
-          { id: 105, name: 'کیف لپ‌تاپ 15 اینچ', category: 'لوازم جانبی', price: 380000, originalPrice: 0, image: './assets/images/laptop holder.webp', rating: 4, reviews: 230, description: 'کیف چرمی ضدضربه' },
-          { id: 106, name: 'موس‌پد XXL بزرگ', category: 'لوازم دفتری', price: 195000, originalPrice: 250000, image: './assets/images/asus laptop.webp', rating: 4, reviews: 178, description: 'موس‌پد سایز XXL' }
-        ],
+            cartItems: [
+                {
+                    id: 1,
+                    name: 'ماوس سیمی تسکو مدل گیمینگ',
+                    category: 'صوتی',
+                    price: 4290000,
+                    originalPrice: 5500000,
+                    qty: 1,
+                    stock: 5,
+                    image: './assets/images/mouse tesco.webp',
+                    description: 'ماوس سیمی تسکو مدل گیمینگ',
+                    rating: 5,
+                    reviews: 320,
+                    colors: [
+                        { name: 'مشکی', hex: '#1a1a1a' },
+                        { name: 'نقره‌ای', hex: '#c0c0c0' },
+                        { name: 'آبی', hex: '#3b82f6' }
+                    ],
+                    selectedColor: { name: 'مشکی', hex: '#1a1a1a' },
+                    selectedSize: null
+                },
+                {
+                    id: 2,
+                    name: 'کیبورد مکانیکال Keychron K8',
+                    category: 'کامپیوتر',
+                    price: 1850000,
+                    originalPrice: 0,
+                    qty: 2,
+                    stock: 15,
+                    image: './assets/images/laptop holder.webp',
+                    description: 'کیبورد مکانیکال با سوئیچ Gateron',
+                    rating: 4,
+                    reviews: 187,
+                    colors: [
+                        { name: 'خاکستری', hex: '#9ca3af' },
+                        { name: 'سفید', hex: '#f3f4f6' }
+                    ],
+                    selectedColor: { name: 'خاکستری', hex: '#9ca3af' },
+                    selectedSize: null
+                },
+                {
+                    id: 3,
+                    name: 'ماوس بی‌سیم Logitech MX Master 3',
+                    category: 'کامپیوتر',
+                    price: 2100000,
+                    originalPrice: 2450000,
+                    qty: 1,
+                    stock: 3,
+                    image: './assets/images/mouse tesco.webp',
+                    description: 'ماوس ارگونومیک حرفه‌ای',
+                    rating: 5,
+                    reviews: 450,
+                    colors: [
+                        { name: 'مشکی', hex: '#1a1a1a' },
+                        { name: 'گرافیت', hex: '#4b5563' }
+                    ],
+                    selectedColor: { name: 'مشکی', hex: '#1a1a1a' },
+                    selectedSize: null
+                },
+                {
+                    id: 4,
+                    name: 'مانیتور LG UltraWide 34"',
+                    category: 'نمایشگر',
+                    price: 18500000,
+                    originalPrice: 22000000,
+                    qty: 1,
+                    stock: 0,
+                    image: './assets/images/asus laptop.webp',
+                    description: 'مانیتور اولترا-واید ۳۴ اینچ IPS',
+                    rating: 4,
+                    reviews: 98,
+                    colors: null,
+                    selectedColor: null,
+                    selectedSize: null
+                }
+            ],
 
-        // Computed
-        get sortedItems() {
-          let items = [...this.cartItems];
-          if (this.sortBy === 'price-asc') items.sort((a, b) => a.price - b.price);
-          else if (this.sortBy === 'price-desc') items.sort((a, b) => b.price - a.price);
-          else if (this.sortBy === 'name') items.sort((a, b) => a.name.localeCompare(b.name, 'fa'));
-          return items;
-        },
+            recProducts: [
+                {
+                    id: 101,
+                    name: 'وب‌کم Logitech C920',
+                    category: 'وب‌کم',
+                    price: 890000,
+                    originalPrice: 1100000,
+                    image: './assets/images/mouse tesco.webp',
+                    rating: 4,
+                    reviews: 210,
+                    description: 'وب‌کم HD برای ویدیوکنفرانس'
+                },
+                {
+                    id: 102,
+                    name: 'هاب USB-C 7 پورت',
+                    category: 'لوازم جانبی',
+                    price: 420000,
+                    originalPrice: 0,
+                    image: './assets/images/laptop holder.webp',
+                    rating: 5,
+                    reviews: 143,
+                    description: 'هاب USB-C با ۷ پورت مختلف'
+                },
+                {
+                    id: 103,
+                    name: 'پایه مانیتور تنظیم‌شونده',
+                    category: 'لوازم دفتری',
+                    price: 750000,
+                    originalPrice: 900000,
+                    image: './assets/images/asus laptop.webp',
+                    rating: 4,
+                    reviews: 89,
+                    description: 'پایه ارگونومیک برای مانیتور'
+                },
+                {
+                    id: 104,
+                    name: 'اسپیکر JBL Flip 6',
+                    category: 'صوتی',
+                    price: 1650000,
+                    originalPrice: 2000000,
+                    image: './assets/images/mouse tesco.webp',
+                    rating: 5,
+                    reviews: 560,
+                    description: 'اسپیکر پرتابل بلوتوثی'
+                },
+                {
+                    id: 105,
+                    name: 'کیف لپ‌تاپ 15 اینچ',
+                    category: 'لوازم جانبی',
+                    price: 380000,
+                    originalPrice: 0,
+                    image: './assets/images/laptop holder.webp',
+                    rating: 4,
+                    reviews: 230,
+                    description: 'کیف چرمی ضدضربه'
+                },
+                {
+                    id: 106,
+                    name: 'موس‌پد XXL بزرگ',
+                    category: 'لوازم دفتری',
+                    price: 195000,
+                    originalPrice: 250000,
+                    image: './assets/images/asus laptop.webp',
+                    rating: 4,
+                    reviews: 178,
+                    description: 'موس‌پد سایز XXL'
+                }
+            ],
 
-        get totalQty() {
-          return this.cartItems.reduce((s, i) => s + i.qty, 0);
-        },
+            // Computed
+            get sortedItems() {
+                let items = [...this.cartItems];
 
-        get subtotal() {
-          return this.cartItems.reduce((s, i) => s + i.price * i.qty, 0);
-        },
+                if (this.sortBy === 'price-asc')
+                    items.sort((a, b) => a.price - b.price);
+                else if (this.sortBy === 'price-desc')
+                    items.sort((a, b) => b.price - a.price);
+                else if (this.sortBy === 'name')
+                    items.sort((a, b) => a.name.localeCompare(b.name, 'fa'));
 
-        get totalSavings() {
-          return this.cartItems.reduce((s, i) => i.originalPrice ? s + (i.originalPrice - i.price) * i.qty : s, 0);
-        },
+                return items;
+            },
 
-        get discountAmount() {
-          if (!this.appliedCoupon) return 0;
-          if (this.appliedCoupon.type === 'percent') return Math.round(this.subtotal * this.appliedCoupon.value / 100);
-          return Math.min(this.appliedCoupon.value, this.subtotal);
-        },
+            get totalQty() {
+                return this.cartItems.reduce((s, i) => s + i.qty, 0);
+            },
 
-        get shippingCost() {
-          const m = this.shippingMethods.find(x => x.id === this.selectedShipping);
-          if (!m) return 0;
-          if (this.subtotal >= this.freeShippingAt && m.id === 'standard') return 0;
-          return m.price;
-        },
+            get subtotal() {
+                return this.cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+            },
 
-        get grandTotal() {
-          return Math.max(0, this.subtotal - this.discountAmount + this.shippingCost);
-        },
+            get totalSavings() {
+                return this.cartItems.reduce(
+                    (s, i) => i.originalPrice
+                        ? s + (i.originalPrice - i.price) * i.qty
+                        : s,
+                    0
+                );
+            },
 
-        // Init
-        init() {
-          this.selectedItems = this.cartItems.map(i => i.id);
-          this.startPromoTimer();
-        },
+            get discountAmount() {
+                if (!this.appliedCoupon) return 0;
 
-        // Toast
-        toast(msg, type = 'info') {
-          const id = ++this.toastId;
-          this.toasts.push({ id, message: msg, type });
-          setTimeout(() => this.removeToast(id), 3500);
-        },
-        removeToast(id) {
-          this.toasts = this.toasts.filter(t => t.id !== id);
-        },
+                if (this.appliedCoupon.type === 'percent')
+                    return Math.round(this.subtotal * this.appliedCoupon.value / 100);
 
-        // Confirm Modal
-        confirm(title, message, icon, action, danger = false) {
-          this.confirmModal = { show: true, title, message, icon, action, danger };
-        },
+                return Math.min(this.appliedCoupon.value, this.subtotal);
+            },
 
-        // Selection
-        toggleSelect(id) {
-          if (this.selectedItems.includes(id)) this.selectedItems = this.selectedItems.filter(x => x !== id);
-          else this.selectedItems.push(id);
-        },
-        toggleSelectAll(e) {
-          if (e.target.checked) this.selectedItems = this.cartItems.map(i => i.id);
-          else this.selectedItems = [];
-        },
-        deleteSelected() {
-          this.confirm('حذف موارد انتخاب‌شده', 'آیا مطمئن هستید?', '🗑️', () => {
-            this.cartItems = this.cartItems.filter(i => !this.selectedItems.includes(i.id));
-            this.selectedItems = [];
-            this.toast('موارد انتخاب‌شده حذف شدند', 'error');
-          }, true);
-        },
+            get shippingCost() {
+                const m = this.shippingMethods.find(
+                    x => x.id === this.selectedShipping
+                );
 
-        // Qty
-        incQty(id) {
-          const i = this.cartItems.find(x => x.id === id);
-          if (i && i.qty < i.stock) i.qty++;
-          else this.toast('موجودی کافی نیست', 'error');
-        },
-        decQty(id) {
-          const i = this.cartItems.find(x => x.id === id);
-          if (i && i.qty > 1) i.qty--;
-        },
-        setQty(id, val) {
-          const i = this.cartItems.find(x => x.id === id);
-          if (!i) return;
-          const v = Math.max(1, Math.min(i.stock || 1, parseInt(val) || 1));
-          i.qty = v;
-        },
+                if (!m) return 0;
+                if (this.subtotal >= this.freeShippingAt && m.id === 'standard')
+                    return 0;
 
-        // Remove
-        askRemove(id) {
-          const item = this.cartItems.find(x => x.id === id);
-          this.confirm('حذف محصول', `«${item.name}» از سبد خارج شود?`, '🗑️', () => {
-            this.cartItems = this.cartItems.filter(x => x.id !== id);
-            this.selectedItems = this.selectedItems.filter(x => x !== id);
-            this.toast('محصول از سبد حذف شد', 'error');
-          }, true);
-        },
+                return m.price;
+            },
 
-        // Clear
-        askClearCart() {
-          this.confirm('خالی کردن سبد', 'همه محصولات حذف شوند?', '🛒', () => {
-            this.cartItems = [];
-            this.selectedItems = [];
-            this.toast('سبد خرید خالی شد', 'error');
-          }, true);
-        },
+            get grandTotal() {
+                return Math.max(0, {{ order.total_price }});
+            },
 
-        // Wishlist
-        toggleWishlist(id) {
-          if (this.wishlist.includes(id)) {
-            this.wishlist = this.wishlist.filter(x => x !== id);
-            this.toast('از علاقه‌مندی‌ها حذف شد', 'info');
-          } else {
-            this.wishlist.push(id);
-            this.toast('به علاقه‌مندی‌ها اضافه شد', 'success');
-          }
-        },
+            // Init
+            init() {
+                this.selectedItems = this.cartItems.map(i => i.id);
+                this.startPromoTimer();
+            },
 
-        // Save for later
-        saveForLater(id) {
-          const item = this.cartItems.find(x => x.id === id);
-          if (!item) return;
-          this.savedItems.push(item);
-          this.cartItems = this.cartItems.filter(x => x.id !== id);
-          this.selectedItems = this.selectedItems.filter(x => x !== id);
-          this.toast('برای بعد ذخیره شد', 'info');
-        },
-        moveTocart(id) {
-          const item = this.savedItems.find(x => x.id === id);
-          if (!item) return;
-          this.cartItems.push(item);
-          this.savedItems = this.savedItems.filter(x => x.id !== id);
-          this.selectedItems.push(item.id);
-          this.toast('به سبد اضافه شد', 'success');
-        },
-        restoreWishlist() {
-          this.toast('ویژگی در حال توسعه است', 'info');
-        },
+            // Toast
+            toast(msg, type = 'info') {
+                const id = ++this.toastId;
+                this.toasts.push({ id, message: msg, type });
+                setTimeout(() => this.removeToast(id), 3500);
+            },
 
-        // Coupon
-        applyCoupon() {
-          if (!this.couponCode) return;
-          const found = this.coupons.find(c => c.code === this.couponCode.toUpperCase());
-          if (found) {
-            this.appliedCoupon = found;
-            this.couponStatus = 'valid';
-            this.couponCode = found.code;
-            this.toast('کوپن با موفقیت اعمال شد 🎉', 'success');
-          } else {
-            this.couponStatus = 'invalid';
-            this.toast('کد تخفیف معتبر نیست', 'error');
-            setTimeout(() => { if (this.couponStatus === 'invalid') this.couponStatus = ''; }, 2000);
-          }
-        },
-        removeCoupon() {
-          this.appliedCoupon = null;
-          this.couponStatus = '';
-          this.couponCode = '';
-          this.toast('کوپن حذف شد', 'info');
-        },
+            removeToast(id) {
+                this.toasts = this.toasts.filter(t => t.id !== id);
+            },
 
-        // Quick View
-        openQuickView(item) {
-          this.quickView = { show: true, item };
-        },
+            // Confirm Modal
+            confirm(title, message, icon, action, danger = false) {
+                this.confirmModal = {
+                    show: true,
+                    title,
+                    message,
+                    icon,
+                    action,
+                    danger
+                };
+            },
 
-        // Add Related
-        addRelated(p) {
-          const ex = this.cartItems.find(x => x.id === p.id);
-          if (ex) { ex.qty++; this.toast('تعداد افزایش یافت', 'info'); return; }
-          this.cartItems.push({ ...p, qty: 1, stock: p.stock || 20, colors: null, selectedColor: null, selectedSize: null });
-          this.selectedItems.push(p.id);
-          this.toast('به سبد اضافه شد 🛒', 'success');
-        },
+            // Selection
+            toggleSelect(id) {
+                if (this.selectedItems.includes(id))
+                    this.selectedItems = this.selectedItems.filter(x => x !== id);
+                else
+                    this.selectedItems.push(id);
+            },
 
-        // Checkout
-        checkout() {
-          this.confirm('تکمیل خرید', `پرداخت ${this.fmtPrice(this.grandTotal)} تأیید می‌شود؟`, '💳', () => {
-            this.currentStep = 1;
-            this.toast('در حال انتقال به درگاه پرداخت...', 'success');
-          });
-        },
+            toggleSelectAll(e) {
+                if (e.target.checked)
+                    this.selectedItems = this.cartItems.map(i => i.id);
+                else
+                    this.selectedItems = [];
+            },
 
-        // Promo Timer
-        startPromoTimer() {
-          setInterval(() => {
-            let h = parseInt(this.promoTimer.hours);
-            let m = parseInt(this.promoTimer.minutes);
-            let s = parseInt(this.promoTimer.seconds);
-            s--;
-            if (s < 0) { s = 59; m--; }
-            if (m < 0) { m = 59; h--; }
-            if (h < 0) { h = 0; m = 0; s = 0; }
-            this.promoTimer.hours = String(h).padStart(2, '0');
-            this.promoTimer.minutes = String(m).padStart(2, '0');
-            this.promoTimer.seconds = String(s).padStart(2, '0');
-          }, 1000);
-        },
+            deleteSelected() {
+                this.confirm(
+                    'حذف موارد انتخاب‌شده',
+                    'آیا مطمئن هستید?',
+                    '🗑️',
+                    () => {
+                        this.cartItems = this.cartItems.filter(
+                            i => !this.selectedItems.includes(i.id)
+                        );
 
-        // Format
-        fmtPrice(n) {
-          return (n || 0).toLocaleString('fa') + ' تومان';
+                        this.selectedItems = [];
+                        this.toast('موارد انتخاب‌شده حذف شدند', 'error');
+                    },
+                    true
+                );
+            },
+
+            setQty(id, val) {
+                const i = this.cartItems.find(x => x.id === id);
+                if (!i) return;
+
+                const v = Math.max(
+                    1,
+                    Math.min(i.stock || 1, parseInt(val) || 1)
+                );
+
+                i.qty = v;
+            },
+
+            // Remove
+            askRemove(item_id) {
+                const params = new URLSearchParams(window.location.search);
+
+                params.delete('remove_id');
+                params.delete('order_id');
+                params.append('remove_id', item_id);
+                params.append('order_id', {{ order.id }});
+
+                fetch(`{% url "order:order_page" %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(function(response) {
+                    return response.text();
+                })
+                .then(function(html) {
+                    document.getElementById('page_content').innerHTML = html;
+                });
+            },
+
+            // Clear
+            askClearCart() {
+                this.confirm(
+                    'خالی کردن سبد',
+                    'همه محصولات حذف شوند?',
+                    '🛒',
+                    () => {
+                        this.cartItems = [];
+                        this.selectedItems = [];
+                        this.toast('سبد خرید خالی شد', 'error');
+                    },
+                    true
+                );
+            },
+
+            // Wishlist
+            toggleWishlist(id) {
+                if (this.wishlist.includes(id)) {
+                    this.wishlist = this.wishlist.filter(x => x !== id);
+                    this.toast('از علاقه‌مندی‌ها حذف شد', 'info');
+                } else {
+                    this.wishlist.push(id);
+                    this.toast('به علاقه‌مندی‌ها اضافه شد', 'success');
+                }
+            },
+
+            // Save for later
+            saveForLater(id) {
+                const item = this.cartItems.find(x => x.id === id);
+                if (!item) return;
+
+                this.savedItems.push(item);
+                this.cartItems = this.cartItems.filter(x => x.id !== id);
+                this.selectedItems = this.selectedItems.filter(x => x !== id);
+                this.toast('برای بعد ذخیره شد', 'info');
+            },
+
+            moveTocart(id) {
+                const item = this.savedItems.find(x => x.id === id);
+                if (!item) return;
+
+                this.cartItems.push(item);
+                this.savedItems = this.savedItems.filter(x => x.id !== id);
+                this.selectedItems.push(item.id);
+                this.toast('به سبد اضافه شد', 'success');
+            },
+
+            restoreWishlist() {
+                this.toast('ویژگی در حال توسعه است', 'info');
+            },
+
+            // Coupon
+            applyCoupon() {
+                if (!this.couponCode) return;
+
+                const found = this.coupons.find(
+                    c => c.code === this.couponCode.toUpperCase()
+                );
+
+                if (found) {
+                    this.appliedCoupon = found;
+                    this.couponStatus = 'valid';
+                    this.couponCode = found.code;
+                    this.toast('کوپن با موفقیت اعمال شد 🎉', 'success');
+                } else {
+                    this.couponStatus = 'invalid';
+                    this.toast('کد تخفیف معتبر نیست', 'error');
+
+                    setTimeout(() => {
+                        if (this.couponStatus === 'invalid')
+                            this.couponStatus = '';
+                    }, 2000);
+                }
+            },
+
+            removeCoupon() {
+                this.appliedCoupon = null;
+                this.couponStatus = '';
+                this.couponCode = '';
+                this.toast('کوپن حذف شد', 'info');
+            },
+
+            // Quick View
+            openQuickView(item) {
+                this.quickView = { show: true, item };
+            },
+
+            // Add Related
+            addRelated(p) {
+                const ex = this.cartItems.find(x => x.id === p.id);
+
+                if (ex) {
+                    ex.qty++;
+                    this.toast('تعداد افزایش یافت', 'info');
+                    return;
+                }
+
+                this.cartItems.push({
+                    ...p,
+                    qty: 1,
+                    stock: p.stock || 20,
+                    colors: null,
+                    selectedColor: null,
+                    selectedSize: null
+                });
+
+                this.selectedItems.push(p.id);
+                this.toast('به سبد اضافه شد 🛒', 'success');
+            },
+
+            // Checkout
+            checkout() {
+                this.confirm(
+                    'تکمیل خرید',
+                    `پرداخت ${this.fmtPrice(this.grandTotal)} تأیید می‌شود؟`,
+                    '💳',
+                    () => {
+                        this.currentStep = 1;
+                        this.toast('در حال انتقال به درگاه پرداخت...', 'success');
+                    }
+                );
+            },
+
+            // Promo Timer
+            startPromoTimer() {
+                setInterval(() => {
+                    let h = parseInt(this.promoTimer.hours);
+                    let m = parseInt(this.promoTimer.minutes);
+                    let s = parseInt(this.promoTimer.seconds);
+
+                    s--;
+
+                    if (s < 0) {
+                        s = 59;
+                        m--;
+                    }
+
+                    if (m < 0) {
+                        m = 59;
+                        h--;
+                    }
+
+                    if (h < 0) {
+                        h = 0;
+                        m = 0;
+                        s = 0;
+                    }
+
+                    this.promoTimer.hours = String(h).padStart(2, '0');
+                    this.promoTimer.minutes = String(m).padStart(2, '0');
+                    this.promoTimer.seconds = String(s).padStart(2, '0');
+
+                }, 1000);
+            },
+
+            // Format
+            fmtPrice(n) {
+                return (n || 0).toLocaleString('fa') + ' تومان';
+            },
+
+            {% if order.shippingmethod %}
+            change_shipping_method(method_id) {
+                const params = new URLSearchParams(window.location.search);
+
+                params.delete('shipping_method');
+                params.append('shipping_method', method_id);
+
+                fetch(`{% url "order:order_page" %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(function(response) {
+                    return response.text();
+                })
+                .then(function(html) {
+                    document.getElementById('page_content').innerHTML = html;
+                    history.replaceState({}, '', '{% url "order:order_page" %}');
+                });
+            },
+            {% endif %}
+
+            // Qty
+            inc_quantity(item_id) {
+                const params = new URLSearchParams(window.location.search);
+
+                params.delete('inc_quantity');
+                params.delete('item_id');
+                params.delete('order_id');
+
+                params.append('inc_quantity', 'true');
+                params.append('item_id', item_id);
+                params.append('order_id', {{ order.id }});
+
+                fetch(`{% url "order:order_page" %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => {
+                    const contentType = response.headers.get('Content-Type');
+
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    }
+
+                    return response.text();
+                })
+                .then(data => {
+                    if (typeof data === 'string') {
+                        // پاسخ HTML یا Text
+                        document.getElementById('page_content').innerHTML = data;
+                        history.replaceState({}, '', '{% url "order:order_page" %}');
+                    } else {
+                        // پاسخ JSON
+                        if (data.success === 'false') {
+                            Swal.fire({
+                                position: "top-start",
+                                icon: "error",
+                                title: "بیشتر از این مقدار نمیتونی",
+                                showConfirmButton: false,
+                                timer: 3500,
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            },
+
+            dec_quantity(item_id) {
+                const params = new URLSearchParams(window.location.search);
+
+                params.delete('inc_quantity');
+                params.delete('dec_quantity');
+                params.delete('item_id');
+                params.delete('order_id');
+
+                params.append('dec_quantity', 'true');
+                params.append('item_id', item_id);
+                params.append('order_id', {{ order.id }});
+
+                fetch(`{% url "order:order_page" %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => {
+                    const contentType = response.headers.get('Content-Type');
+
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    }
+
+                    return response.text();
+                })
+                .then(data => {
+                    if (typeof data === 'string') {
+                        // پاسخ HTML یا Text
+                        document.getElementById('page_content').innerHTML = data;
+                        history.replaceState({}, '', '{% url "order:order_page" %}');
+                    } else {
+                        // پاسخ JSON
+                        if (data.success === 'false') {
+                            Swal.fire({
+                                position: "top-start",
+                                icon: "error",
+                                title: "کمتر از این مقدار دیگه باید محصول رو حذف کنی",
+                                showConfirmButton: false,
+                                timer: 3500,
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            },
+
         }
-      }
     }
-  </script>
+</script>
+
+  {% comment %} select(option) {
+            this.selected = option;
+            this.open = false;
+                const params = new URLSearchParams(window.location.search)
+            params.delete('order_by');
+            params.delete('page');
+            params.append('order_by', this.selected);
+            fetch(`/blogs/?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(function(response) {
+                return response.text();
+            })
+            .then(function(html) {
+                document.getElementById('blogs_content').innerHTML = html;
+                history.replaceState({}, '', '/blogs/');
+            });
+          } {% endcomment %}
 {% endblock content %}
