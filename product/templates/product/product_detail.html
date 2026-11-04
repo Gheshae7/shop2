@@ -1246,27 +1246,6 @@
                 },
 
                 addToCart() {
-                    //if (!this.selectedColor) { console.log('farhan'); return; }
-                    //if (!this.selectedSize) { this.showToastMsg('لطفاً حافظه را انتخاب کنید', 'error', '⚠️'); return; }
-                    //const existing = this.cartItems.find(i => i.id === this.product.id && i.selectedColor === this.selectedColor && i.selectedSize === //this.selectedSize);
-                    //if (existing) {
-                        //existing.qty += this.qty;
-                    //} else {
-                        //this.cartItems.push({
-                            //cartId: Date.now(),
-                            //id: this.product.id,
-                            //name: this.product.name,
-                            //price: this.product.price,
-                            //emoji: this.product.emoji,
-                            //bgColor: this.product.bgColor,
-                            //selectedColor: this.selectedColor,
-                            //selectedSize: this.selectedSize,
-                            //qty: this.qty,
-                        //});
-                    //}
-                    //this.addedToCart = true;
-                    //this.showToastMsg('محصول به سبد خرید اضافه شد', 'cart', '🛒');
-                    //setTimeout(() => { this.addedToCart = false; }, 2500);
                     if((this.selectedColor && this.selectedSize) && this.qty ) {
                         const params = new URLSearchParams(window.location.search);
                         fetch(`{% url "order:add_order_item" %}?${params.toString()}`, {
