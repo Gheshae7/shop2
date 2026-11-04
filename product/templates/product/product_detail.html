@@ -1268,8 +1268,28 @@
                     //this.showToastMsg('محصول به سبد خرید اضافه شد', 'cart', '🛒');
                     //setTimeout(() => { this.addedToCart = false; }, 2500);
                     if((this.selectedColor && this.selectedSize) && this.qty ) {
-                        console.log(this.selectedColor, this.selectedSize, this.qty);
-                    }else {
+                        const params = new URLSearchParams(window.location.search);
+                        fetch(`{% url "order:add_order_item" %}?${params.toString()}`, {
+                        method: "POST",
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': '{{ csrf_token }}',
+                            },
+                            body: JSON.stringify({color: this.selectedColor, size: this.selectedSize, qty: this.qty, product_id: {{ product.id }}})
+                        })
+                        .then(function(response) {
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            Swal.fire({
+                            position: "top-start",
+                            icon: data.icon,
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 3500,
+                            });
+                        });
+                    } else {
                         Swal.fire({
                         position: "top-start",
                         icon: "warning",

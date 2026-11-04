@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.views import View
 from product.models import ProductVariant, AttributeValue, ProductsImages, Product
 from .models import Order, OrderItem, ShippingMethod
-from django.db.models import Prefetch, OuterRef, Subquery, F, Min, Max, Avg, Sum
+from django.db.models import Prefetch, OuterRef, Subquery, F, Min, Max, Avg, Sum, Count, Q
 
 from django.db.models.functions import Coalesce
 # Create your views here.
 from django.http import Http404, JsonResponse
+import json
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseBadRequest
@@ -42,7 +43,11 @@ class OrderView(View):
         ).first()
 
         if order is None:
-            raise Http404
+            return render(
+                request,
+                self.get_template(request),
+                context= {}
+            )
 
         shipping_method_id = request.GET.get('shipping_method')
 
@@ -108,7 +113,7 @@ class OrderView(View):
             image_path=Coalesce(
                 Subquery(variant_image),
                 Subquery(product_image),
-            )
+            ),
         ).prefetch_related(
             Prefetch(
                 'product_variant__attributes',
@@ -141,12 +146,21 @@ class OrderView(View):
         shippings = ShippingMethod.objects.filter(is_active=True)
         
         related_products = Product.objects.filter(is_active=True).select_related('category').annotate(discount=Max('variants__discount'), count_view=Sum('count_views', distinct=True), price=Min('variants__price'), rating=Avg('comments__rating', distinct=True)).order_by('-rating').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:6]
+    
+
+        total_quantity = OrderItem.objects.filter(
+            order=order,
+            is_active=True,
+        ).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
 
         context = {
             'order': order,
             'shippings': shippings,
             'related_products': related_products,
             'selected_sort_by': sort_by if sort_by else 'default',
+            'total_quantity': total_quantity,
         }
 
         return render(
@@ -154,3 +168,67 @@ class OrderView(View):
             self.get_template(request),
             context
         )
+
+
+def add_order_item(request, data, order: None):
+    product_variant = ProductVariant.objects.filter(
+    product_id=data.get('product_id'),
+            is_active=True,
+        ).annotate(
+            matched_attributes=Count(
+                'attributes',
+                filter=Q(
+                    attributes__value__in=[
+                        data.get('color'),
+                        data.get('size'),
+                    ],
+                    attributes__is_active=True,
+                ),
+                distinct=True,
+            )
+        ).filter(
+            matched_attributes=2
+        ).first()
+    if product_variant is not None:
+        quantity = data.get('qty')
+        if int(quantity) > product_variant.stock:
+            return JsonResponse({
+            'icon': 'error',
+            'message': 'تعداد انتخاب شده شما بیشتر از موجودی محصول می باشد'
+            })
+        else:
+            order_item, created = OrderItem.objects.get_or_create(is_active=True, order=order, product_variant=product_variant)
+            if created:
+                order_item.quantity = quantity
+                order_item.save()
+                return JsonResponse({
+                'icon': 'success',
+                'message': 'محصول به سبد خرید شما اضافه شد'
+                })      
+            else:
+                return JsonResponse({
+                'icon': 'info',
+                'message': 'محصول از قبل در سبد خرید شما وجود دارد'
+                })                           
+    else:                
+        return JsonResponse({
+        'icon': 'error',
+        'message': 'این ترکیب و رنگ وجود ندارد'
+        })           
+
+
+class AddOrderItem(View):
+    def post(self, request,):
+        if request.user.is_authenticated:
+            data = json.loads(request.body)
+            order, created = Order.objects.get_or_create(is_active=True, user=request.user, status='placed', is_paid=False)
+            if created:
+                order.save()          
+                return add_order_item(request=request, data=data, order=order)                            
+            else:
+                return add_order_item(request=request, data=data, order=order)                            
+        else:
+            return JsonResponse({
+                'icon': 'error',
+                'message': 'برای افزودن به سبد خرید ابتدا باید وارد حساب کاربری خود شده باشید'
+            })
