@@ -22,8 +22,7 @@ class LoginRegisterView(View):
         }
         return render(request, 'account/login_register.html', context)
     
- 
- 
+
 def get_user(email: str,) -> User:
     """This function for get user"""
     
@@ -33,8 +32,7 @@ def get_user(email: str,) -> User:
         return user
     except User.DoesNotExist:
         raise User.DoesNotExist('کاربری پیدا نشد')
- 
-    
+
     
 def login_account(request: HttpRequest) -> HttpResponseRedirect:
     """This function for logining users"""
@@ -43,7 +41,7 @@ def login_account(request: HttpRequest) -> HttpResponseRedirect:
         # if the user is logged in
         if request.user.is_authenticated:
             messages.error(request, 'لطفا از اکانت خود خارج شوید و مجدد تست کنید')
-            return redirect(reverse('account:login_register_page'))
+            return redirect(request.META.get('HTTP_REFERER') or reverse('account:login_register_page'))
         login_form: LoginForm = LoginForm(request.POST)
         if login_form.is_valid():
             try:
@@ -54,15 +52,16 @@ def login_account(request: HttpRequest) -> HttpResponseRedirect:
                     login(request, current_user)
                     messages.success(request, 'با موفقیت وارد حساب کاربری خود شده اید')
                     return redirect(reverse('home:home_page'))
+
                 else:
                     # User not found
                     messages.error(request, 'کاربری با این مشخصات یافت نشد')
-                    return redirect(reverse('account:login_register_page'))
+                    return redirect(reverse('home:home_page'))
+
             # Any error
             except User.DoesNotExist:
                 messages.error(request, 'کاربری با این مشخصات یافت نشد یا حساب کاربری غیرفعال است')
                 return redirect(reverse('account:login_register_page'))
- 
   
   
 def register_account(request: HttpRequest) -> HttpResponseRedirect:
@@ -75,7 +74,7 @@ def register_account(request: HttpRequest) -> HttpResponseRedirect:
                 # User Found so new user cannot be registered
                 currrent_user = User.objects.get(email=register_form.cleaned_data.get('email'))
                 messages.error(request, 'کاربری با این مشخصات وجود دارد')
-                return redirect(reverse('account:login_register_page'))
+                return redirect(request.META.get('HTTP_REFERER') or reverse('account:login_register_page'))
             # User not found so new user can be regestered
             except User.DoesNotExist:
                 password: str = register_form.cleaned_data.get('password')
@@ -89,16 +88,15 @@ def register_account(request: HttpRequest) -> HttpResponseRedirect:
                     # Send an email to the user to activate their account.
                     send_email.apply_async(args=['فعالسازی حساب کاربری', new_user.email, {'email_active_code': new_user.email_active_code}, 'account/emails/activate_account.html'])
                     messages.success(request, 'حساب کاربری با موفقیت ساخته شد. جهت فعالسازی حساب کاربری خود به بخش صندوق دریافت ایمیل خود مراجعه کنید')
-                    return redirect(reverse('account:login_register_page'))
+                    return redirect(request.META.get('HTTP_REFERER') or reverse('account:login_register_page'))
                 else:
                     # Password != confirm password
                     messages.error(request, 'رمز عبور و تکرار رمز عبور یکی نیستند لطفا دقت فرمایید')
-                    return redirect(reverse('account:login_register_page'))
+                    return redirect(request.META.get('HTTP_REFERER') or reverse('account:login_register_page'))
         else:
             # Any error
             messages.error(request, 'رمز عبور باید شامل حروف انگلیسی بزرگ و کوچک و عدد باشد')
-            return redirect(reverse('account:login_register_page')) 
-
+            return redirect(request.META.get('HTTP_REFERER') or reverse('account:login_register_page'))
 
 
 def activate_account(request: HttpRequest, email_active_code: str) -> HttpResponseRedirect:
@@ -117,8 +115,7 @@ def activate_account(request: HttpRequest, email_active_code: str) -> HttpRespon
     except User.DoesNotExist:
         messages.error(request ,'حساب کاربری پیدا نشد مجدد امتحان فرمایید')
         return redirect(reverse('account:login_register_page'))
-    
-    
+     
     
 def logout_account(request: HttpRequest) -> HttpResponseRedirect:
     """This function for logouting users"""
@@ -128,12 +125,11 @@ def logout_account(request: HttpRequest) -> HttpResponseRedirect:
         # logout
         logout(request)
         messages.success(request, 'با موفقیت از حساب کاربری خود خارج شدید')
-        return redirect(reverse('home:home_page')) 
+        return redirect(request.META.get('HTTP_REFERER') or reverse('home:home_page'))
     else:
         # Any error
         messages.error(request, 'شما اصلا در حساب کاربری خود نیستید که بخواهید از حساب خود خارج شوید')
-        return redirect(reverse('account:login_register_page')) 
-
+        return redirect(request.META.get('HTTP_REFERER') or reverse('home:home_page'))
 
 
 class ForgetPassword(View):
@@ -163,7 +159,6 @@ class ForgetPassword(View):
             # Any error
             messages.error(request, 'مشکلی پیش آمد مجدد تست فرمایید')
             return redirect(reverse('account:forget_password_page'))
-
 
 
 class ResetPassword(View):
@@ -210,8 +205,7 @@ class ResetPassword(View):
             messages.error(request, 'کاربر مورد نظر پیدا نشد لطفا مجدد امتحان کنید')
             return redirect(reverse('account:forget_password_page'))     
    
-   
-   
+
 class ProfileView(View):
     """This function for show user profile"""
     
