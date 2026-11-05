@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from product.models import ProductVariant, AttributeValue, ProductsImages, Product
 from .models import Order, OrderItem, ShippingMethod
-from django.db.models import Prefetch, OuterRef, Subquery, F, Min, Max, Avg, Sum, Count, Q
+from django.db.models import Prefetch, OuterRef, Subquery, F, Min, Max, Avg, Sum, Count, Q, Exists
 
 from django.db.models.functions import Coalesce
 # Create your views here.
@@ -145,7 +145,16 @@ class OrderView(View):
 
         shippings = ShippingMethod.objects.filter(is_active=True)
         
-        related_products = Product.objects.filter(is_active=True).select_related('category').annotate(discount=Max('variants__discount'), count_view=Sum('count_views', distinct=True), price=Min('variants__price'), rating=Avg('comments__rating', distinct=True)).order_by('-rating').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:6]
+        cart_items = OrderItem.objects.filter(
+            order__user=self.request.user,
+            order__is_active=True,
+            order__status='placed',
+            order__is_paid=False,
+            product_variant__product_id=OuterRef('pk'),
+            is_active=True,
+        )
+        
+        related_products = Product.objects.filter(is_active=True).select_related('category').annotate(discount=Max('variants__discount'), count_view=Sum('count_views', distinct=True), price=Min('variants__price'), rating=Avg('comments__rating', distinct=True), is_in_cart=Exists(cart_items)).order_by('-rating').prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True)))[:6]
     
 
         total_quantity = OrderItem.objects.filter(
