@@ -12,13 +12,33 @@
 
     <style>
 
-
+        /* ستون گرید دقیقاً به اندازه‌ی عرض کارت قفل می‌شه */
         .form-grid {
             display: grid;
+            grid-template-columns: minmax(0, 1fr);
         }
 
         .form-grid>div {
             grid-area: 1 / 1 / 2 / 2;
+            min-width: 0;
+        }
+
+        /* به‌جای overflow-hidden روی body: فقط اسکرول افقی بسته می‌شه، عمودی آزاد می‌مونه */
+        .auth-page {
+            overflow-x: hidden;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        @media (max-width: 640px) {
+            .auth-page {
+                padding-top: 5rem;
+                padding-bottom: 2rem;
+            }
+
+            .auth-card {
+                padding: 1.5rem;
+            }
         }
 
         /* منحنی انیمیشن فوق‌العاده نرم (Fluid Easing) */
@@ -76,7 +96,7 @@
             this.mouseY = e.clientY;
         }
       }" @mousemove.window="updateMouse"
-    class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-slate-800">
+    class="auth-page min-h-screen flex items-center justify-center p-4 relative text-slate-800">
 
     <!-- برای پیام های پاپ آپ -->
     {% if messages %}
@@ -104,8 +124,7 @@
         :style="`transform: translate(calc(${mouseX}px - 300px), calc(${mouseY}px - 300px))`"></div>
 
     <!-- دکمه بازگشت با استایل نرم -->
-
-<a href="{% url "home:home_page" %}"
+    <a href="{% url "home:home_page" %}"
         class="absolute top-6 right-6 flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors duration-500 font-medium bg-white/50 px-5 py-2.5 rounded-2xl backdrop-blur-xl border border-white/60 hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] z-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-5 h-5">
@@ -116,7 +135,7 @@
 
     <!-- کارت اصلی با افکت شیشه‌ای لایت -->
     <div
-        class="relative w-full max-w-md bg-white/60 backdrop-blur-3xl rounded-[2.5rem] border border-white/80 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] p-8 md:p-10 z-10 overflow-hidden">
+        class="auth-card relative w-full max-w-md bg-white/60 backdrop-blur-3xl rounded-[2.5rem] border border-white/80 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] p-8 md:p-10 z-10 overflow-hidden">
 
         <div class="form-grid">
 
@@ -135,10 +154,21 @@
 
                 <form class="space-y-5" name='login' method='POST' action='{% url "account:login_account" %}'>
                     {% csrf_token %}
+
                     <div class="stagger-item delay-2">
-                        <label class="block text-sm font-medium text-slate-600 mb-2 ml-1">ایمیل</label>
-                            {{ login_form.email }}
-                    </div> 
+                        <label for="{{ login_form.email.id_for_label }}" class="block text-sm font-medium text-slate-600 mb-2 ml-1">ایمیل</label>
+                        <input type="email"
+                            id="{{ login_form.email.id_for_label }}"
+                            name="{{ login_form.email.html_name }}"
+                            value="{{ login_form.email.value|default_if_none:'' }}"
+                            autocomplete="email" required
+                            class="w-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 outline-none focus:bg-white focus:border-blue-300 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] transition-all duration-500 placeholder:text-slate-400"
+                            placeholder="مثال: you@example.com">
+                        {% for error in login_form.email.errors %}
+                            <p class="text-xs text-rose-500 mt-1 ml-1">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
                     <div class="stagger-item delay-3">
                         <div class="flex items-center justify-between mb-2 ml-1">
                             <label class="block text-sm font-medium text-slate-600">رمز عبور</label>
@@ -146,7 +176,14 @@
                                 class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors duration-300">فراموش
                                 کرده‌اید؟</a>
                         </div>
-                            {{ login_form.password }}
+                        <input type="password"
+                            name="{{ login_form.password.html_name }}"
+                            autocomplete="current-password" required
+                            class="w-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 outline-none focus:bg-white focus:border-blue-300 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] transition-all duration-500 placeholder:text-slate-400"
+                            placeholder="••••••••">
+                        {% for error in login_form.password.errors %}
+                            <p class="text-xs text-rose-500 mt-1 ml-1">{{ error }}</p>
+                        {% endfor %}
                     </div>
 
                     <div class="stagger-item delay-4 pt-2">
@@ -181,16 +218,39 @@
 
                     <form class="space-y-4" name='register' method='POST' action='{% url "account:register_account" %}'>
                         {% csrf_token %}
+
                         <div class="stagger-item delay-2">
-                            {{ register_form.email }}
+                            <input type="email"
+                                name="{{ register_form.email.html_name }}"
+                                value="{{ register_form.email.value|default_if_none:'' }}"
+                                autocomplete="email" required
+                                class="w-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 outline-none focus:bg-white focus:border-purple-300 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.1)] transition-all duration-500 placeholder:text-slate-400"
+                                placeholder="ایمیل">
+                            {% for error in register_form.email.errors %}
+                                <p class="text-xs text-rose-500 mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
                         </div>
 
                         <div class="stagger-item delay-3">
-                            {{ register_form.password }}
+                            <input type="password"
+                                name="{{ register_form.password.html_name }}"
+                                autocomplete="new-password" required
+                                class="w-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 outline-none focus:bg-white focus:border-purple-300 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.1)] transition-all duration-500 placeholder:text-slate-400"
+                                placeholder="رمز عبور">
+                            {% for error in register_form.password.errors %}
+                                <p class="text-xs text-rose-500 mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
                         </div>
 
                         <div class="stagger-item delay-4">
-                            {{ register_form.confirm_password }}
+                            <input type="password"
+                                name="{{ register_form.confirm_password.html_name }}"
+                                autocomplete="new-password" required
+                                class="w-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-800 rounded-2xl px-5 py-3.5 outline-none focus:bg-white focus:border-purple-300 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.1)] transition-all duration-500 placeholder:text-slate-400"
+                                placeholder="تکرار رمز عبور">
+                            {% for error in register_form.confirm_password.errors %}
+                                <p class="text-xs text-rose-500 mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
                         </div>
 
                         <div class="stagger-item delay-5 pt-2">
