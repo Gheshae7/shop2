@@ -70,7 +70,7 @@ def header_base(request):
         ).distinct(),
         'site_setting': SiteSettings.objects.filter(
             is_active=True
-        ).values('logo', 'phone').first(),
+        ).values('logo', 'phone', 'address', 'youtube_channel', 'linkedin_channel', 'instagram_channel', 'telegram_channel').first(),
         'MEDIA_URL': settings.MEDIA_URL,
         'order': order,
     }

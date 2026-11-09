@@ -53,6 +53,7 @@ class SiteSettings(BaseModel):
     x_channel = models.CharField(max_length=75, null=True, blank=True, verbose_name='آدرس ایکس')
     about_in_footer = models.CharField(max_length=300, null=True, blank=True, verbose_name='درباره ما در فوتر')
     support_status = models.BooleanField(default=True, null=False, blank=False, verbose_name='فعال - غیر فعال بودن پشتیبانی')
+    address = models.CharField(max_length=450, default='لرستان - بروجرد', null=False, blank=False, verbose_name='آدرس')
     
     
     def __str__(self):

@@ -1,10 +1,11 @@
 {% load humanize %}
 {% load base_tags %}
   
+{% if request.user.is_authenticated %}
 {% if order %}
   <!-- Page Content -->
   {% comment %} <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8" id="#page_content"> {% endcomment %}
-    {% if request.user.is_authenticated %}
+
 
 
 
@@ -185,30 +186,8 @@
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <!-- Cart Items -->
         {% for item in order.order_items.all %}
-
-
-
-
-
-
 
           <div class="item-enter bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden card-hover"
             :class="selectedItems.includes(item.id)?'border-violet-200 bg-violet-50/20':''">
@@ -369,46 +348,7 @@
               {% endif %}
             </div>
           </div>
-
-
-
-
-
-
-
-
-
-
         {% endfor %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         <!-- Coupon Section -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
@@ -634,14 +574,14 @@
 
 
     {% else %}
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                خطا
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                <p>برای دسترسی به سبد خرید خود ابتدا باید وارد <a class='text-blue-500' href={% url "account:login_register_page" %}>حساب کابری<a/> خود شوید</p>
-            </div>
+      <div role="alert">
+        <div class="bg-blue-500 text-white font-bold rounded-t px-4 py-2">
+            نکته
         </div>
+        <div class="border border-t-0 border-blue-400 rounded-b bg-blue-100 px-4 py-3 text-blue-700">
+            <p>شما سبد خریدی ندارید</p>
+        </div>
+    </div>
     {% endif %}
 
     <!-- Related / Recommended Products -->
@@ -781,12 +721,13 @@
     </section>
   {% comment %} </div> {% endcomment %}
   {% else %}
-      <div role="alert">
-        <div class="bg-blue-500 text-white font-bold rounded-t px-4 py-2">
-            نکته
-        </div>
-        <div class="border border-t-0 border-blue-400 rounded-b bg-blue-100 px-4 py-3 text-blue-700">
-            <p>شما سبد خریدی ندارید</p>
+          <div role="alert">
+            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                خطا
+            </div>
+            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                <p>برای دسترسی به سبد خرید خود ابتدا باید وارد <a class='text-blue-500' href={% url "account:login_register_page" %}>حساب کابری<a/> خود شوید</p>
+            </div>
         </div>
     </div>
 {% endif %}

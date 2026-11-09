@@ -67,7 +67,7 @@
         x-transition:leave="transform transition ease-in duration-200"
         x-transition:leave-start="translate-y-0 opacity-100 translate-x-0"
         x-transition:leave-end="translate-y-2 opacity-0 translate-x-20"
-        class="fixed top-4 left-4 z-50 flex items-center gap-3 bg-white rounded-2xl shadow-2xl border border-gray-100 px-5 py-4 max-w-xs">
+        class="fixed top-4 left-4 z-50 flex items-center gap-3 bg-white rounded-2xl shadow-2xl border border-gray-100 px-5 py-4 max-w-xs"  style="position: relative; z-index: 0;">
         <div class="w-10 h-10 rounded-full flex items-center justify-center"
             :class="toast.type === 'cart' ? 'bg-green-100' : 'bg-pink-100'">
             <span x-text="toast.type === 'cart' ? '🛒' : '❤️'" class="text-lg"></span>
@@ -79,7 +79,7 @@
     </div>
 
     <!-- Cart Sidebar -->
-    <div x-show="cartOpen" x-cloak class="fixed inset-0 z-40 flex">
+    <div x-show="cartOpen" x-cloak class="fixed inset-0 z-40 flex"  style="position: relative; z-index: 0;">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="cartOpen = false"></div>
         <div class="relative mr-auto w-full max-w-md bg-white h-full shadow-2xl flex flex-col"
             x-transition:enter="transform transition ease-out duration-300" x-transition:enter-start="translate-x-full"
@@ -177,7 +177,7 @@
     </div>
 
     <!-- Modern Light Hero Banner -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8" dir="rtl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8" dir="rtl"  style="position: relative; z-index: 0;">
         <!-- Main Container -->
         <div
             class="relative bg-white rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 flex flex-col lg:flex-row items-center justify-between p-8 lg:p-16 gap-12 group cursor-default">
@@ -270,7 +270,7 @@
 
 
     <!-- Stats Bar - Modern Light Theme -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-6" dir="rtl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-6" dir="rtl"  style="position: relative; z-index: 0;">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
         {% for feature in features %}
@@ -292,7 +292,7 @@
 
 
     <!-- Category Chips -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8" dir="rtl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8" dir="rtl"  style="position: relative; z-index: 0;">
         <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
             <button @click="selectCategory('همه')"
                 class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300"
@@ -316,11 +316,12 @@
         </div>
     </div>
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12" dir="rtl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12" dir="rtl"  style="position: relative; z-index: 0;">
         <div class="flex flex-col lg:flex-row gap-8">
 
             <!-- Sidebar Filters -->
-            <aside class="w-full lg:w-72 flex-shrink-0 hidden lg:block">
+            <aside class="w-full lg:w-72 flex-shrink-0 lg:block"
+                :class="mobileFilterOpen ? 'block' : 'hidden'">
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sticky top-24">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-base font-bold text-slate-800">فیلتر محصولات</h3>

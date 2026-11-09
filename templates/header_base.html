@@ -3,9 +3,9 @@
 {% load base_tags %}
 
     <!-- Top Announcement Bar -->
-    <div class="bg-gradient-to-l from-[#6294ff] to-[#a662ff79] py-2 px-4" x-data="{ showBanner: true }"
+    <div class="bg-gradient-to-l from-[#6294ff] to-[#a662ff79] py-2 px-4" x-data="{ showBanner: true }"  style="position: relative; z-index: 1;"
         x-show="showBanner">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="max-w-7xl mx-auto flex items-center justify-between" >
             <div class="flex items-center gap-2 flex-1 justify-center">
                 <span class="animate-pulse">🎉</span>
                 <p class="text-white text-[11px] sm:text-[13px] font-medium">تخفیف ویژه بهار! تا <span
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <section class="px-[10px] lg:px-[20px] xl:px-0 mt-[15px] border-b-1 border-[#E7EAF0] pb-[15px] md:pb-[25px]" x-data="{ 
+    <section class="px-[10px] lg:px-[20px] xl:px-0 mt-[15px] border-b-1 border-[#E7EAF0] pb-[15px] md:pb-[25px]"  style="position: relative; z-index: 1;" x-data="{ 
             mobileMenuOpen: false, 
             searchOpen: false,
             notificationOpen: false,
@@ -711,8 +711,6 @@
                 <div class="px-5 py-6 relative overflow-hidden">
                     <!-- Background Pattern -->
                     <div class="absolute inset-0 opacity-10 flex items-center justify-center">
-
-
                         <img class="relative top-[10px] !w-[100px] " src="{% static "assets/images/logo.png" %}">
                     </div>
 
@@ -806,121 +804,197 @@
                 <div class="flex-1 px-4 py-4 space-y-1">
                     <p class="text-[11px] text-[#ACB8C4] font-medium mb-3 px-2">صفحات</p>
 
-                    <a href="./index.html"
-                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300"
-                        :class="activeNav === 'home' ? 'bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]' : 'hover:bg-[#F9FAFB] text-[#67788E]'">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                            :class="activeNav === 'home' ? 'bg-[#6294ff] text-white' : 'bg-[#F5F7FA]'">
+                    <a href="{% url "home:home_page" %}"
+                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 {% if request.resolver_match.view_name == "home:home_page" %}bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]{% else %}hover:bg-[#F9FAFB] text-[#67788E]{% endif %}">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if request.resolver_match.view_name == "home:home_page" %}bg-[#6294ff] text-white{% else %}bg-[#F5F7FA]{% endif %}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
+                                {% if request.user.resolver_math.view_name == "home:home_page" %}
+                                    <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                {% else %}
                                 <path
                                     d="M9.02 2.84L3.63 7.04C2.73 7.74 2 9.23 2 10.36V17.77C2 20.09 3.89 21.99 6.21 21.99H17.79C20.11 21.99 22 20.09 22 17.78V10.5C22 9.29 21.19 7.74 20.2 7.05L14.02 2.72C12.62 1.74 10.37 1.79 9.02 2.84Z"
                                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round" />
                                 <path d="M12 17.99V14.99" stroke="currentColor" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round" />
+                                {% endif %}
                             </svg>
                         </div>
                         <span class="text-[14px] font-medium">صفحه اصلی</span>
-                        <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
+                            {% if request.resolver_match.view_name == "home:home_page" %}
+                                <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            {% endif %}
                     </a>
 
-                    <a href="./shop.html"
-                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300"
-                        :class="activeNav === 'shop' ? 'bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]' : 'hover:bg-[#F9FAFB] text-[#67788E]'">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                            :class="activeNav === 'shop' ? 'bg-[#6294ff] text-white' : 'bg-[#F5F7FA]'">
+                    <a href="{% url "product:products_page" %}"
+                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 {% if request.resolver_match.view_name == "product:products_page" %}bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]{% else %}hover:bg-[#F9FAFB] text-[#67788E]{% endif %}">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if request.resolver_match.view_name == "product:products_page" %}bg-[#6294ff] text-white{% else %}bg-[#F5F7FA]{% endif %}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
+                                {% if request.user.resolver_math.view_name == "product:products_page" %}
+                                    <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                {% else %}
                                 <path
-                                    d="M3.01001 11.22V15.71C3.01001 20.2 4.81001 22 9.30001 22H14.69C19.18 22 20.98 20.2 20.98 15.71V11.22"
+                                    d="M9.02 2.84L3.63 7.04C2.73 7.74 2 9.23 2 10.36V17.77C2 20.09 3.89 21.99 6.21 21.99H17.79C20.11 21.99 22 20.09 22 17.78V10.5C22 9.29 21.19 7.74 20.2 7.05L14.02 2.72C12.62 1.74 10.37 1.79 9.02 2.84Z"
                                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round" />
-                                <path
-                                    d="M12 12C13.83 12 15.18 10.51 15 8.68L14.34 2H9.67L9 8.68C8.82 10.51 10.17 12 12 12Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M18.31 12C20.33 12 21.81 10.36 21.61 8.35L21.33 5.6C20.97 3 19.97 2 17.35 2H14.3L15 9.01C15.17 10.66 16.66 12 18.31 12Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M5.64 12C7.29 12 8.78 10.66 8.94 9.01L9.16 6.8L9.64001 2H6.59C3.97001 2 2.97 3 2.61 5.6L2.34 8.35C2.14 10.36 3.62 12 5.64 12Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path d="M12 17C10.33 17 9.5 17.83 9.5 19.5V22H14.5V19.5C14.5 17.83 13.67 17 12 17Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                <path d="M12 17.99V14.99" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                {% endif %}
                             </svg>
                         </div>
                         <span class="text-[14px] font-medium">فروشگاه</span>
-                        <span class="mr-auto bg-[#FF6B6B] text-white text-[10px] px-2 py-0.5 rounded-full">جدید</span>
+                            {% if request.resolver_match.view_name == "product:products_page" %}
+                                <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            {% endif %}
                     </a>
 
-                    <a href="./weblog.html" @click="activeNav = 'blog'"
-                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-[#6294ff] text-white">
+                    <a href="{% url "blog:blogs_page" %}"
+                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 {% if request.resolver_match.view_name == "blog:blogs_page" %}bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]{% else %}hover:bg-[#F9FAFB] text-[#67788E]{% endif %}">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if request.resolver_match.view_name == "blog:blogs_page" %}bg-[#6294ff] text-white{% else %}bg-[#F5F7FA]{% endif %}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                    stroke-linecap="round" stroke-linejoin="round" />
+                                {% if request.user.resolver_math.view_name == "blog:blogs_page" %}
+                                    <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                {% else %}
                                 <path
-                                    d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                    d="M9.02 2.84L3.63 7.04C2.73 7.74 2 9.23 2 10.36V17.77C2 20.09 3.89 21.99 6.21 21.99H17.79C20.11 21.99 22 20.09 22 17.78V10.5C22 9.29 21.19 7.74 20.2 7.05L14.02 2.72C12.62 1.74 10.37 1.79 9.02 2.84Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 17.99V14.99" stroke="currentColor" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round" />
+                                {% endif %}
                             </svg>
                         </div>
                         <span class="text-[14px] font-medium">وبلاگ</span>
-                        <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
+                            {% if request.resolver_match.view_name == "blog:blogs_page" %}
+                                <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            {% endif %}
                     </a>
 
-                    <a href="./about.html"
-                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300"
-                        :class="activeNav === 'about' ? 'bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]' : 'hover:bg-[#F9FAFB] text-[#67788E]'">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                            :class="activeNav === 'about' ? 'bg-[#6294ff] text-white' : 'bg-[#F5F7FA]'">
+                    <a href="{% url "blog:blogs_page" %}"
+                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 {% if request.resolver_match.view_name == "blog:blogs_page" %}bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]{% else %}hover:bg-[#F9FAFB] text-[#67788E]{% endif %}">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if request.resolver_match.view_name == "blog:blogs_page" %}bg-[#6294ff] text-white{% else %}bg-[#F5F7FA]{% endif %}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
+                                {% if request.user.resolver_math.view_name == "blog:blogs_page" %}
+                                    <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                {% else %}
                                 <path
-                                    d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                                    d="M9.02 2.84L3.63 7.04C2.73 7.74 2 9.23 2 10.36V17.77C2 20.09 3.89 21.99 6.21 21.99H17.79C20.11 21.99 22 20.09 22 17.78V10.5C22 9.29 21.19 7.74 20.2 7.05L14.02 2.72C12.62 1.74 10.37 1.79 9.02 2.84Z"
                                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round" />
-                                <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                <path d="M12 17.99V14.99" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                {% endif %}
                             </svg>
                         </div>
                         <span class="text-[14px] font-medium">درباره ما</span>
-                        <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
+                            {% if request.resolver_match.view_name == "blog:blogs_page" %}
+                                <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            {% endif %}
                     </a>
 
-                    <a href="./contact.html"
-                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300"
-                        :class="activeNav === 'contact' ? 'bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]' : 'hover:bg-[#F9FAFB] text-[#67788E]'">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                            :class="activeNav === 'contact' ? 'bg-[#6294ff] text-white' : 'bg-[#F5F7FA]'">
+                    <a href="{% url "contact:contact_us_page" %}"
+                        class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 {% if request.resolver_match.view_name == "contact:contact_us_page" %}bg-gradient-to-l from-[#f0fdf4] to-[#dcfce7] text-[#6294ff]{% else %}hover:bg-[#F9FAFB] text-[#67788E]{% endif %}">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if request.resolver_match.view_name == "contact:contact_us_page" %}bg-[#6294ff] text-white{% else %}bg-[#F5F7FA]{% endif %}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
+                                {% if request.user.resolver_math.view_name == "contact:contact_us_page" %}
+                                    <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                {% else %}
                                 <path
-                                    d="M21.97 18.33C21.97 18.69 21.89 19.06 21.72 19.42C21.55 19.78 21.33 20.12 21.04 20.44C20.55 20.98 20.01 21.37 19.4 21.62C18.8 21.87 18.15 22 17.45 22C16.43 22 15.34 21.76 14.19 21.27C13.04 20.78 11.89 20.12 10.75 19.29C9.6 18.45 8.51 17.52 7.47 16.49C6.44 15.45 5.51 14.36 4.68 13.22C3.86 12.08 3.2 10.94 2.72 9.81C2.24 8.67 2 7.58 2 6.54C2 5.86 2.12 5.21 2.36 4.61C2.6 4 2.98 3.44 3.51 2.94C4.15 2.31 4.85 2 5.59 2C5.87 2 6.15 2.06 6.4 2.18C6.66 2.3 6.89 2.48 7.07 2.74L9.39 6.01C9.57 6.26 9.7 6.49 9.79 6.71C9.88 6.92 9.93 7.13 9.93 7.32C9.93 7.56 9.86 7.8 9.72 8.03C9.59 8.26 9.4 8.5 9.16 8.74L8.4 9.53C8.29 9.64 8.24 9.77 8.24 9.93C8.24 10.01 8.25 10.08 8.27 10.16C8.3 10.24 8.33 10.3 8.35 10.36C8.53 10.69 8.84 11.12 9.28 11.64C9.73 12.16 10.21 12.69 10.73 13.22C11.27 13.75 11.79 14.24 12.32 14.69C12.84 15.13 13.27 15.43 13.61 15.61C13.66 15.63 13.72 15.66 13.79 15.69C13.87 15.72 13.95 15.73 14.04 15.73C14.21 15.73 14.34 15.67 14.45 15.56L15.21 14.81C15.46 14.56 15.7 14.37 15.93 14.25C16.16 14.11 16.39 14.04 16.64 14.04C16.83 14.04 17.03 14.08 17.25 14.17C17.47 14.26 17.7 14.39 17.95 14.56L21.26 16.91C21.52 17.09 21.7 17.3 21.81 17.55C21.91 17.8 21.97 18.05 21.97 18.33Z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" />
+                                    d="M9.02 2.84L3.63 7.04C2.73 7.74 2 9.23 2 10.36V17.77C2 20.09 3.89 21.99 6.21 21.99H17.79C20.11 21.99 22 20.09 22 17.78V10.5C22 9.29 21.19 7.74 20.2 7.05L14.02 2.72C12.62 1.74 10.37 1.79 9.02 2.84Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 17.99V14.99" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                {% endif %}
                             </svg>
                         </div>
-                        <span class="text-[14px] font-medium">تماس با ما</span>
-                        <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
+                        <span class="text-[14px] font-medium">تماس ما</span>
+                            {% if request.user.resolver_math.view_name == "contact:contact_us_page" %}
+                                <svg class="w-4 h-4 mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 mr-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+
+                            {% endif %}
                     </a>
+
                 </div>
 
                 <!-- Mobile Categories Accordion -->
@@ -962,54 +1036,16 @@
                     </button>
 
                     <div x-show="mobileCatOpen" x-collapse x-cloak class="mt-3 grid grid-cols-2 gap-2">
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#F0FDF4] hover:bg-[#DCFCE7] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#6294ff] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#166534] font-medium">لپتاپ</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#EFF6FF] hover:bg-[#DBEAFE] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#3B82F6] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#1E40AF] font-medium">موبایل</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#FEF3C7] hover:bg-[#FDE68A] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#F59E0B] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#92400E] font-medium">کودکانه</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#FFF7ED] hover:bg-[#FFEDD5] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#4681ff] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#9A3412] font-medium">لوازم تحریر</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#EEF2FF] hover:bg-[#E0E7FF] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#6366F1] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#3730A3] font-medium">ورزش ذهن</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#FCE7F3] hover:bg-[#FBCFE8] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#EC4899] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#9D174D] font-medium">آموزش آنلاین</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#F0FDFA] hover:bg-[#CCFBF1] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#14B8A6] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#115E59] font-medium">اکسسوری</span>
-                        </a>
-                        <a href="#"
-                            class="flex items-center gap-2 p-3 bg-[#FEF2F2] hover:bg-[#FEE2E2] rounded-xl transition-all duration-300 group">
-                            <span
-                                class="w-2.5 h-2.5 bg-[#EF4444] rounded-full group-hover:scale-125 transition-transform"></span>
-                            <span class="text-[12px] text-[#991B1B] font-medium">کودک و نوزاد</span>
-                        </a>
+                        {% for category in categories %}
+                            {% for sub_category in category.children_categories.all %}
+                            <a href="{% url "product:products_page" %}?category={{ sub_category.name }}"
+                                class="flex items-center gap-2 p-3 bg-[#F0FDF4] hover:bg-[#DCFCE7] rounded-xl transition-all duration-300 group">
+                                <span
+                                    class="w-2.5 h-2.5 bg-[#6294ff] rounded-full group-hover:scale-125 transition-transform"></span>
+                                <span class="text-[12px] text-[#166534] font-medium">{{ sub_category.name }}</span>
+                            </a>
+                            {% endfor %}
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -1053,7 +1089,8 @@
                             <span
                                 class="bg-[#EF4444] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">۳</span>
                         </a>
-                        <a href="#"
+
+                        <a href="{% url "order:order_page" %}"
                             class="flex items-center justify-between p-3 bg-[#F9FAFB] hover:bg-[#F3F4F6] rounded-xl transition-colors">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-[#DBEAFE] rounded-lg flex items-center justify-center">
@@ -1066,8 +1103,9 @@
                                 <span class="text-[13px] text-[#67788E]">سبد خرید</span>
                             </div>
                             <span
-                                class="bg-[#3B82F6] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">۲</span>
+                                class="bg-[#3B82F6] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">{{ order.order_items.all|length }}</span>
                         </a>
+
                         <a href="#"
                             class="flex items-center justify-between p-3 bg-[#F9FAFB] hover:bg-[#F3F4F6] rounded-xl transition-colors">
                             <div class="flex items-center gap-3">
@@ -1081,7 +1119,8 @@
                                 <span class="text-[13px] text-[#67788E]">سفارشات من</span>
                             </div>
                         </a>
-                        <a href="#"
+
+                        {% comment %} <a href="#"
                             class="flex items-center justify-between p-3 bg-[#F9FAFB] hover:bg-[#F3F4F6] rounded-xl transition-colors">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-[#F3E8FF] rounded-lg flex items-center justify-center">
@@ -1094,7 +1133,8 @@
                                 <span class="text-[13px] text-[#67788E]">کیف پول</span>
                             </div>
                             <span class="text-[11px] text-[#22C55E] font-semibold">۵۰۰,۰۰۰ تومان</span>
-                        </a>
+                        </a> {% endcomment %}
+
                     </div>
                 </div>
 
@@ -1114,7 +1154,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#ACB8C4]">پشتیبانی</p>
-                                <p class="text-[12px] text-[#181E25] font-semibold" dir="ltr">۰۲۱-۱۲۳۴۵۶۷۸</p>
+                                <p class="text-[12px] text-[#181E25] font-semibold" dir="ltr">{{ site_setting.phone }}</p>
                             </div>
                         </a>
                         <a href="#"
@@ -1130,46 +1170,50 @@
                             </div>
                             <div>
                                 <p class="text-[10px] text-[#ACB8C4]">آدرس</p>
-                                <p class="text-[12px] text-[#181E25] font-semibold">تهران، ولیعصر</p>
+                                <p class="text-[12px] text-[#181E25] font-semibold">{{ site_setting.address }}</p>
                             </div>
                         </a>
                     </div>
 
                     <!-- Social Links -->
                     <div class="flex items-center justify-center gap-3">
-                        <a href="#"
+                        <a href="{{ site_setting.instagram_channel }}" target="_blank" rel="noopener noreferrer"
                             class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300">
                             <svg class="w-5 h-5 text-[#E4405F]" fill="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                             </svg>
                         </a>
-                        <a href="#"
+
+                        <a href="{{ site_setting.telegram_channel }}" target="_blank" rel="noopener noreferrer"
                             class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300">
                             <svg class="w-5 h-5 text-[#0088cc]" fill="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
                             </svg>
                         </a>
-                        <a href="#"
+
+                        <a href="{{ site_setting.linkedin_channel }}" target="_blank" rel="noopener noreferrer"
                             class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300">
-                            <svg class="w-5 h-5 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" style="color:#0A66C2" fill="currentColor" viewBox="0 0 24 24">
                                 <path
-                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                             </svg>
                         </a>
-                        <a href="#"
+
+                        <a href="{{ site_setting.youtube_channel }}" target="_blank" rel="noopener noreferrer"
                             class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md hover:scale-110 transition-all duration-300">
                             <svg class="w-5 h-5 text-[#FF0000]" fill="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                             </svg>
                         </a>
+
                     </div>
                 </div>
 
                 <!-- Download App Banner -->
-                <div class="px-4 py-4 bg-gradient-to-l from-[#1a1a2e] to-[#16213e]">
+                {% comment %} <div class="px-4 py-4 bg-gradient-to-l from-[#1a1a2e] to-[#16213e]">
                     <div class="flex items-center gap-4">
                         <div
                             class="w-14 h-14 bg-gradient-to-br from-[#6294ff] to-[#4681ff] rounded-2xl flex items-center justify-center shadow-lg">
@@ -1190,7 +1234,7 @@
                             </svg>
                         </a>
                     </div>
-                </div>
+                </div> {% endcomment %}
             </div>
         </div>
     </section>

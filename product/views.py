@@ -22,15 +22,19 @@ on category and other criteria.
     
     def get_queryset(self):
         query = super().get_queryset()
-        cart_items = OrderItem.objects.filter(
-            order__user=self.request.user,
-            order__is_active=True,
-            order__status='placed',
-            order__is_paid=False,
-            product_variant__product_id=OuterRef('pk'),
-            is_active=True,
-        )
-        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'), count_view=Count('count_views', distinct=True), is_in_cart = Exists(cart_items))
+        if self.request.user.is_authenticated:
+            cart_items = OrderItem.objects.filter(
+                order__user=self.request.user,
+                order__is_active=True,
+                order__status='placed',
+                order__is_paid=False,
+                product_variant__product_id=OuterRef('pk'),
+                is_active=True,
+            )
+            query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'), count_view=Count('count_views', distinct=True), is_in_cart = Exists(cart_items))
+            
+        query = query.filter(is_active=True,).prefetch_related(Prefetch('images', queryset=ProductsImages.objects.filter(is_active=True, is_main=True))).select_related('category').annotate(discount=Max('variants__discount'), price=Min('variants__price'), sales_count=(Sum('variants__sales_count')), rating=Avg('comments__rating'), stock=Sum('variants__stock'), count_view=Count('count_views', distinct=True),)
+        
         
         # order
         order_by_params = self.request.GET.get('order_by')
