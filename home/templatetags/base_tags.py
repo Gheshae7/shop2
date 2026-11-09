@@ -1,6 +1,6 @@
 from django import template
 from product.models import Category
-from django.db.models import Prefetch, Subquery, OuterRef
+from django.db.models import Prefetch, Subquery, OuterRef, Count
 from site_settings.models import FooterBox, SiteSettings
 from django.conf import settings
 from django.utils import timezone
@@ -12,26 +12,9 @@ from django.db.models.functions import Coalesce
 register = template.Library()
 
 
-
-
-
-
 # This inclusion_tag is for the site header
 @register.inclusion_tag('header_base.html')
 def header_base(request):
-
-    variant_image = ProductsImages.objects.filter(
-        is_active=True,
-        variant=OuterRef('product_variant'),
-    ).order_by('-is_main', 'id').values('image')[:1]
-
-    product_image = ProductsImages.objects.filter(
-        is_active=True,
-        product=OuterRef('product_variant__product'),
-        variant__isnull=True,
-    ).order_by('-is_main', 'id').values('image')[:1]
-
-    order = None
 
     if request.user.is_authenticated:
         order = Order.objects.filter(
@@ -39,22 +22,13 @@ def header_base(request):
             user=request.user,
             status='placed',
             is_paid=False,
-        ).prefetch_related(
-            Prefetch(
-                'order_items',
-                queryset=OrderItem.objects.filter(
-                    is_active=True
-                ).select_related(
-                    'product_variant',
-                    'product_variant__product',
-                ).annotate(
-                    image_path=Coalesce(
-                        Subquery(variant_image),
-                        Subquery(product_image),
-                    )
-                ).order_by('-quantity')
-            )
         ).first()
+        totals = OrderItem.objects.filter(
+            order=order,
+            is_active=True,
+        ).aggregate(
+            items_count=Count('id'),
+        )
 
     return {
         'request': request,
@@ -72,7 +46,7 @@ def header_base(request):
             is_active=True
         ).values('logo', 'phone', 'address', 'youtube_channel', 'linkedin_channel', 'instagram_channel', 'telegram_channel').first(),
         'MEDIA_URL': settings.MEDIA_URL,
-        'order': order,
+        'total_order_item':  totals['items_count'],
     }
 
 

@@ -216,8 +216,9 @@
                     </div>
 
                     <!-- Cart Dropdown -->
-                    <div class="relative group" x-data="{ cartOpen: false }">
-                        <div @click="cartOpen = !cartOpen" @mouseenter="cartOpen = true"
+                    <div class="relative group">
+                        <a href="{% url "order:order_page" %}">
+                        <div
                             class="w-[44px] h-[44px] sm:w-[56px] sm:h-[56px] bg-[#6294ff4f] rounded-[12px] sm:rounded-[16px] flex items-center justify-center cursor-pointer relative">
 
                             <svg class="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px]" viewBox="0 0 24 24" fill="none"
@@ -236,141 +237,9 @@
                                     stroke-linejoin="round" />
                             </svg>
                             <span
-                                class="text-[10px] sm:text-[12px] text-[#FFFFFF] bg-[#4681ff] rounded-[24px] absolute -right-[3px] sm:-right-[5px] -bottom-[8px] sm:-bottom-[10px] px-[7px] sm:px-[9px] py-[1px] sm:py-[2px]">{{ order.order_items.all|length }}</span>
+                                class="text-[10px] sm:text-[12px] text-[#FFFFFF] bg-[#4681ff] rounded-[24px] absolute -right-[3px] sm:-right-[5px] -bottom-[8px] sm:-bottom-[10px] px-[7px] sm:px-[9px] py-[1px] sm:py-[2px]">{{ total_order_item }}</span>
                         </div>
-
-                        <!-- Cart Dropdown Panel -->
-                        <div @mouseleave="cartOpen = false" x-show="cartOpen"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 translate-y-2"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 translate-y-2"
-                            class="absolute left-0 mt-3 w-[320px] sm:w-[380px] bg-white rounded-[24px] shadow-[0_8px_40px_rgba(0,0,0,0.12)] z-50 overflow-hidden"
-                            @click.outside="cartOpen = false">
-
-                            <!-- Header -->
-                            <div
-                                class="bg-gradient-to-l from-[#6294ff] to-[#4681ff] px-5 py-4 flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M7.5 7.67001V6.70001C7.5 4.45001 9.31 2.24001 11.56 2.03001C14.24 1.77001 16.5 3.88001 16.5 6.51001V7.89001"
-                                            stroke="white" stroke-width="1.5" stroke-miterlimit="10"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M8.99983 22H14.9998C19.0198 22 19.7398 20.39 19.9498 18.43L20.6998 12.43C20.9698 9.99 20.2698 8 15.9998 8H7.99983C3.72983 8 3.02983 9.99 3.29983 12.43L4.04983 18.43C4.25983 20.39 4.97983 22 8.99983 22Z"
-                                            stroke="white" stroke-width="1.5" stroke-miterlimit="10"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <span class="text-white text-[15px] font-semibold">سبد خرید</span>
-                                </div>
-                                <span class="bg-white/20 text-white text-[12px] px-3 py-1 rounded-full">{{ order.order_items.all|length }} محصول</span>
-                            </div>
-
-                            <!-- Cart Items -->
-                            <div class="max-h-[280px] overflow-y-auto p-4 space-y-3 scroll-smooth cart-scroll-container "
-                                style="scrollbar-width: thin; scrollbar-color: #6294ff #F3F4F6;">
-                                <!-- Item 1 -->
-
-
-
-
-
-
-
-                            {% for item in order.order_items.all %}
-                                                                                                <div
-                                    class="flex items-center gap-3 p-3 bg-[#F9FAFB] rounded-[16px] hover:bg-[#F3F4F6] transition-colors">
-                                    <img src="{{ MEDIA_URL }}{{ item.image_path }}" alt="{{ item.product_variant.product.name }}"
-                                        class="w-[60px] h-[60px] object-cover rounded-[12px]">
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-[13px] text-[#181E25] font-medium truncate">{{ item.product_variant.product.name }}</p>
-                                        {% if item.product_variant.discount >= 1  %}
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-[12px] text-[#ACB8C4] line-through">{{ item.product_variant.price|intcomma }}</span>
-                                            <span
-                                                class="text-[10px] text-white bg-[#FA5C64] rounded-[8px] px-2 py-0.5">{{ item.product_variant.discount }}٪</span>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <span class="text-[13px] text-[#6294ff] font-semibold">{{ item.calculate_price|intcomma }} تومان</span>
-                                            <div x-data="{ count: {{ item.quantity }} }"
-                                                class="flex items-center gap-1 bg-white rounded-[8px] border border-[#E7EAF0] px-2 py-1">
-
-                                                <button @click="count > 1 && count--"
-                                                    class="text-[#ACB8C4] cursor-pointer hover:text-[#6294ff] transition-colors text-[14px]">
-                                                    −
-                                                </button>
-
-                                                <span x-text="count" class="text-[12px] text-[#181E25] w-5 text-center">
-                                                    ۱
-                                                </span>
-
-                                                <button @click="count++"
-                                                    class="text-[#ACB8C4] cursor-pointer hover:text-[#6294ff] transition-colors text-[14px]">
-                                                    +
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {% else %}
-                                        <div class="flex items-center justify-between mt-1">
-                                            <span class="text-[13px] text-[#6294ff] font-semibold">{{ item.product_variant.price|intcomma }} تومان</span>
-                                            <div x-data="{ count: 1 }"
-                                                class="flex items-center gap-1 bg-white rounded-[8px] border border-[#E7EAF0] px-2 py-1">
-
-                                                <button @click="count > 1 && count--"
-                                                    class="text-[#ACB8C4] cursor-pointer hover:text-[#6294ff] transition-colors text-[14px]">
-                                                    −
-                                                </button>
-
-                                                <span x-text="count" class="text-[12px] text-[#181E25] w-5 text-center">
-                                                    ۱
-                                                </span>
-
-                                                <button @click="count++"
-                                                    class="text-[#ACB8C4] cursor-pointer hover:text-[#6294ff] transition-colors text-[14px]">
-                                                    +
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <button
-                                        class="text-[#ACB8C4] cursor-pointer hover:text-[#6294ff] transition-colors p-1">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M21 5.98C17.67 5.65 14.32 5.48 10.98 5.48C9 5.48 7.02 5.58 5.04 5.78L3 5.98"
-                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                            <path
-                                                d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97"
-                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                            <path
-                                                d="M18.85 9.14L18.2 19.21C18.09 20.78 18 22 15.21 22H8.79C6 22 5.91 20.78 5.8 19.21L5.15 9.14"
-                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            {% endfor %}
-
-
-
-
-
-
-
-
-
-
-
-
-                            </div>
-                        </div>
+                        </a>
                     </div>
 
                         <a href={% url "account:profile_page" %}>
